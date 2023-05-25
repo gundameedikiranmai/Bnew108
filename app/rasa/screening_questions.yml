@@ -1,0 +1,22 @@
+common_questions:
+- text: What is your current work status? (Working or in between Jobs)
+- buttons:
+  - payload: US Citizen
+    title: US Citizen
+  - payload: Green Card
+    title: Green Card
+  - payload: H1B Visa
+    title: H1B Visa
+  - payload: TN permit
+    title: TN permit
+  - payload: OPT/CPT visa
+    title: OPT/CPT visa
+  text: What is your visa status?
+
+job_questions:
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Do you have any vacations planned for the summer that exceed 3 days?

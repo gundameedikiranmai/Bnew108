@@ -1,0 +1,7 @@
+.vscode/
+app/rasa/.rasa
+app/rasa/models/
+app/rasa/__pycache__/
+app/rasa/actions/__pycache__/
+app/rasa/actions/fallback/__pycache__/
+bin/
