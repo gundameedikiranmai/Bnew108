@@ -12,6 +12,28 @@ common_questions:
   - payload: OPT/CPT visa
     title: OPT/CPT visa
   text: What is your visa status?
+- buttons:
+  - payload: Immediately
+    title: Immediately
+  - payload: 1 week
+    title: 1 week
+  - payload: 2 weeks
+    title: 2 weeks
+  - payload: 3 weeks
+    title: 3 weeks
+  text: How soon can you start new position?
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Have you interviewed with {client_name} within last 6 months?
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: If offered the job, You will have to clear the background and drug test Do you anticipate any problems with that?
 
 job_questions:
 - buttons:
@@ -20,3 +42,61 @@ job_questions:
   - payload: "No"
     title: "No"
   text: Do you have any vacations planned for the summer that exceed 3 days?
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Do you have any concerns about working in a call center environment on a recorded line?
+
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Can you sit for extended periods of time with a headset on in front of a computer?
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Can you commit to a schedule without needing to change it through the duration of assignment?
+
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Do you have a family member working in the student lending call center currently?
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Have you ever worked in a call center environment?
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Have you worked in the financial service industry?
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Do you have any sales experience?
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Do you have any customer interaction experience?
