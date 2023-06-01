@@ -1,0 +1,93 @@
+version: '1.0'
+
+services:
+
+# -------------------
+# API service for LLM
+# -------------------
+  api:
+    build:
+      context: ./app/api
+    restart: always
+    container_name: chat_api
+    # env_file:
+    #   - .env
+    ports:
+      - 8888:8888
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://api:8888/health"]
+      interval: 15s
+      retries: 5
+    networks:
+      - chat-network
+    volumes:
+      - ./app/api:/app/api
+
+
+# -----------------
+# Core Rasa service
+# -----------------
+  rasa-core:
+    image: rasa/rasa:3.4.0
+    container_name: chat_rasa_core
+    # env_file:
+    #   - .env
+    volumes:
+      - ./app/rasa:/app
+
+    ports:
+      - 5005:5005
+    entrypoint: ["/bin/bash", "-c", "rasa run --enable-api --auth-token secret --debug --credentials /app/credentials.yml --endpoints /app/endpoints.yml --model /app/models/default.tar.gz"]
+    networks:
+      - chat-network
+    depends_on:
+      - mongodb
+      - rasa-actions
+
+# --------------------
+# Rasa actions service
+# --------------------
+  rasa-actions:
+    build:
+      context: ./app/rasa
+      dockerfile: ./actions/Dockerfile
+    container_name: chat_rasa_actions
+    # env_file:
+    #   - .env
+    ports:
+      - 5055:5055
+    networks:
+      - chat-network
+
+# ----------------------------
+# Container log viewer service
+# ----------------------------
+  dozzle:
+    container_name: chat_dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9999:8080
+
+  mongodb:
+    image: mongo:6-jammy
+    container_name: mongodb
+    ports:
+      - 27018:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rasa_admin
+      MONGO_INITDB_ROOT_PASSWORD: rasa_admin
+      MONGO_INITDB_DATABASE: rasadb
+    volumes:
+      - ./mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - chat-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  chat-network:
+    driver: bridge

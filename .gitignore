@@ -5,3 +5,5 @@ app/rasa/__pycache__/
 app/rasa/actions/__pycache__/
 app/rasa/actions/fallback/__pycache__/
 bin/
+mongodb_data/
+app/api/__pycache__

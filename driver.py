@@ -3,7 +3,7 @@ import uuid
 import sys
 
 
-url = "http://localhost:8000"
+url = "http://localhost:8888"
 # url = "http://localhost:6005/webhooks/nlu"
 UUID = str(uuid.uuid1())
 # EMAIL = "ssms123@wl.com"

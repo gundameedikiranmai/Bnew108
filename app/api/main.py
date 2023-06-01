@@ -8,7 +8,7 @@ import json
 
 
 ####### config #######
-RASA_WEBHOOK_HOST = os.getenv("RASA_WEBHOOK_HOST", "localhost")
+RASA_WEBHOOK_HOST = os.getenv("RASA_WEBHOOK_HOST", "rasa-core")
 RASA_WEBHOOK_PORT = os.getenv("RASA_WEBHOOK_PORT", 5005)
 RASA_WEBHOOK_URL = f"http://{RASA_WEBHOOK_HOST}:{RASA_WEBHOOK_PORT}"
 
@@ -18,6 +18,13 @@ class WebhookRequest(BaseModel):
     message: str
 
 app = FastAPI()
+
+# ---------------------
+# Health check endpoint
+# ---------------------
+@app.get("/health", include_in_schema=False)
+def health_check():
+    return {'status': 'ok'}
 
 
 @app.get("/")
