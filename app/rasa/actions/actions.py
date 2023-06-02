@@ -50,7 +50,8 @@ class AskForVegetarianAction(Action):
         history = tracker.get_slot("screening_question_history")
         n_history = len(history)
         if n_history < n_questions:
-            dispatcher.utter_message(json_message=questions[n_history])
+            # logger.debug(f"displaying question: questions[n_history]")
+            dispatcher.utter_message(**questions[n_history])
         else:
             dispatcher.utter_message(text="Error.... all questions have been answered...")
         return []

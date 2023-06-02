@@ -2,8 +2,10 @@ import requests
 import uuid
 import sys
 
-
-url = "http://localhost:8888"
+# Localhost
+# url = "http://localhost:8888"
+# SERVER
+url = "http://52.40.250.118:8888"
 # url = "http://localhost:6005/webhooks/nlu"
 UUID = str(uuid.uuid1())
 # EMAIL = "ssms123@wl.com"
