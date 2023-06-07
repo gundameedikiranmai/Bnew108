@@ -42,6 +42,9 @@ job_questions:
   - payload: "No"
     title: "No"
   text: Do you have any vacations planned for the summer that exceed 3 days?
+  # validations:
+  #   correct_answer: "Yes"
+  #   next_step: 2
 
 - buttons:
   - payload: "Yes"

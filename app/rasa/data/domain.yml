@@ -34,6 +34,8 @@ slots:
 responses:
   utter_greet:
   - text: Hey! How are you?
+  utter_screening_start:
+  - text: Please answer the following questions.
   utter_submit:
   - text: Your responses have been submitted.
 actions:

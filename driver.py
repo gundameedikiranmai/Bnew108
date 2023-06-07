@@ -1,14 +1,14 @@
 import requests
 import uuid
 import sys
+import json
 
 # Localhost
-# url = "http://localhost:8888"
+url = "http://localhost:8000"
 # SERVER
-url = "http://52.40.250.118:8888"
+# url = "http://52.40.250.118:8888"
 # url = "http://localhost:6005/webhooks/nlu"
 UUID = str(uuid.uuid1())
-# EMAIL = "ssms123@wl.com"
 
 def send_to_rasa(msg):
     payload = {
@@ -20,6 +20,7 @@ def send_to_rasa(msg):
     headers = {
         "Content-Type": "application/json"
     }
+    print(json.dumps(payload, indent=4))
 
     resp = requests.post(url + "/webhooks/rest/webhook", json=payload, headers=headers)
     # print("Bot responded:")

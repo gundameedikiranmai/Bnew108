@@ -1,0 +1,25 @@
+# General
+TIMEZONE = "US/Eastern"
+SECRET_KEY = ""
+ENVIRONMENT = "development"
+FLASK_DOMAIN = "localhost"
+FLASK_PORT = 6005
+FRONTEND_DOMAIN = "http://localhost:5000"
+FRONTEND_DOMAIN_UI = [
+    "http://localhost",
+    "http://localhost:8080",
+    "http://localhost:3000",
+]
+HTTP_HTTPS = "http://"
+
+# Database
+MONGO_HOSTNAME = "localhost"
+MONGO_PORT = 27017
+MONGO_AUTH_DATABASE = "rasadb"
+MONGO_AUTH_USERNAME = "rasa"
+MONGO_AUTH_PASSWORD = "rasa"
+MONGO_APP_DATABASE = "rasadb"
+
+[RASA_WEBHOOK]
+URL = "http://localhost:5005"
+TOKEN = "secret"

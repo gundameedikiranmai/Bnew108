@@ -37,6 +37,7 @@ class ValidateJobScreeningForm(FormValidationAction):
         else:
             result_dict["screening_question"] = slot_value
             dispatcher.utter_message(response="utter_submit")
+            dispatcher.utter_message(json_message={"screening_start": False})
         return result_dict
 
 
@@ -49,8 +50,13 @@ class AskForVegetarianAction(Action):
     ) -> List[EventType]:
         history = tracker.get_slot("screening_question_history")
         n_history = len(history)
+        if n_history == 0:
+            dispatcher.utter_message(json_message={"screening_start": True})
         if n_history < n_questions:
-            # logger.debug(f"displaying question: questions[n_history]")
+            # if n_history > 0 and questions[n_history - 1].get("validations") is not None:
+            #     validation_info = questions[n_history - 1].get("validations")
+            #     if history[n_history - 1] == validation_info["correct_answer"]:
+            # logger.info(f"displaying question: {questions[n_history]}")
             dispatcher.utter_message(**questions[n_history])
         else:
             dispatcher.utter_message(text="Error.... all questions have been answered...")

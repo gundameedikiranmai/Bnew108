@@ -10,6 +10,7 @@ rules:
 - rule: Activate job_screening
   steps:
   - intent: job_screening
+  - action: utter_screening_start
   - action: job_screening_form
   - active_loop: job_screening_form
 
