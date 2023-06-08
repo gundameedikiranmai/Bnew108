@@ -5,6 +5,8 @@ import json
 
 # Localhost
 url = "http://localhost:8000"
+# Localhost docker
+url = "http://localhost:8888"
 # SERVER
 # url = "http://52.40.250.118:8888"
 # url = "http://localhost:6005/webhooks/nlu"

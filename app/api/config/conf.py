@@ -44,12 +44,10 @@ def get_app_settings():
     logger.info('origins: %s', origins)
     os.environ["TZ"] = config_data.get("TIMEZONE")
 
-    mongo = MongoClient(config_data.get("MONGO_HOSTNAME"))
-    mongo[config_data.get("MONGO_AUTH_DATABASE")].authenticate(
-        config_data.get("MONGO_AUTH_USERNAME"), config_data.get("MONGO_AUTH_PASSWORD"))
+    uri = f'mongodb://{config_data.get("MONGO_AUTH_USERNAME")}:{config_data.get("MONGO_AUTH_PASSWORD")}@{config_data.get("MONGO_HOSTNAME")}/default_db?authSource={config_data.get("MONGO_AUTH_DATABASE")}'
+    mongo = client = MongoClient(uri)
     db = mongo[config_data.get("MONGO_APP_DATABASE")]
 
     return config(logger=logger,origins=origins,db=db, **config_data)
-    # return config(logger=logger,origins=origins, **config_data)
 
 settings = get_app_settings()

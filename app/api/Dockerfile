@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose the port
 EXPOSE 8888
 
-ENTRYPOINT ["uvicorn", "main:app", "--host", "api", "--port", "8888", "--reload"]
+ENTRYPOINT ["uvicorn", "main:app", "--host", "api", "--port", "8888", "--reload", "--log-config", "config/logging.yml"]
