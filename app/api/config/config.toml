@@ -9,7 +9,8 @@ FRONTEND_DOMAIN_UI = [
     "http://localhost",
     "http://localhost:8080",
     "http://localhost:3000",
-    "http://52.34.40.39:8900/chatbot"
+    "http://52.34.40.39:8900/chatbot",
+    "http://52.34.40.39:8900"
 ]
 HTTP_HTTPS = "http://"
 
