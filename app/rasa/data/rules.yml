@@ -22,7 +22,6 @@ rules:
   - active_loop: null
   - slot_was_set:
     - requested_slot: null
-  - action: utter_submit
 
 - rule: Interruption in job_screening
   condition:
