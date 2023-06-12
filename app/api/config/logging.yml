@@ -17,6 +17,5 @@ handlers:
         formatter: simple
  
 root:
-
     level: INFO
     handlers: [console]

@@ -8,3 +8,6 @@ bin/
 mongodb_data/
 app/api/__pycache__
 app/api/config/__pycache__/
+app/api/controllers/__pycache__/
+
+app/rasa/graph.html

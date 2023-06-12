@@ -28,7 +28,7 @@ def get_app_settings():
 
     with open("config/logging.yml", 'rt',encoding='utf-8') as f:
         log_config = yaml.safe_load(f.read())
-        log_config['formatters']['simple']['format'] = log_config['formatters']['simple']['format'].replace("{LOG_PREFIX}",str(os.environ.get('LOG_PREFIX','WL')))
+        log_config['formatters']['simple']['format'] = log_config['formatters']['simple']['format'].replace("{LOG_PREFIX}",str(os.environ.get('LOG_PREFIX','API')))
         logging.config.dictConfig(log_config)
         logger = logging.getLogger(__name__)
         logger.info("Configured the logger!")

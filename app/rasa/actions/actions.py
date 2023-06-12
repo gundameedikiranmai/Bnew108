@@ -38,10 +38,11 @@ class ValidateJobScreeningForm(FormValidationAction):
             result_dict["screening_question"] = slot_value
             dispatcher.utter_message(response="utter_submit")
             dispatcher.utter_message(json_message={"screening_start": False})
+            print(history)
         return result_dict
 
 
-class AskForVegetarianAction(Action):
+class AskScreeningQuestionAction(Action):
     def name(self) -> Text:
         return "action_ask_screening_question"
 
@@ -57,7 +58,27 @@ class AskForVegetarianAction(Action):
             #     validation_info = questions[n_history - 1].get("validations")
             #     if history[n_history - 1] == validation_info["correct_answer"]:
             # logger.info(f"displaying question: {questions[n_history]}")
-            dispatcher.utter_message(**questions[n_history])
+            logger.info(f"rendering: {questions[n_history]}")
+            
+            # if a question has some metadata, send all of it as a json message to avoid sending multiple messages.
+            if questions[n_history].get("metadata"):
+                dispatcher.utter_message(json_message=questions[n_history])
+            else:
+                dispatcher.utter_message(**questions[n_history])
+            # dispatcher.utter_message(text=questions[n_history].get("text"), buttons=questions[n_history].get("buttons"), json_message=questions[n_history].get("custom"))
         else:
             dispatcher.utter_message(text="Error.... all questions have been answered...")
         return []
+
+
+class JobScreeningFormSubmit(Action):
+
+    def name(self) -> Text:
+        return "job_screening_form_submit"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
+        """Define what the form has to do after all required slots are filled"""
+        result = []
+        dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
+
+        return result

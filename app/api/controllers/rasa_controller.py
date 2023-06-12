@@ -59,11 +59,16 @@ def parse_response(text, user_data):
             # match with buttons only when screening is in place
             if chat_session.get("screening_start", False):
                 buttons_present = False
-                for d in last_message:
-                    print("here.............")
-                    if "buttons" in d and len(d["buttons"]) > 0:
+                for msg in last_message:
+                    # check if button validation is enabled:
+                    if msg.get("custom", {}).get("button_validation") is True:
+                        intent_conf, intent_name, _ = utils.nlu(text)
+                        if intent_conf > settings.NLU_THRESHOLD:
+                            settings.logger.debug(f"Found nlu intent {intent_name}")
+                            text = f"/{intent_name}"
+                    if "buttons" in msg and len(msg["buttons"]) > 0:
                         buttons_present = True
-                        for button in d["buttons"]:
+                        for button in msg["buttons"]:
                             if str(button["title"]).lower().strip() == text.lower().strip():
                                 settings.logger.debug(button)
                                 return True, '/input_screening_response{"screening_response": "' + button["payload"] + '"}'
@@ -105,13 +110,13 @@ def rasa_webhook(rasa_data: RasaWebhook):
             data["message"] = parsed_msg
             settings.logger.debug(data)
         else:
-            err_msg = ["Your response was invalid: " + parsed_msg]
-            return utils.JsonResponse({"error": "could not process the input provided by user"}, 500)
+            err_msg = [{"text": "Error: " + parsed_msg}]
+            return utils.JsonResponse(err_msg, 200)
     
     rasa_core_url = settings.RASA_WEBHOOK["URL"] + "/webhooks/rest/webhook"
 
     response = requests.post(rasa_core_url, json=data, headers=headers)
-    print(f'[🤖 API webhook]\nPosting data: {data}\n\n')
+    settings.logger.info(f'[🤖 API webhook]\nPosting data: {data}\n\n')
 
     if response.status_code == 200:
         rasa_data = response.json()
@@ -122,17 +127,40 @@ def rasa_webhook(rasa_data: RasaWebhook):
             session.set_last_message(user_data,rasa_data,"uuid")
         else:
             session.set_last_message(user_data, None, "uuid")
+        rasa_data = transform_rasa_response(rasa_data)
         return utils.JsonResponse(rasa_data, 200)
     else:
         settings.logger.error("error: " + response.text)
         return utils.JsonResponse({"error": "could not get response from rasa"}, 500)
 
 
+def transform_rasa_response(rasa_data):
+    rasa_data_return = []
+    for msg in rasa_data:
+        if msg.get("custom") is not None:
+            msg_custom = msg.get("custom")
+            if msg_custom.get("is_custom_display") is False:
+                msg.pop("custom")
+            if msg_custom.get("button_validation") is True:
+                msg.pop("buttons")
+        rasa_data_return.append(msg)
+    return rasa_data_return
+        
+
 def remove_state_messages(rasa_data, user_data):
     rasa_data_return = []
     for msg in rasa_data:
         if msg.get("custom", {}).get("screening_start") is not None:
             user_data["screening_start"] = msg.get("custom", {}).get("screening_start")
+        # if message has custom but it's not meant for displaying on UI, extract text and button at the top level.
+        elif msg.get("custom", {}).get("metadata", {}).get("is_custom_display") is False:
+            msg_to_add = {
+                "recipient_id": msg["recipient_id"],
+                "text": msg.get("custom", {}).get("text", ""),
+                "buttons": msg.get("custom", {}).get("buttons", []),
+                "custom": msg.get("custom", {}).get("metadata")
+            }
+            rasa_data_return.append(msg_to_add)
         else:
             rasa_data_return.append(msg)
     return rasa_data_return, user_data

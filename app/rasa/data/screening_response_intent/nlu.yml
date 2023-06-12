@@ -1,0 +1,38 @@
+version: "3.1"
+nlu:
+- intent: screening_response_work_status_employed
+  examples: |
+    - employed
+    - occupied
+    - engaged
+    - busy
+    - on the job
+    - working diligently
+    - productive
+    - laboring
+    - putting in hours
+    - performing job duties
+    - holding a position
+    - being productive
+    - carrying out tasks
+    - working actively
+    - fulfilling work responsibilities
+
+
+- intent: screening_response_work_status_unemployed
+  examples: |
+    - unemployed
+    - jobless
+    - seeking new opportunities
+    - between projects
+    - taking a break
+    - on a career hiatus
+    - in transition
+    - not currently engaged in work
+    - between jobs
+    - in a career transition phase
+    - seeking new employment
+    - taking time off
+    - in a professional sabbatical
+    - in a period of career exploration
+    - currently not involved in any work commitments

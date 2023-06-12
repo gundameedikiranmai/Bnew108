@@ -1,5 +1,13 @@
 common_questions:
-- text: What is your current work status? (Working or in between Jobs)
+- buttons:
+  - payload: Employed 
+    title: /screening_response_work_status_employed
+  - payload: Unemployed
+    title: /screening_response_work_status_unemployed
+  text: What is your current work status? (Working or in between Jobs)
+  metadata:
+    is_custom_display: false
+    button_validation: true
 - buttons:
   - payload: US Citizen
     title: US Citizen
