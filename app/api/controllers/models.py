@@ -95,6 +95,19 @@ class ChatSession(object):
                 if saved_message_encoded == message_encoded:
                     return True
         return False
+    
+    def get_tracker_object(self, sender_id):
+        settings.logger.info("fetching conversation for sender_id = " + sender_id)
+        document_list = list(settings.db[self.conversations_collection_name].find({"sender_id": sender_id}).sort("latest_event_time", -1))
+        if len(document_list) > 0:
+            # get for latest session
+            last_session_tracker = document_list[0]
+            settings.logger.info(f"getting tracker object for sender_id = {last_session_tracker['sender_id']}")
+            return last_session_tracker
+        else:
+            settings.logger.info(f"unable to get tracker object for sender_id = {sender_id}")
+            return None
+        
 
 
 

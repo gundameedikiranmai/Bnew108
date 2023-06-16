@@ -79,6 +79,6 @@ class JobScreeningFormSubmit(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
         """Define what the form has to do after all required slots are filled"""
         result = []
-        dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
+        # dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
 
         return result

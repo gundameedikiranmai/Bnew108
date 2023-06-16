@@ -13,7 +13,8 @@ app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.origins.get('origins'),
+    allow_origins="*",
+    # allow_origins=settings.origins.get('origins'),
     allow_origin_regex=r"/*",
     allow_credentials=True,
     allow_methods=["*"],
