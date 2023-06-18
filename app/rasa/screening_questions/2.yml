@@ -1,0 +1,47 @@
+common_questions:
+- buttons:
+  - payload: Employed 
+    title: /screening_response_work_status_employed
+  - payload: Unemployed
+    title: /screening_response_work_status_unemployed
+  text: What is your current work status? (Working or in between Jobs)
+  metadata:
+    is_custom_display: false
+    button_validation: true
+- buttons:
+  - payload: US Citizen
+    title: US Citizen
+  - payload: Green Card
+    title: Green Card
+  - payload: H1B Visa
+    title: H1B Visa
+  - payload: TN permit
+    title: TN permit
+  - payload: OPT/CPT visa
+    title: OPT/CPT visa
+  text: What is your visa status?
+
+job_questions:
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Do you have any vacations planned for the summer that exceed 3 days?
+  # validations:
+  #   correct_answer: "Yes"
+  #   next_step: 2
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Do you have any concerns about working in a call center environment on a recorded line?
+
+- buttons:
+  - payload: "Yes"
+    title: "Yes"
+  - payload: "No"
+    title: "No"
+  text: Do you have any customer interaction experience?

@@ -16,7 +16,9 @@ def send_to_rasa(msg):
     payload = {
         "sender": UUID,
         "message": msg,
-        # "metadata": {},
+        "metadata": {
+            "job_id": "2"
+        },
     }
 
     headers = {
@@ -30,6 +32,8 @@ def send_to_rasa(msg):
         print("Bot:", msg, "\n")
 
     return resp
+
+send_to_rasa("/job_screening")
 
 while True:
     print("\nplease enter your message:")
