@@ -1,0 +1,32 @@
+version: "3.1"
+
+rules:
+
+- rule: Activate ask_a_question
+  steps:
+  - intent: ask_a_question
+  - action: utter_start_ask_a_question
+  - action: ask_a_question_form
+  - active_loop: ask_a_question_form
+
+- rule: Submit ask_a_question
+  condition:
+  - active_loop: ask_a_question_form
+  steps:
+  - action: ask_a_question_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: ask_a_question_form_submit
+
+- rule: Interruption in ask_a_question
+  condition:
+  # Condition that form is active.
+  - active_loop: ask_a_question_form
+  steps:
+  # This unhappy path handles closing the form when the user want's to explore jobs
+  - intent: explore_jobs
+  - action: action_deactivate_loop
+  - active_loop: null
+  - action: utter_explore_jobs_interrupt
+  - action: utter_greet

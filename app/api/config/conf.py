@@ -45,7 +45,7 @@ def get_app_settings():
     os.environ["TZ"] = config_data.get("TIMEZONE")
 
     uri = f'mongodb://{config_data.get("MONGO_AUTH_USERNAME")}:{config_data.get("MONGO_AUTH_PASSWORD")}@{config_data.get("MONGO_HOSTNAME")}/default_db?authSource={config_data.get("MONGO_AUTH_DATABASE")}'
-    mongo = client = MongoClient(uri)
+    mongo = MongoClient(uri)
     db = mongo[config_data.get("MONGO_APP_DATABASE")]
 
     return config(logger=logger,origins=origins,db=db, **config_data)

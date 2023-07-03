@@ -6,7 +6,7 @@ import re
 import copy
 import json
 import requests
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from config.conf import settings
 import controllers.utils as utils
 from controllers.models import session

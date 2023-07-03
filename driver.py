@@ -6,7 +6,7 @@ import json
 # Localhost
 url = "http://localhost:8000"
 # Localhost docker
-url = "http://localhost:8888"
+# url = "http://localhost:8888"
 # SERVER
 # url = "http://52.40.250.118:8888"
 # url = "http://localhost:6005/webhooks/nlu"
@@ -33,7 +33,7 @@ def send_to_rasa(msg):
 
     return resp
 
-send_to_rasa("/job_screening")
+send_to_rasa("/greet")
 
 while True:
     print("\nplease enter your message:")

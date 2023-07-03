@@ -4,9 +4,10 @@ session_config:
   carry_over_slots_to_new_session: true
 intents:
 - bot_challenge
+- greet
+- explore_jobs
 - job_screening
 - input_screening_response
-- greet
 - affirm
 - deny
 entities:
@@ -36,18 +37,11 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
-responses:
-  utter_greet:
-  - text: Hey! How are you?
-  utter_screening_start:
-  - text: Please answer the following questions.
-  utter_submit:
-  - text: Your responses have been submitted.
 actions:
 - action_core_default
 - utter_iamabot
-- action_ask_screening_question
 - utter_greet
-- utter_submit
+- utter_screening_start
+- action_ask_screening_question
 - validate_job_screening_form
 - job_screening_form_submit

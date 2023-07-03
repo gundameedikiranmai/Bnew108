@@ -12,7 +12,7 @@ import actions.utils as utils
 logger = getLogger(__name__)
 
 def load_screening_questions():
-    dir_path = os.path.join("screening_questions")
+    dir_path = os.path.join("chatbot_data", "screening_questions")
     question_dict = {}
     n_questions = {}
     for file in os.listdir(dir_path):

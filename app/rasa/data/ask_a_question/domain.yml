@@ -1,0 +1,35 @@
+version: '3.1'
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
+intents:
+- ask_a_question
+- input_user_question
+entities:
+- user_question
+forms:
+  ask_a_question_form:
+    required_slots:
+    - user_question
+slots:
+  user_question:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_user_question
+      entity: user_question
+      conditions:
+      - active_loop: ask_a_question_form
+        requested_slot: user_question
+  faq_suggestion_context:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+actions:
+- validate_ask_a_question_form
+- ask_a_question_form_submit
+- action_ask_user_question
+- utter_start_ask_a_question
+- utter_explore_jobs_interrupt

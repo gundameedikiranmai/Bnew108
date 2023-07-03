@@ -1,0 +1,23 @@
+responses:
+  utter_greet:
+  - buttons:
+    - payload: /explore_jobs
+      title: 'Explore Jobs'
+    - payload: /ask_a_question
+      title: 'Ask a question'
+    text: Hi! How can we be at your side today?
+  # job screening
+  utter_screening_start:
+  - text: Please answer the following questions.
+  utter_submit:
+  - text: Your responses have been submitted.
+  # ask_a_question
+  utter_start_ask_a_question:
+  - text: OK! Here are a few popular questions to help you get started.
+  utter_suggest_more_questions:
+  - text: Here are a few questions that might be relevant for you
+  # explore jobs
+  utter_explore_jobs:
+  - text: Here are some jobs for you
+  utter_explore_jobs_interrupt:
+  - text: Sure, I can show you jobs.
