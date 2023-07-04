@@ -32,4 +32,3 @@ actions:
 - ask_a_question_form_submit
 - action_ask_user_question
 - utter_start_ask_a_question
-- utter_explore_jobs_interrupt

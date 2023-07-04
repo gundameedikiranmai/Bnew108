@@ -1,0 +1,98 @@
+version: '3.1'
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
+intents:
+- explore_jobs
+- input_job_title
+- input_job_location
+- input_select_job
+entities:
+- job_title
+- job_location
+- select_job
+forms:
+  explore_jobs_form:
+    required_slots:
+    - is_resume_upload
+    - resume_upload
+    - job_title
+    - job_location
+    - select_job
+slots:
+  is_resume_upload:
+    type: bool
+    influence_conversation: false
+    mappings:
+    - type: from_intent
+      value: true
+      intent: affirm
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: is_resume_upload
+    - type: from_intent
+      value: false
+      intent: deny
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: is_resume_upload
+  resume_upload:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_intent
+      value: "yes"
+      intent: continue
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: resume_upload
+    - type: from_intent
+      value: "false"
+      intent: deny
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: resume_upload
+  job_title:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_job_title
+      entity: job_title
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: job_title
+  job_location:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_job_location
+      entity: job_location
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: job_location
+  select_job:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_select_job
+      entity: select_job
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: select_job
+  faq_suggestion_context:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+actions:
+- validate_explore_jobs_form
+- explore_jobs_form_submit
+- utter_start_explore_jobs
+# form slots
+- utter_ask_is_resume_upload
+- action_ask_job_title
+- action_ask_job_location
+- action_ask_select_job

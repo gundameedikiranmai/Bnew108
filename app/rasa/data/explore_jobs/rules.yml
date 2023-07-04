@@ -1,0 +1,31 @@
+version: "3.1"
+
+rules:
+
+- rule: Activate explore_jobs
+  steps:
+  - intent: explore_jobs
+  - action: utter_start_explore_jobs
+  - action: explore_jobs_form
+  - active_loop: explore_jobs_form
+
+- rule: Submit explore_jobs
+  condition:
+  - active_loop: explore_jobs_form
+  steps:
+  - action: explore_jobs_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: explore_jobs_form_submit
+
+# - rule: Interruption in explore_jobs
+#   condition:
+#   # Condition that form is active.
+#   - active_loop: explore_jobs_form
+#   steps:
+#   # This unhappy path handles closing the form when the user want's to explore jobs
+#   - intent: explore_jobs
+#   - action: action_deactivate_loop
+#   - active_loop: null
+#   - action: utter_greet

@@ -28,5 +28,4 @@ rules:
   - intent: explore_jobs
   - action: action_deactivate_loop
   - active_loop: null
-  - action: utter_explore_jobs_interrupt
   - action: utter_greet

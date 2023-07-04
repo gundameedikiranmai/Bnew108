@@ -17,7 +17,16 @@ responses:
   utter_suggest_more_questions:
   - text: Here are a few questions that might be relevant for you
   # explore jobs
-  utter_explore_jobs:
-  - text: Here are some jobs for you
-  utter_explore_jobs_interrupt:
-  - text: Sure, I can show you jobs.
+  utter_start_explore_jobs:
+  - text: "We want to personalize your job recommendations.\n\nTo find you the right job, we need to know more about your background and interests."
+  utter_ask_is_resume_upload:
+  - buttons:
+    - payload: /affirm
+      title: 'Upload Resume'
+    - payload: /deny
+      title: 'Answer Questions'
+    text: Would you like to upload your resume or answer questions?
+  utter_ask_job_title:
+  - text: "Great!\n\nNext question. What's your preferred job title? We'll try finding similar jobs."
+  utter_ask_job_location:
+  - text: "Perfect|\n\nWhere do you want to work? This can be your current location or a different preferred locations."

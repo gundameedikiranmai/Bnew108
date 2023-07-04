@@ -5,7 +5,6 @@ session_config:
 intents:
 - bot_challenge
 - greet
-- explore_jobs
 - job_screening
 - input_screening_response
 - affirm
