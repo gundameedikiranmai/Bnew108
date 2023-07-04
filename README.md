@@ -10,6 +10,6 @@ Install conda env via the environment.yml file. It uses python 3.10.6 and rasa 3
 ### Documentation
 See detailed documentation in docs directory.
 
-- [UI Integration](/docs/integration)
-- [Job screening](/docs/job_screening)
-- [Ask a Question and explore jobs](/docs/greet)
+- [UI Integration](/docs/integration.md)
+- [Job screening](/docs/job_screening.md)
+- [Ask a Question and explore jobs](/docs/greet.md)
