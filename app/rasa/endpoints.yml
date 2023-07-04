@@ -13,6 +13,9 @@
 action_endpoint:
   url: "http://rasa-actions:5055/webhook"
 
+nlg:
+  url: http://api:8888/nlg/
+
 # Tracker store which is used to store the conversations.
 # By default the conversations are stored in memory.
 # https://rasa.com/docs/rasa/tracker-stores

@@ -67,6 +67,13 @@ class AskJobTitleAction(Action):
     ) -> List[EventType]:
         result = []
         dispatcher.utter_message(response="utter_ask_job_title")
+        utt = {
+            "ui_component": "job_title",
+            "titles": ["client", "software developer"],
+            "intent": "input_job_title",
+            "entity": "job_title"
+        }
+        dispatcher.utter_message(json_message=utt)
         return result
 
 class AskJobLocationAction(Action):
@@ -78,6 +85,12 @@ class AskJobLocationAction(Action):
     ) -> List[EventType]:
         result = []
         dispatcher.utter_message(response="utter_ask_job_location")
+        utt = {
+            "ui_component": "job_location",
+            "intent": "input_job_location",
+            "entity": "job_location"
+        }
+        dispatcher.utter_message(json_message=utt)
         return result
 
 class AskSelectJobAction(Action):
