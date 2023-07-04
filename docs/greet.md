@@ -167,10 +167,10 @@ Bot will respond by asking job title and location. Both questions require a cust
 
 After answering title and location, the bot will query job search api (https://sequence.accuick.com/Sequence/searchjobs) to fetch matching jobs and display.
 
-**UI component**
-The UI component will be selected if a "ui_component" key is present in the custom field for a given message.
+**UI component**: The UI component will be selected if a "ui_component" key is present in the custom field for a given message.
 
-- Job title: A dropdown list using the values in the "titles" key has to be displayed. The responses have to be sent in the format - '/intent{"entity": "selected_value"}'. The intent and entity values are to be read from the input message.
+##### Job title
+A dropdown list using the values in the "titles" key has to be displayed. The responses have to be sent in the format - '/intent{"entity": "selected_value"}'. The intent and entity values are to be read from the input message.
 
 example:
 ```
@@ -181,7 +181,8 @@ example:
 }
 ```
 
-- Job location: The ui should implement a location component, using some publicly available libraries and send the data back to the chatbot. For the time being, the following message can be sent to proceed without having a location UI component.
+##### Job location
+The ui should implement a location component, using some publicly available libraries and send the data back to the chatbot. For the time being, the following message can be sent to proceed without having a location UI component.
 
 ```
 {
@@ -191,7 +192,8 @@ example:
 }
 ```
 
-- Display jobs: The ui has to show a carousel displaying the jobs as cards. When user clicks "I'm intertested", the payload jobid should be sent as a message to chatbot, using the intent and entity values in the bot message.
+##### Display jobs
+The ui has to show a carousel displaying the jobs as cards. When user clicks "I'm intertested", the payload jobid should be sent as a message to chatbot, using the intent and entity values in the bot message.
 
 Bot message:
 ```
