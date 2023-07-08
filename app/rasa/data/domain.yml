@@ -5,32 +5,15 @@ session_config:
 intents:
 - bot_challenge
 - greet
-- job_screening
-- input_screening_response
 - affirm
 - deny
-entities:
-- screening_response
-forms:
-  job_screening_form:
-    required_slots:
-    - screening_question
+# entities:
+# - screening_response
+# forms:
+#   job_screening_form:
+#     required_slots:
+#     - screening_question
 slots:
-  screening_question:
-    type: text
-    influence_conversation: false
-    mappings:
-    - type: from_entity
-      intent: input_screening_response
-      entity: screening_response
-      conditions:
-      - active_loop: job_screening_form
-        requested_slot: screening_question
-  screening_question_history:
-    type: any
-    initial_value: []
-    mappings:
-    - type: custom
   job_id:
     type: text
     influence_conversation: false
@@ -40,7 +23,3 @@ actions:
 - action_core_default
 - utter_iamabot
 - utter_greet
-- utter_screening_start
-- action_ask_screening_question
-- validate_job_screening_form
-- job_screening_form_submit

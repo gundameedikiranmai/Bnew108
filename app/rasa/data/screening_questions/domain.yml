@@ -1,0 +1,42 @@
+version: '3.1'
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
+intents:
+- job_screening
+- input_screening_response
+entities:
+- screening_response
+forms:
+  job_screening_form:
+    required_slots:
+    - screening_question
+slots:
+  screening_question:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_screening_response
+      entity: screening_response
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: screening_question
+  screening_question_history:
+    type: any
+    # initial_value: []
+    mappings:
+    - type: custom
+  job_screening_questions:
+    type: any
+    mappings:
+    - type: custom
+  job_screening_questions_count:
+    type: any
+    mappings:
+    - type: custom
+actions:
+- utter_screening_start
+- action_ask_screening_question
+- validate_job_screening_form
+- job_screening_form_submit

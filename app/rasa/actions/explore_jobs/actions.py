@@ -7,7 +7,7 @@ from logging import getLogger
 from typing import Text, List, Any, Dict
 
 from rasa_sdk import Tracker, FormValidationAction, Action
-from rasa_sdk.events import EventType
+from rasa_sdk.events import EventType, SlotSet, FollowupAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import actions.utils as utils
@@ -111,7 +111,7 @@ class AskSelectJobAction(Action):
             "userId":0
         }
         job_resp = requests.post(url, json=payload)
-        logger.info(f"job_resp: {job_resp.text}, status: {job_resp.status_code}")
+        logger.info("job_resp status: {}".format(job_resp.status_code))
         if job_resp.status_code == 200:
             jobs = job_resp.json()
             return jobs.get("Match", [])[:self.n_jobs_to_show]
@@ -123,7 +123,7 @@ class AskSelectJobAction(Action):
     ) -> List[EventType]:
         result = []
         jobs = self.fetch_jobs(tracker.get_slot("job_title"))
-        logger.info("matched jobs: " + json.dumps(jobs, indent=4))
+        # logger.info("matched jobs: " + json.dumps(jobs, indent=4))
         utt = {
             "ui_component": "select_job",
             "jobs": jobs,
@@ -143,5 +143,37 @@ class ExploreJobsFormSubmit(Action):
         """Define what the form has to do after all required slots are filled"""
         result = []
         dispatcher.utter_message(text="thanks for applying " + str(tracker.get_slot("select_job")))
-        dispatcher.utter_message(response="utter_greet")
+        dispatcher.utter_message(response="utter_screening_start")
+        questions_data = get_screening_questions_for_job_id(tracker.get_slot("select_job"))
+        logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
+        result += [
+            # set questions to be asked after the selecting a job
+            SlotSet("job_screening_questions", questions_data),
+            SlotSet("job_screening_questions_count", len(questions_data)),
+            # reset job_screening_form
+            SlotSet("screening_question", None),
+            SlotSet("screening_question_history", None),
+            FollowupAction("job_screening_form")
+        ]
         return result
+
+
+######## utils ########
+def get_screening_questions_for_job_id(job_id):
+    # read from sample file for now.
+    sample_questions_path = os.path.join("chatbot_data", "screening_questions", "sample_questions_after_job_apply.json")
+    sample_questions_data = json.load(open(sample_questions_path, 'r'))
+
+    questions_data_transformed = []
+    for q in sample_questions_data:
+        q_transformed = {}
+        if q.get("labelName") is not None:
+            q_transformed["text"] = q.get("labelName")
+        inputType = q.get("inputType")
+        if inputType == "radio":
+            q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
+        elif inputType == "text":
+            pass
+        questions_data_transformed.append(q_transformed)
+
+    return questions_data_transformed

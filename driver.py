@@ -29,10 +29,11 @@ def send_to_rasa(msg):
     resp = requests.post(url + "/webhooks/rest/webhook", json=payload, headers=headers)
     # print("Bot responded:")
     for msg in resp.json():
-        print("Bot:", msg, "\n")
+        print("Bot:\n", msg, "\n")
 
     return resp
 
+# send_to_rasa("/job_screening")
 send_to_rasa("/greet")
 
 while True:

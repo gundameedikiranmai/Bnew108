@@ -1,0 +1,32 @@
+version: "3.1"
+
+rules:
+
+- rule: Activate job_screening
+  steps:
+  - intent: job_screening
+  - action: utter_screening_start
+  - action: job_screening_form
+  - active_loop: job_screening_form
+
+- rule: Submit job_screening
+  condition:
+  - active_loop: job_screening_form
+  steps:
+  - action: job_screening_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: job_screening_form_submit
+
+- rule: Interruption in job_screening
+  condition:
+  # Condition that form is active.
+  - active_loop: job_screening_form
+  steps:
+  # This unhappy path handles the case of an intent `bot_challenge`.
+  - intent: bot_challenge
+  - action: utter_iamabot
+  # Return to form after handling the `bot_challenge` intent
+  - action: job_screening_form
+  - active_loop: job_screening_form

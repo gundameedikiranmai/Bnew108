@@ -6,6 +6,7 @@ app/rasa/actions/__pycache__/
 app/rasa/actions/fallback/__pycache__/
 app/rasa/actions/explore_jobs/__pycache__/
 app/rasa/actions/ask_a_question/__pycache__/
+app/rasa/actions/screening_questions/__pycache__/
 bin/
 mongodb_data/
 app/api/__pycache__

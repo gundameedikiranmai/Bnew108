@@ -19,13 +19,16 @@ rules:
     - requested_slot: null
   - action: explore_jobs_form_submit
 
-# - rule: Interruption in explore_jobs
-#   condition:
-#   # Condition that form is active.
-#   - active_loop: explore_jobs_form
-#   steps:
-#   # This unhappy path handles closing the form when the user want's to explore jobs
-#   - intent: explore_jobs
-#   - action: action_deactivate_loop
-#   - active_loop: null
-#   - action: utter_greet
+- rule: Interruption in explore_jobs
+  condition:
+  # Condition that form is active.
+  - active_loop: explore_jobs_form
+  steps:
+  # This unhappy path handles closing the form when the user want's to explore jobs
+  - intent: ask_a_question
+  - action: action_deactivate_loop
+  - active_loop: null
+  # start ask_a_question form now
+  - action: utter_start_ask_a_question
+  - action: ask_a_question_form
+  - active_loop: ask_a_question_form

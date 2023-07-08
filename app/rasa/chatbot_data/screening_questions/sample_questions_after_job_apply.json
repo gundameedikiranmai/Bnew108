@@ -1,0 +1,42 @@
+[
+    {
+        "labelName": "Label Name1",
+        "inputType": "text"
+    },
+    {
+        "labelName": "Label Name2",
+        "inputType": "date"
+    },
+    {
+        "labelName": "Label Name3",
+        "inputType": "radio",
+        "PossibleValue": [
+            {
+                "name": "Yes",
+                "value": "Yes"
+            },
+            {
+                "name": "No",
+                "value": "No"
+            }
+        ]
+    },
+    {
+        "labelName": "Label Name4",
+        "inputType": "radio",
+        "PossibleValue": [
+            {
+                "name": "Yes",
+                "value": "Yes"
+            },
+            {
+                "name": "No",
+                "value": "No"
+            },
+            {
+                "name": "Radio3",
+                "value": "Radio3"
+            }
+        ]
+    }
+]
