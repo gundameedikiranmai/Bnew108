@@ -11,6 +11,7 @@ from rasa_sdk.events import EventType, SlotSet, FollowupAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import actions.utils as utils
+import actions.config_values as cfg
 
 logger = getLogger(__name__)
 
@@ -100,7 +101,6 @@ class AskSelectJobAction(Action):
         return "action_ask_select_job"
 
     def fetch_jobs(self, job_title):
-        url = "https://sequence.accuick.com/Sequence/searchjobs"
         payload = {
             "keyWords":job_title,
             "location":"",
@@ -110,7 +110,7 @@ class AskSelectJobAction(Action):
             "next":"0",
             "userId":0
         }
-        job_resp = requests.post(url, json=payload)
+        job_resp = requests.post(cfg.ACCUICK_SEARCH_JOBS_URL, json=payload)
         logger.info("job_resp status: {}".format(job_resp.status_code))
         if job_resp.status_code == 200:
             jobs = job_resp.json()
@@ -161,11 +161,17 @@ class ExploreJobsFormSubmit(Action):
 ######## utils ########
 def get_screening_questions_for_job_id(job_id):
     # read from sample file for now.
-    sample_questions_path = os.path.join("chatbot_data", "screening_questions", "sample_questions_after_job_apply.json")
-    sample_questions_data = json.load(open(sample_questions_path, 'r'))
+    # sample_questions_path = os.path.join("chatbot_data", "screening_questions", "sample_questions_after_job_apply.json")
+    # questions_data = json.load(open(sample_questions_path, 'r'))["components"]
+    
+    # use hardcoded job id
+    payload = {"action":"get","jobId":"228679","recrId":"1893"}
+
+    resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_URL, json=payload)
+    questions_data = json.loads(resp.json()["json"])["components"]
 
     questions_data_transformed = []
-    for q in sample_questions_data:
+    for q in questions_data:
         q_transformed = {}
         if q.get("labelName") is not None:
             q_transformed["text"] = q.get("labelName")

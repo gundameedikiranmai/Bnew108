@@ -1,42 +1,689 @@
-[
-    {
-        "labelName": "Label Name1",
-        "inputType": "text"
-    },
-    {
-        "labelName": "Label Name2",
-        "inputType": "date"
-    },
-    {
-        "labelName": "Label Name3",
-        "inputType": "radio",
-        "PossibleValue": [
-            {
-                "name": "Yes",
-                "value": "Yes"
-            },
-            {
-                "name": "No",
-                "value": "No"
-            }
-        ]
-    },
-    {
-        "labelName": "Label Name4",
-        "inputType": "radio",
-        "PossibleValue": [
-            {
-                "name": "Yes",
-                "value": "Yes"
-            },
-            {
-                "name": "No",
-                "value": "No"
-            },
-            {
-                "name": "Radio3",
-                "value": "Radio3"
-            }
-        ]
-    }
-]
+{
+    "components": [
+        {
+            "name": "8KEYfaiKDn",
+            "Type": "text",
+            "inputType": "text",
+            "input": true,
+            "value": "",
+            "changedValue": "",
+            "mappingId": 0,
+            "labelName": "Full Name",
+            "documentPage": false,
+            "commonDetailPage": true,
+            "newHirePage": true,
+            "isSaved": false,
+            "isMaster": false,
+            "isUpdated": false,
+            "id": 1,
+            "Settings": [
+                {
+                    "name": "Label Name",
+                    "value": "Label Name",
+                    "Type": "labelText",
+                    "width": 50,
+                    "$$hashKey": "object:172"
+                },
+                {
+                    "name": "Field Type",
+                    "value": "Text",
+                    "Type": "patterndropdown",
+                    "width": 50,
+                    "Possiblevalue": [
+                        "Text",
+                        "Numeric",
+                        "NumericwithDecimal",
+                        "AlphaNumeric",
+                        "AlphaNumericWithSpecialChars",
+                        "Phone-Number",
+                        "Email",
+                        "Date",
+                        "SSN"
+                    ],
+                    "$$hashKey": "object:173"
+                },
+                {
+                    "name": "Layout",
+                    "value": "",
+                    "Type": "label",
+                    "$$hashKey": "object:174"
+                },
+                {
+                    "name": "Width",
+                    "value": "100",
+                    "Type": "widthdropdown",
+                    "width": 100,
+                    "$$hashKey": "object:175"
+                },
+                {
+                    "name": "Character Validations",
+                    "value": "",
+                    "Type": "label",
+                    "$$hashKey": "object:176"
+                },
+                {
+                    "name": "Min Length",
+                    "value": "1",
+                    "Type": "number",
+                    "width": 50,
+                    "$$hashKey": "object:177"
+                },
+                {
+                    "name": "Max Length",
+                    "value": "50",
+                    "Type": "number",
+                    "width": 50,
+                    "length": 150,
+                    "$$hashKey": "object:178"
+                },
+                {
+                    "name": "General Validations",
+                    "Type": "checkBoxZone",
+                    "Options": [
+                        {
+                            "name": "Required",
+                            "value": false,
+                            "$$hashKey": "object:229"
+                        },
+                        {
+                            "name": "Readonly",
+                            "value": false,
+                            "$$hashKey": "object:230"
+                        },
+                        {
+                            "name": "Mask Data",
+                            "value": false,
+                            "$$hashKey": "object:231"
+                        },
+                        {
+                            "name": "Enable Address Validation",
+                            "value": false,
+                            "$$hashKey": "object:232"
+                        },
+                        {
+                            "name": "Enable Google Maps",
+                            "value": false,
+                            "$$hashKey": "object:233"
+                        }
+                    ],
+                    "width": 100,
+                    "$$hashKey": "object:179"
+                },
+                {
+                    "name": "Dependency Validation",
+                    "value": "",
+                    "Type": "dependencyMask",
+                    "width": 100,
+                    "isDependent": {
+                        "name": "",
+                        "value": true
+                    },
+                    "dependencyObjs": [
+                        {
+                            "name": "Conditions",
+                            "type": "conditions",
+                            "value": "==",
+                            "Possiblevalue": [
+                                {
+                                    "name": "Equals(=)",
+                                    "value": "=="
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Other Fields",
+                            "type": "otherfield",
+                            "value": "",
+                            "Possiblevalue": []
+                        }
+                    ],
+                    "$$hashKey": "object:180"
+                },
+                {
+                    "name": "Google Maps",
+                    "value": "",
+                    "Type": "maplabel",
+                    "$$hashKey": "object:181"
+                },
+                {
+                    "name": "Country Type",
+                    "Type": "gmapradio",
+                    "value": "USA",
+                    "Options": [
+                        {
+                            "name": "All over world",
+                            "value": "world"
+                        },
+                        {
+                            "name": "USA",
+                            "value": "USA"
+                        }
+                    ],
+                    "width": 100,
+                    "$$hashKey": "object:182"
+                },
+                {
+                    "name": "Autocomplete the field with",
+                    "value": "",
+                    "Type": "autocompletetype",
+                    "Options": [],
+                    "width": 100,
+                    "$$hashKey": "object:183"
+                },
+                {
+                    "name": "Autofill other fields",
+                    "value": "",
+                    "Type": "autocompletedependency",
+                    "width": 100,
+                    "isDependent": {
+                        "name": "",
+                        "value": true
+                    },
+                    "dependencyObjsSource": [],
+                    "dependencyObjsData": [],
+                    "$$hashKey": "object:184"
+                },
+                {
+                    "name": "Help Text",
+                    "value": "",
+                    "Type": "helptext",
+                    "width": 100,
+                    "helpContent": "",
+                    "$$hashKey": "object:185"
+                }
+            ],
+            "isMasked": false,
+            "isClient": false,
+            "isSource": false
+        },
+        {
+            "name": "WRw5yCazPS",
+            "Type": "date",
+            "inputType": "date",
+            "input": true,
+            "value": "",
+            "mappingId": 0,
+            "labelName": "Date Of Birth",
+            "documentPage": false,
+            "commonDetailPage": true,
+            "newHirePage": true,
+            "isSaved": false,
+            "isMaster": false,
+            "isUpdated": false,
+            "id": 2,
+            "Settings": [
+                {
+                    "name": "Label Name",
+                    "value": "Label Name",
+                    "Type": "labelText",
+                    "width": 50,
+                    "$$hashKey": "object:255"
+                },
+                {
+                    "name": "Field Type",
+                    "value": "Date",
+                    "Type": "patterndropdown",
+                    "width": 50,
+                    "Possiblevalue": [
+                        "Text",
+                        "Numeric",
+                        "NumericwithDecimal",
+                        "AlphaNumeric",
+                        "AlphaNumericWithSpecialChars",
+                        "Phone-Number",
+                        "Email",
+                        "Date",
+                        "SSN"
+                    ],
+                    "$$hashKey": "object:256"
+                },
+                {
+                    "name": "Layout",
+                    "value": "",
+                    "Type": "label",
+                    "$$hashKey": "object:257"
+                },
+                {
+                    "name": "Width",
+                    "value": "100",
+                    "Type": "widthdropdown",
+                    "width": 50,
+                    "$$hashKey": "object:258"
+                },
+                {
+                    "name": "Character Validations",
+                    "value": "",
+                    "Type": "label",
+                    "$$hashKey": "object:259"
+                },
+                {
+                    "name": "Min Length",
+                    "value": "1",
+                    "Type": "number",
+                    "disabled": true,
+                    "width": 50,
+                    "$$hashKey": "object:260"
+                },
+                {
+                    "name": "Max Length",
+                    "value": "50",
+                    "Type": "number",
+                    "disabled": true,
+                    "width": 50,
+                    "$$hashKey": "object:261"
+                },
+                {
+                    "name": "Dependency Validation",
+                    "value": "",
+                    "Type": "dependency",
+                    "width": 100,
+                    "isDependent": {
+                        "name": "",
+                        "value": true
+                    },
+                    "dependencyObjs": [
+                        {
+                            "name": "Conditions",
+                            "type": "conditions",
+                            "value": "<",
+                            "Possiblevalue": [
+                                {
+                                    "name": "Less than(<)",
+                                    "value": "<",
+                                    "$$hashKey": "object:308"
+                                },
+                                {
+                                    "name": "Less than or equals(<=)",
+                                    "value": "<=",
+                                    "$$hashKey": "object:309"
+                                },
+                                {
+                                    "name": "Greater than(>)",
+                                    "value": ">",
+                                    "$$hashKey": "object:310"
+                                },
+                                {
+                                    "name": "Greater than or equals(>=)",
+                                    "value": ">=",
+                                    "$$hashKey": "object:311"
+                                },
+                                {
+                                    "name": "Equals(=)",
+                                    "value": "==",
+                                    "$$hashKey": "object:312"
+                                }
+                            ],
+                            "$$hashKey": "object:304"
+                        },
+                        {
+                            "name": "Other Fields",
+                            "type": "otherfield",
+                            "value": "above15years",
+                            "Possiblevalue": [
+                                {
+                                    "name": "Current Date",
+                                    "value": "currentdate",
+                                    "$$hashKey": "object:318"
+                                },
+                                {
+                                    "name": "15 years",
+                                    "value": "above15years",
+                                    "$$hashKey": "object:319"
+                                },
+                                {
+                                    "name": "18 years",
+                                    "value": "above18years",
+                                    "$$hashKey": "object:320"
+                                }
+                            ],
+                            "$$hashKey": "object:305"
+                        }
+                    ],
+                    "$$hashKey": "object:262"
+                },
+                {
+                    "name": "General Validations",
+                    "Type": "checkBoxZone",
+                    "Options": [
+                        {
+                            "name": "Required",
+                            "value": false,
+                            "$$hashKey": "object:326"
+                        },
+                        {
+                            "name": "Readonly",
+                            "value": false,
+                            "$$hashKey": "object:327"
+                        }
+                    ],
+                    "width": 100,
+                    "$$hashKey": "object:263"
+                },
+                {
+                    "name": "Help Text",
+                    "value": "",
+                    "Type": "helptext",
+                    "width": 100,
+                    "helpContent": "",
+                    "$$hashKey": "object:264"
+                }
+            ],
+            "isClient": false,
+            "isSource": false
+        },
+        {
+            "name": "v3EcQ29Iry",
+            "Type": "email",
+            "inputType": "email",
+            "input": true,
+            "value": "",
+            "changedValue": "",
+            "mappingId": 0,
+            "labelName": "Email",
+            "documentPage": false,
+            "commonDetailPage": true,
+            "newHirePage": true,
+            "isSaved": false,
+            "isMaster": false,
+            "isUpdated": false,
+            "id": 3,
+            "Settings": [
+                {
+                    "name": "Label Name",
+                    "value": "Label Name",
+                    "Type": "labelText",
+                    "width": 50,
+                    "$$hashKey": "object:416"
+                },
+                {
+                    "name": "Field Type",
+                    "value": "Email",
+                    "Type": "patterndropdown",
+                    "width": 50,
+                    "Possiblevalue": [
+                        "Text",
+                        "Numeric",
+                        "NumericwithDecimal",
+                        "AlphaNumeric",
+                        "AlphaNumericWithSpecialChars",
+                        "Phone-Number",
+                        "Email",
+                        "Date",
+                        "SSN"
+                    ],
+                    "$$hashKey": "object:417"
+                },
+                {
+                    "name": "Layout",
+                    "value": "",
+                    "Type": "label",
+                    "$$hashKey": "object:418"
+                },
+                {
+                    "name": "Width",
+                    "value": "100",
+                    "Type": "widthdropdown",
+                    "width": 50,
+                    "$$hashKey": "object:419"
+                },
+                {
+                    "name": "Character Validations",
+                    "value": "",
+                    "Type": "label",
+                    "$$hashKey": "object:420"
+                },
+                {
+                    "name": "Min Length",
+                    "value": "1",
+                    "Type": "number",
+                    "width": 50,
+                    "$$hashKey": "object:421"
+                },
+                {
+                    "name": "Max Length",
+                    "value": "50",
+                    "Type": "number",
+                    "width": 50,
+                    "length": 70,
+                    "$$hashKey": "object:422"
+                },
+                {
+                    "name": "General Validations",
+                    "Type": "checkBoxZone",
+                    "Options": [
+                        {
+                            "name": "Required",
+                            "value": false,
+                            "$$hashKey": "object:463"
+                        },
+                        {
+                            "name": "Readonly",
+                            "value": false,
+                            "$$hashKey": "object:464"
+                        }
+                    ],
+                    "width": 100,
+                    "$$hashKey": "object:423"
+                },
+                {
+                    "name": "Help Text",
+                    "value": "",
+                    "Type": "helptext",
+                    "width": 100,
+                    "helpContent": "",
+                    "$$hashKey": "object:424"
+                }
+            ],
+            "isMasked": false,
+            "isClient": false,
+            "isSource": false
+        },
+        {
+            "name": "skDTbmluYj",
+            "Type": "phone-number",
+            "inputType": "phone-number",
+            "input": true,
+            "value": "",
+            "changedValue": "",
+            "mappingId": 0,
+            "labelName": "Phone",
+            "documentPage": false,
+            "commonDetailPage": true,
+            "newHirePage": true,
+            "isSaved": false,
+            "isMaster": false,
+            "isUpdated": false,
+            "id": 4,
+            "Settings": [
+                {
+                    "name": "Label Name",
+                    "value": "Label Name",
+                    "Type": "labelText",
+                    "width": 50,
+                    "$$hashKey": "object:555"
+                },
+                {
+                    "name": "Field Type",
+                    "value": "Phone-Number",
+                    "Type": "patterndropdown",
+                    "width": 50,
+                    "Possiblevalue": [
+                        "Text",
+                        "Numeric",
+                        "NumericwithDecimal",
+                        "AlphaNumeric",
+                        "AlphaNumericWithSpecialChars",
+                        "Phone-Number",
+                        "Email",
+                        "Date",
+                        "SSN"
+                    ],
+                    "$$hashKey": "object:556"
+                },
+                {
+                    "name": "Layout",
+                    "value": "",
+                    "Type": "label",
+                    "$$hashKey": "object:557"
+                },
+                {
+                    "name": "Width",
+                    "value": "100",
+                    "Type": "widthdropdown",
+                    "width": 50,
+                    "$$hashKey": "object:558"
+                },
+                {
+                    "name": "Character Validations",
+                    "value": "",
+                    "Type": "label",
+                    "$$hashKey": "object:559"
+                },
+                {
+                    "name": "Min Length",
+                    "value": "1",
+                    "Type": "number",
+                    "width": 50,
+                    "$$hashKey": "object:560"
+                },
+                {
+                    "name": "Max Length",
+                    "value": "50",
+                    "Type": "number",
+                    "width": 50,
+                    "length": 50,
+                    "$$hashKey": "object:561"
+                },
+                {
+                    "name": "General Validations",
+                    "Type": "checkBoxZone",
+                    "Options": [
+                        {
+                            "name": "Required",
+                            "value": false,
+                            "$$hashKey": "object:602"
+                        },
+                        {
+                            "name": "Readonly",
+                            "value": false,
+                            "$$hashKey": "object:603"
+                        }
+                    ],
+                    "width": 100,
+                    "$$hashKey": "object:562"
+                },
+                {
+                    "name": "Help Text",
+                    "value": "",
+                    "Type": "helptext",
+                    "width": 100,
+                    "helpContent": "",
+                    "$$hashKey": "object:563"
+                }
+            ],
+            "isMasked": false,
+            "isClient": false,
+            "isSource": false
+        },
+        {
+            "name": "ypP93CqUEf",
+            "Type": "attachment",
+            "inputType": "attachment",
+            "input": true,
+            "value": "",
+            "mappingId": 0,
+            "attachedFiles": [],
+            "labelName": "Upload Resume",
+            "documentPage": false,
+            "commonDetailPage": true,
+            "newHirePage": true,
+            "isSaved": false,
+            "isMaster": false,
+            "isUpdated": false,
+            "id": 5,
+            "Settings": [
+                {
+                    "name": "Label Name",
+                    "value": "Attachment (Maximum of Three Files with total of 20MB)",
+                    "Type": "labelText",
+                    "width": 75,
+                    "$$hashKey": "object:621"
+                },
+                {
+                    "name": "Width",
+                    "value": "100",
+                    "$$hashKey": "object:622"
+                },
+                {
+                    "name": "File Types allowed",
+                    "Type": "filetypedropdown",
+                    "Options": [
+                        {
+                            "name": "Image",
+                            "type": "image",
+                            "value": true,
+                            "$$hashKey": "object:639"
+                        },
+                        {
+                            "name": "PDF",
+                            "type": "pdf",
+                            "value": true,
+                            "$$hashKey": "object:640"
+                        },
+                        {
+                            "name": "Docx",
+                            "type": "docx",
+                            "value": true,
+                            "$$hashKey": "object:641"
+                        }
+                    ],
+                    "width": 100,
+                    "$$hashKey": "object:623"
+                },
+                {
+                    "name": "Number of files can be uploaded",
+                    "value": "1",
+                    "Type": "nooffiledropdown",
+                    "width": 50,
+                    "Possiblevalue": [
+                        "1"
+                    ],
+                    "$$hashKey": "object:624"
+                },
+                {
+                    "name": "Total File Size (in MB)",
+                    "value": "10",
+                    "Type": "filesize",
+                    "width": 50,
+                    "Possiblevalue": [
+                        "10"
+                    ],
+                    "$$hashKey": "object:625"
+                },
+                {
+                    "name": "General Validations",
+                    "Type": "checkBoxZone",
+                    "Options": [
+                        {
+                            "name": "Required",
+                            "value": false,
+                            "$$hashKey": "object:652"
+                        }
+                    ],
+                    "width": 100,
+                    "$$hashKey": "object:626"
+                },
+                {
+                    "name": "Help Text",
+                    "value": "",
+                    "Type": "helptext",
+                    "width": 100,
+                    "helpContent": "",
+                    "$$hashKey": "object:627"
+                }
+            ],
+            "isClient": false,
+            "isSource": false
+        }
+    ]
+}
