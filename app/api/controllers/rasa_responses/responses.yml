@@ -30,3 +30,9 @@ responses:
   - text: "Great!\n\nNext question. What's your preferred job title? We'll try finding similar jobs."
   utter_ask_job_location:
   - text: "Perfect|\n\nWhere do you want to work? This can be your current location or a different preferred locations."
+  utter_error_explore_jobs:
+  - text: "There was an error in finding jobs, please try again later"
+  utter_explore_jobs_no_jobs_found:
+  - text: "We could not find any jobs matching with your search criteria."
+  utter_explore_jobs_apply_success:
+  - text: "Thanks for applying to the job: {select_job_title}"

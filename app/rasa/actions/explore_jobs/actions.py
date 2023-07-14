@@ -25,6 +25,27 @@ class ValidateExploreJobsForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_explore_jobs_form"
     
+    def fetch_jobs(self, tracker):
+        payload = {
+            "keyWords":tracker.get_slot("job_title"),
+            "location":"",
+            "jobType":"",
+            "hours":"",
+            "payRate":"",
+            "next":"0",
+            "userId":0
+        }
+        try:
+            job_resp = requests.post(cfg.ACCUICK_SEARCH_JOBS_URL, json=payload)
+            logger.info("job_resp status: {}".format(job_resp.status_code))
+            if job_resp.status_code == 200:
+                jobs = job_resp.json()
+                return jobs.get("Match", [])[:cfg.N_JOBS_TO_SHOW]
+        except Exception as e:
+            logger.error(e)
+            logger.error("could not fetch jobs from search api.")
+        return None
+    
     def validate_is_resume_upload(
         self,
         slot_value: Any,
@@ -41,22 +62,51 @@ class ValidateExploreJobsForm(FormValidationAction):
             result_dict["resume_upload"] = "ignore"
         return result_dict
     
-    # def validate_job_title(
-    #     self,
-    #     slot_value: Any,
-    #     dispatcher: CollectingDispatcher,
-    #     tracker: Tracker,
-    #     domain: DomainDict,
-    # ) -> Dict[Text, Any]:
-    #     """Validate `job_title` value."""
-    #     result_dict = {
-    #         "job_title": None,
-    #         "faq_suggestion_context": slot_value
-    #     }
-    #     question_data = faqs[slot_value]
-    #     dispatcher.utter_message(text=question_data["answer"])
-    #     dispatcher.utter_message(response="utter_suggest_more_questions")
-    #     return result_dict
+    def validate_job_location(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `job_location` value."""
+        jobs = self.fetch_jobs(tracker)
+        # set as default none, update later 
+        result_dict = {
+            "job_title": None,
+            "job_location": None
+        }
+        if jobs is None:
+            dispatcher.utter_message(response="utter_error_explore_jobs")
+        elif len(jobs) == 0:
+            dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found")
+        else:
+            result_dict = {
+                "search_jobs_list": jobs,
+                "job_location": slot_value
+            }
+            
+        return result_dict
+
+    def validate_select_job(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `select_job` value."""
+        result_dict = {
+            "select_job": slot_value
+        }
+        # set select_job_title
+        jobs = tracker.get_slot("search_jobs_list")
+        for job in jobs:
+            print("finding job_id", slot_value, job["jobid"], job["jobtitle"])
+            if job["jobid"] == slot_value:
+                result_dict["select_job_title"] = job["jobtitle"]
+                break
+        return result_dict
 
 
 class AskJobTitleAction(Action):
@@ -95,34 +145,14 @@ class AskJobLocationAction(Action):
         return result
 
 class AskSelectJobAction(Action):
-    n_jobs_to_show = 5
-
     def name(self) -> Text:
         return "action_ask_select_job"
-
-    def fetch_jobs(self, job_title):
-        payload = {
-            "keyWords":job_title,
-            "location":"",
-            "jobType":"",
-            "hours":"",
-            "payRate":"",
-            "next":"0",
-            "userId":0
-        }
-        job_resp = requests.post(cfg.ACCUICK_SEARCH_JOBS_URL, json=payload)
-        logger.info("job_resp status: {}".format(job_resp.status_code))
-        if job_resp.status_code == 200:
-            jobs = job_resp.json()
-            return jobs.get("Match", [])[:self.n_jobs_to_show]
-        return []
-
 
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
         result = []
-        jobs = self.fetch_jobs(tracker.get_slot("job_title"))
+        jobs = tracker.get_slot("search_jobs_list")
         # logger.info("matched jobs: " + json.dumps(jobs, indent=4))
         utt = {
             "ui_component": "select_job",
@@ -142,7 +172,7 @@ class ExploreJobsFormSubmit(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
         """Define what the form has to do after all required slots are filled"""
         result = []
-        dispatcher.utter_message(text="thanks for applying " + str(tracker.get_slot("select_job")))
+        dispatcher.utter_message(response="utter_explore_jobs_apply_success")
         dispatcher.utter_message(response="utter_screening_start")
         questions_data = get_screening_questions_for_job_id(tracker.get_slot("select_job"))
         logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
@@ -150,6 +180,9 @@ class ExploreJobsFormSubmit(Action):
             # set questions to be asked after the selecting a job
             SlotSet("job_screening_questions", questions_data),
             SlotSet("job_screening_questions_count", len(questions_data)),
+            # reset explore jobs form
+            SlotSet("job_title", None),
+            SlotSet("job_location", None),
             # reset job_screening_form
             SlotSet("screening_question", None),
             SlotSet("screening_question_history", None),
