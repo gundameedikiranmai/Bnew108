@@ -179,7 +179,7 @@ class ExploreJobsFormSubmit(Action):
         result = []
         dispatcher.utter_message(response="utter_explore_jobs_apply_success")
         dispatcher.utter_message(response="utter_screening_start")
-        questions_data = get_screening_questions_for_job_id(tracker.get_slot("select_job"))
+        questions_data = get_screening_questions_for_job_id(tracker)
         logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
         result += [
             # set questions to be asked after the selecting a job
@@ -197,7 +197,8 @@ class ExploreJobsFormSubmit(Action):
 
 
 ######## utils ########
-def get_screening_questions_for_job_id(job_id):
+def get_screening_questions_for_job_id(tracker):
+    job_id = tracker.get_slot("select_job")
     # read from sample file for now.
     # sample_questions_path = os.path.join("chatbot_data", "screening_questions", "sample_questions_after_job_apply.json")
     # questions_data = json.load(open(sample_questions_path, 'r'))["components"]
@@ -210,7 +211,10 @@ def get_screening_questions_for_job_id(job_id):
 
     questions_data_transformed = []
     for q in questions_data:
-        q_transformed = {}
+        q_transformed = {"input_type": q["inputType"]}
+        if q["inputType"] == "attachment" and not tracker.get_slot("resume_upload") in [None, "ignore", "false"]:
+            # resume has been uploaded, no need to add to the question list
+            continue
         if q.get("labelName") is not None:
             q_transformed["text"] = q.get("labelName")
         inputType = q.get("inputType")

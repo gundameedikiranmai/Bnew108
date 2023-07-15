@@ -1,4 +1,5 @@
 import os
+import copy
 from logging import getLogger
 from typing import Text, List, Any, Dict
 
@@ -80,7 +81,8 @@ class AskScreeningQuestionAction(Action):
         if questions_data is None:
             job_id, job_id_slot = utils.get_metadata_field(tracker, "job_id")
             job_screening_questions_count = n_questions.get(job_id)
-            questions_data = question_dict.get(job_id)
+            questions_data = copy.copy(question_dict.get(job_id))
+            questions_data.pop("input_type")
             result += job_id_slot
         else:
             job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
