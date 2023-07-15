@@ -10,6 +10,6 @@ from typing import (
 class RestInputCustom(RestInput):
 
     def get_metadata(self, request: Request) -> Optional[Dict[Text, Any]]:
-        code = request.json.get("metadata", None)
-        print(code)
-        return code
+        metadata = request.json.get("metadata", None)
+        print(metadata)
+        return metadata

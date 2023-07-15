@@ -84,7 +84,7 @@ def parse_response(text, user_data):
 @router.post("/rest/webhook")
 def rasa_webhook(rasa_data: RasaWebhook):
     data = rasa_data.dict()
-    
+
     headers = {"Content-Type": "application/json"}
     user_data = {
         "uuid": data.get("sender").split(";;")[0],
@@ -105,7 +105,7 @@ def rasa_webhook(rasa_data: RasaWebhook):
             user_data["first_intent"] = chat_session["first_intent"]
 
         is_parsed, parsed_msg = parse_response(data["message"], user_data)
-        settings.logger.info("parsed_msg " + str(parsed_msg))
+        settings.logger.info("parsed_msg " + str(parsed_msg) + ", is_parsed: " + str(is_parsed))
         if is_parsed and len(parsed_msg) > 0:
             data["message"] = parsed_msg
             settings.logger.debug(data)

@@ -11,6 +11,7 @@ from rasa_sdk.events import EventType, SlotSet, FollowupAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import actions.utils as utils
+from actions.common_actions import AskCustomBaseAction
 import actions.config_values as cfg
 
 logger = getLogger(__name__)
@@ -109,59 +110,63 @@ class ValidateExploreJobsForm(FormValidationAction):
         return result_dict
 
 
-class AskJobTitleAction(Action):
-    def name(self) -> Text:
-        return "action_ask_job_title"
+class AskResumeUploadAction(AskCustomBaseAction):
+    def __init__(self):
+        self.set_params(entity_name="candidate_id", intent_name="input_resume_upload_data", ui_component="resume_upload", action_name="resume_upload")
 
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
-        result = []
-        dispatcher.utter_message(response="utter_ask_job_title")
-        utt = {
-            "ui_component": "job_title",
-            "titles": ["client", "software developer"],
-            "intent": "input_job_title",
-            "entity": "job_title"
+        kwargs = {
+            "responses": ["utter_ask_" + self.action_name],
         }
-        dispatcher.utter_message(json_message=utt)
-        return result
+        return super().run(dispatcher, tracker, domain, **kwargs)
 
-class AskJobLocationAction(Action):
-    def name(self) -> Text:
-        return "action_ask_job_location"
+
+class AskJobTitleAction(AskCustomBaseAction):
+    def __init__(self):
+        self.set_params("job_title")
 
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
-        result = []
-        dispatcher.utter_message(response="utter_ask_job_location")
-        utt = {
-            "ui_component": "job_location",
-            "intent": "input_job_location",
-            "entity": "job_location"
+        kwargs = {
+            "responses": ["utter_ask_" + self.entity_name],
+            "data": {
+                "titles": ["client", "software developer"],
+            }
         }
-        dispatcher.utter_message(json_message=utt)
-        return result
+        return super().run(dispatcher, tracker, domain, **kwargs)
 
-class AskSelectJobAction(Action):
-    def name(self) -> Text:
-        return "action_ask_select_job"
+
+class AskJobLocationAction(AskCustomBaseAction):
+    def __init__(self):
+        self.set_params("job_location")
 
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
-        result = []
+        kwargs = {
+            "responses": ["utter_ask_" + self.entity_name],
+        }
+        return super().run(dispatcher, tracker, domain, **kwargs)
+
+
+class AskSelectJobAction(AskCustomBaseAction):
+    def __init__(self):
+        self.set_params("select_job")
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
         jobs = tracker.get_slot("search_jobs_list")
         # logger.info("matched jobs: " + json.dumps(jobs, indent=4))
-        utt = {
-            "ui_component": "select_job",
-            "jobs": jobs,
-            "intent": "input_select_job",
-            "entity": "select_job"
+        kwargs = {
+            "data": {
+                "jobs": jobs,
+            }
         }
-        dispatcher.utter_message(json_message=utt)
-        return result
+        return super().run(dispatcher, tracker, domain, **kwargs)
 
 
 class ExploreJobsFormSubmit(Action):

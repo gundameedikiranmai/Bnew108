@@ -26,6 +26,8 @@ responses:
     - payload: /deny
       title: 'Answer Questions'
     text: Would you like to upload your resume or answer questions?
+  utter_ask_resume_upload:
+  - text: "Please upload your resume"
   utter_ask_job_title:
   - text: "Great!\n\nNext question. What's your preferred job title? We'll try finding similar jobs."
   utter_ask_job_location:

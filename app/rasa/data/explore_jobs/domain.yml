@@ -7,10 +7,12 @@ intents:
 - input_job_title
 - input_job_location
 - input_select_job
+- input_resume_upload_data
 entities:
 - job_title
 - job_location
 - select_job
+- candidate_id
 forms:
   explore_jobs_form:
     required_slots:
@@ -40,9 +42,9 @@ slots:
     type: text
     influence_conversation: false
     mappings:
-    - type: from_intent
-      value: "yes"
-      intent: continue
+    - type: from_entity
+      intent: input_resume_upload_data
+      entity: candidate_id
       conditions:
       - active_loop: explore_jobs_form
         requested_slot: resume_upload
@@ -98,6 +100,7 @@ actions:
 - utter_start_explore_jobs
 # form slots
 - utter_ask_is_resume_upload
+- action_ask_resume_upload
 - action_ask_job_title
 - action_ask_job_location
 - action_ask_select_job
