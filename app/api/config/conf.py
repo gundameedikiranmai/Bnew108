@@ -9,7 +9,8 @@ import logging
 import logging.config
 import yaml
 import tomlkit
-from pydantic import BaseSettings, Extra
+from pydantic_settings import BaseSettings
+from pydantic import Extra
 from pymongo import MongoClient
 
 

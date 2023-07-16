@@ -14,5 +14,7 @@ app/api/config/__pycache__/
 app/api/controllers/__pycache__/
 app/rasa/custom_rasa/__pycache__/
 
+x.py
+
 
 app/rasa/graph.html

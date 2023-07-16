@@ -23,3 +23,4 @@ Explore Jobs
 Job Screening
 - **Display file upload component in resume upload question as part of job screening if resume wasn't uploaded during job search.**
 - **Add validations for questions based on input type (email, phone etc.)**
+- **Add placeholder text for screening questions wherever applicable.**
