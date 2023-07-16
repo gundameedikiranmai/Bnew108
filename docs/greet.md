@@ -139,6 +139,59 @@ After clicking on explore jobs button, the user will be asked to provide their i
 ]
 ```
 
+#### Upload Resume
+Selecting upload resume will return a message to invoke the file upload custom component.
+
+```
+[
+    {
+        "recipient_id": "67da43a0-233f-11ee-ac10-c93ce56524ba",
+        "text": "Please upload your resume"
+    },
+    {
+        "recipient_id": "67da43a0-233f-11ee-ac10-c93ce56524ba",
+        "custom": {
+            "ui_component": "resume_upload",
+            "intent": "input_resume_upload_data",
+            "entity": "candidate_id"
+        }
+    }
+]
+```
+
+To upload a resume, the UI must send the file to the api: `CHATBOT_URL/api/upload_resume`. The following code snippet should work for the integration.
+
+```
+let formData = new FormData();
+formData.append("resume", resumeFile);
+formData.set("sender", sender);
+formData.set("metadata", JSON.stringify(metadata_dict));
+
+const resp = await axios.post("CHATBOT_URL/api/upload_resume", formData, {
+headers: { "Content-Type": "multipart/form-data" },
+});
+```
+
+This api will return the following data upon success:
+```
+{"message": "uploaded", "success": true, "candidate_id": "1234"}
+```
+
+The ui should then take the `candidate_id` and send it to the webhook as the next message based using the intent and entity names provided in the previous chatbot message.
+
+```
+{
+    "sender": "67da43a0-233f-11ee-ac10-c93ce56524ba",
+    "message": "/input_resume_upload_data{\"candidate_id\": \"1234\"}",
+    "metadata": {}
+}
+
+```
+
+**Combining the resume upload and chatbot message into a single api was tried but the rasa backend was getting stuck for some reason, hence moving this two step api calls to the UI**
+
+*After uploading the resume, the bot will continue to the answers questions flow. However, the resume upload question will not be presented again in the job_screening section after selecting a job.*
+
 #### Answer Questions: Job title and location
 Bot will respond by asking job title and location. Both questions require a custom UI component.
 
@@ -236,3 +289,6 @@ User message:
     "metadata": {}
 }
 ```
+
+##### Followup after Job selection
+The [Job screening](/docs/job_screening.md) form is triggered wherein the selected job is used to fetch the relevant questionnaire for the job and renders it.
