@@ -31,10 +31,6 @@ This message will trigger the greet flow which will display two options:
 }]
 ```
 
-### Pending Work
-- **The upload resume path is not implemented yet. only answer questions will work.**
-- **Job application after user selects a job. Currently, the bot shows the greeting message again.**
-
 ### Ask a Question
 selecting ask_a_question option will present a set of questions. There are 4 questions configured as of now in [faq config](/app/rasa/chatbot_data/faq/faq.yml). Out of the 4, a randomly selected sample of 3 questions will be displayed.
 
