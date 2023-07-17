@@ -1,4 +1,6 @@
 responses:
+  utter_restart:
+  - text: ''
   utter_greet:
   - buttons:
     - payload: /explore_jobs
