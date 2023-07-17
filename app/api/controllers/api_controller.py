@@ -2,6 +2,7 @@
 api_controller.py
 """
 import json
+import requests
 from fastapi import APIRouter, Request
 from config.conf import settings
 import controllers.utils as utils
@@ -18,18 +19,29 @@ async def upload_resume(request: Request):
     settings.logger.info(form_data)
     settings.logger.info("dict: " + str(dict(form_data)))
     resume_file = form_data["resume"]
+    try:
+        url = "https://www4.accuick.com/ChatBot/resumeUpload.jsp"
+        
+        files=[
+            ('filename',(resume_file.filename, resume_file.file, resume_file.content_type))
+        ]
+        settings.logger.info(resume_file.content_type + ", " + resume_file.filename)
+        response = requests.request("POST", url, files=files)
+        # response = requests.request("POST", url, data=payload)
+        resp = response.json()
+        settings.logger.debug(json.dumps(resp, indent=4))
 
-    # resume_upload_data = {
-    #     "filename": (resume_file.filename, resume_file.file, resume_file.content_type)
-    # }
-    # TODO add integration with resume upload api
-    settings.logger.info(resume_file.content_type + ", " + resume_file.filename)
-    metadata = json.loads(form_data["metadata"]) if "metadata" in form_data else None
-    # message = '/input_resume_upload_data{"candidate_id": "1234"}'
-    # rasa_payload = RasaWebhook(sender=form_data["sender"], message=message, metadata=metadata)
+        # TODO add integration with resume upload api
+        # metadata = json.loads(form_data["metadata"]) if "metadata" in form_data else None
+        # message = '/input_resume_upload_data{"candidate_id": "1234"}'
+        # rasa_payload = RasaWebhook(sender=form_data["sender"], message=message, metadata=metadata)
 
-    # return rasa_webhook(rasa_payload)
-    return utils.JsonResponse({"message": "uploaded", "success": True, "candidate_id": "1234"}, 200)
+        # return rasa_webhook(rasa_payload)
+        return utils.JsonResponse({"message": resp["message"], "success": True, "candidate_id": resp["candidateId"]}, 200)
+    except Exception as e:
+        settings.logger.error("Could not upload resume.")
+        settings.logger.error(e)
+        return utils.JsonResponse({"message": "could not upload resume.", "success": False, "candidate_id": None}, 200)
 
 
 @router.get("/get_responses/")

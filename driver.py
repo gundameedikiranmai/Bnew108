@@ -29,13 +29,16 @@ def send_to_rasa(msg):
     resp = requests.post(url + "/webhooks/rest/webhook", json=payload, headers=headers)
     # print("Bot responded:")
     for msg in resp.json():
+        if msg.get("custom", {}).get("ui_component") == "select_job":
+            for j in msg.get("custom", {}).get("jobs"):
+                j.update({"description": "some desc"})
         print("Bot:\n", msg, "\n")
 
     return resp
 
 
 def upload_resume():
-    url = "http://localhost:8000/api/upload_resume"
+    api_url = url + "/api/upload_resume"
     files=[
         ('resume',('IT Specialist_Resume.docx',open('/home/dhruv/Downloads/Resume Samples/IT Specialist_Resume.docx','rb'),'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))
     ]
@@ -45,7 +48,7 @@ def upload_resume():
             "job_id": "2"
         }),
     }
-    response = requests.request("POST", url, data=payload, files=files)
+    response = requests.request("POST", api_url, data=payload, files=files)
     print(response.status_code, response.text)
     resp = response.json()
     print(json.dumps(resp, indent=4))

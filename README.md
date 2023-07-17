@@ -18,7 +18,6 @@ See detailed documentation in docs directory.
 ### Pending Work
 
 Explore Jobs
-- **Add api call to chatbot/jobapply api in accuick after job selection. Pending due to errors in resume upload api.**
 
 Job Screening
 - **Display file upload component in resume upload question as part of job screening if resume wasn't uploaded during job search.**
