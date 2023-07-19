@@ -10,6 +10,6 @@ class ActionCoreDefault(Action):
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         print("action_core_default")
-        dispatcher.utter_message(template="utter_greet") # utter_default is default rasa response which is used in 2 stage fallback
+        dispatcher.utter_message(response="utter_greet") # utter_default is default rasa response which is used in 2 stage fallback
         # dispatcher.utter_message(template="utter_services_after_two_stage_fallback")
         return [UserUtteranceReverted()]

@@ -10,7 +10,7 @@ responses:
     text: Hi! How can we be at your side today?
   # job screening
   utter_screening_start:
-  - text: Please answer the following questions.
+  - text: We have a few questions about your background and experience to get your application started.
   utter_submit:
   - text: Your responses have been submitted.
   # ask_a_question
@@ -33,7 +33,7 @@ responses:
   utter_ask_job_title:
   - text: "Great!\n\nNext question. What's your preferred job title? We'll try finding similar jobs."
   utter_ask_job_location:
-  - text: "Perfect|\n\nWhere do you want to work? This can be your current location or a different preferred locations."
+  - text: "Perfect!\n\nWhere do you want to work? This can be your current location or a different preferred locations."
   utter_error_explore_jobs:
   - text: "There was an error in finding jobs, please try again later"
   utter_explore_jobs_no_jobs_found:

@@ -60,7 +60,7 @@ class ValidateExploreJobsForm(FormValidationAction):
         }
         # ignore resume_upload slot if user denied uploading resume.
         if not slot_value:
-            result_dict["resume_upload"] = "ignore"
+            result_dict["resume_upload"] = "false"
         return result_dict
     
     def validate_job_location(
@@ -117,8 +117,15 @@ class AskResumeUploadAction(AskCustomBaseAction):
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
+        is_cancel_allowed = False
+        if tracker.active_loop_name == "explore_jobs_form":
+            is_cancel_allowed = True
         kwargs = {
             "responses": ["utter_ask_" + self.action_name],
+            "data": {
+                "is_cancel_allowed": is_cancel_allowed,
+                "cancel_message": "/deny"
+            }
         }
         return super().run(dispatcher, tracker, domain, **kwargs)
 
@@ -179,7 +186,8 @@ class ExploreJobsFormSubmit(Action):
         result = []
         dispatcher.utter_message(response="utter_explore_jobs_apply_success")
         dispatcher.utter_message(response="utter_screening_start")
-        questions_data = get_screening_questions_for_job_id(tracker)
+        questions_data, slots = get_screening_questions_for_job_id(tracker)
+        result += slots
         logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
         result += [
             # set questions to be asked after the selecting a job
@@ -199,6 +207,7 @@ class ExploreJobsFormSubmit(Action):
 ######## utils ########
 def get_screening_questions_for_job_id(tracker):
     job_id = tracker.get_slot("select_job")
+    result = []
     # read from sample file for now.
     # sample_questions_path = os.path.join("chatbot_data", "screening_questions", "sample_questions_after_job_apply.json")
     # questions_data = json.load(open(sample_questions_path, 'r'))["components"]
@@ -212,8 +221,11 @@ def get_screening_questions_for_job_id(tracker):
     questions_data_transformed = []
     for q in questions_data:
         q_transformed = {"input_type": q["inputType"]}
-        if q["inputType"] == "attachment" and not tracker.get_slot("resume_upload") in [None, "ignore", "false"]:
-            # resume has been uploaded, no need to add to the question list
+        if q["inputType"] == "attachment":
+            # if resume was cancelled, set it to None so that it can be asked later again....
+            if tracker.get_slot("resume_upload") == "false":
+                result += [SlotSet("resume_upload", None)]
+            # resume has a separate slot, don't add in screening questions list
             continue
         if q.get("labelName") is not None:
             q_transformed["text"] = q.get("labelName")
@@ -224,4 +236,4 @@ def get_screening_questions_for_job_id(tracker):
             pass
         questions_data_transformed.append(q_transformed)
 
-    return questions_data_transformed
+    return questions_data_transformed, result

@@ -12,4 +12,4 @@ class Metadata(BaseModel):
 class RasaWebhook(BaseModel):
     sender: str
     message: str
-    metadata : Optional[Metadata] = {"job_id": "1"}
+    metadata : Optional[Metadata] = Metadata(job_id="1")

@@ -56,3 +56,18 @@ class AskCustomBaseAction(Action):
             utt.update(kwargs["data"])
         dispatcher.utter_message(json_message=utt)
         return result
+
+
+def add_placeholder_utterance(dispatcher, placeholder_text):
+    utt = {
+        "ui_component": "placeholder",
+        "placeholder_text": placeholder_text
+    }
+    dispatcher.utter_message(json_message=utt)
+
+
+def add_date_utterance(dispatcher):
+    utt = {
+        "ui_component": "datepicker"
+    }
+    dispatcher.utter_message(json_message=utt)

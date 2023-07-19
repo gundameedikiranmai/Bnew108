@@ -9,6 +9,7 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import yaml
 import actions.utils as utils
+from actions.common_actions import add_placeholder_utterance, add_date_utterance
 
 logger = getLogger(__name__)
 
@@ -62,7 +63,6 @@ class ValidateJobScreeningForm(FormValidationAction):
             result_dict["screening_question"] = None
         else:
             result_dict["screening_question"] = slot_value
-            dispatcher.utter_message(response="utter_submit")
             dispatcher.utter_message(json_message={"screening_start": False})
             print(history)
         return result_dict
@@ -78,11 +78,11 @@ class AskScreeningQuestionAction(Action):
         # either load from slot or look for job id value from metadata.
         result = []
         questions_data = tracker.get_slot("job_screening_questions")
+        input_type = None
         if questions_data is None:
             job_id, job_id_slot = utils.get_metadata_field(tracker, "job_id")
             job_screening_questions_count = n_questions.get(job_id)
             questions_data = copy.copy(question_dict.get(job_id))
-            questions_data.pop("input_type")
             result += job_id_slot
         else:
             job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
@@ -100,13 +100,22 @@ class AskScreeningQuestionAction(Action):
             #     if history[n_history - 1] == validation_info["correct_answer"]:
             # logger.info(f"displaying question: {questions[n_history]}")
             logger.info(f"rendering: {questions_data[n_history]}")
+            input_type = questions_data[n_history].get("input_type")
             
             # if a question has some metadata, send all of it as a json message to avoid sending multiple messages.
             if questions_data[n_history].get("metadata"):
                 dispatcher.utter_message(json_message=questions_data[n_history])
             else:
                 dispatcher.utter_message(**questions_data[n_history])
+            # if "buttons" not in questions_data:
+                # if there are no buttons
             # dispatcher.utter_message(text=questions_data[n_history].get("text"), buttons=questions_data[n_history].get("buttons"), json_message=questions_data[n_history].get("custom"))
+            if input_type == "date":
+                add_date_utterance(dispatcher)
+            elif input_type == "email":
+                add_placeholder_utterance(dispatcher, "me@email.com")
+            elif input_type == "phone-number":
+                add_placeholder_utterance(dispatcher, "123-456-7890")
         else:
             dispatcher.utter_message(text="Error.... all questions have been answered...")
         return result
@@ -120,6 +129,7 @@ class JobScreeningFormSubmit(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
         """Define what the form has to do after all required slots are filled"""
         result = []
+        dispatcher.utter_message(response="utter_submit")
         # dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
         result += [
             SlotSet("job_screening_questions", None),

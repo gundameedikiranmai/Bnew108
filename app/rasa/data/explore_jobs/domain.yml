@@ -38,6 +38,7 @@ slots:
       conditions:
       - active_loop: explore_jobs_form
         requested_slot: is_resume_upload
+  # add mappings for explore_jobs and screening_question form
   resume_upload:
     type: text
     influence_conversation: false
@@ -48,11 +49,15 @@ slots:
       conditions:
       - active_loop: explore_jobs_form
         requested_slot: resume_upload
+      - active_loop: job_screening_form
+        requested_slot: resume_upload
     - type: from_intent
       value: "false"
       intent: deny
       conditions:
       - active_loop: explore_jobs_form
+        requested_slot: resume_upload
+      - active_loop: job_screening_form
         requested_slot: resume_upload
   job_title:
     type: text

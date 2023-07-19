@@ -11,6 +11,7 @@ forms:
   job_screening_form:
     required_slots:
     - screening_question
+    - resume_upload
 slots:
   screening_question:
     type: text
