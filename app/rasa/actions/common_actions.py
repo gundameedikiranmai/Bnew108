@@ -68,6 +68,7 @@ def add_placeholder_utterance(dispatcher, placeholder_text):
 
 def add_date_utterance(dispatcher):
     utt = {
-        "ui_component": "datepicker"
+        "ui_component": "datepicker",
+        "placeholder_text": "Please select a date"
     }
     dispatcher.utter_message(json_message=utt)

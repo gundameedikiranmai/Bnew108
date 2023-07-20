@@ -36,7 +36,8 @@ This component will be shown when datepicker has to be shown. No special intent_
     {
         "recipient_id": "9917edbe-2641-11ee-8f08-f5235bd2ce38",
         "custom": {
-            "ui_component": "datepicker"
+            "ui_component": "datepicker",
+            "placeholder_text": "Please select a date"
         }
     }
 ]

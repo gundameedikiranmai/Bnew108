@@ -16,9 +16,9 @@ def send_to_rasa(msg):
     payload = {
         "sender": UUID,
         "message": msg,
-        "metadata": {
-            "job_id": "2"
-        },
+        # "metadata": {
+        #     "job_id": "2"
+        # },
     }
 
     headers = {
@@ -55,24 +55,40 @@ def upload_resume():
     return resp["candidate_id"]
 
 
-def explore_jobs(is_upload_resume=False):
+def send_resume_message():
+    # candidate_id = upload_resume()
+    candidate_id = "1234"
+    send_to_rasa('/input_resume_upload_data{"candidate_id": "' + candidate_id + '"}')
+
+
+def explore_jobs(is_upload_resume=False, cancel=False):
     send_to_rasa("/greet")
     send_to_rasa("/explore_jobs")
     if is_upload_resume:
         send_to_rasa("/affirm")
-        candidate_id = upload_resume()
-        send_to_rasa('/input_resume_upload_data{"candidate_id": "' + candidate_id + '"}')
+        if cancel:
+            send_to_rasa("/deny")
+        else:
+            send_resume_message()
     else:
         send_to_rasa("/deny")
     send_to_rasa('/input_job_title{"job_title": "client"}')
     send_to_rasa('/input_job_location{"job_location": "calif"}')
     send_to_rasa('/input_select_job{"select_job": "229248"}')
+    send_to_rasa("John Doe")
+    send_to_rasa("01/01/1960")
+    send_to_rasa("me@gmail.com")
+    send_to_rasa("+1 1234567890")
+    # if resume was cancelled initially, upload it again
+    if not is_upload_resume or cancel:
+        send_resume_message()
 
 # send_to_rasa("/job_screening")
 # send_to_rasa("/greet")
 
-explore_jobs(True)
-# explore_jobs(False)
+# explore_jobs(is_upload_resume=True)
+# explore_jobs(is_upload_resume=True, cancel=True)
+explore_jobs(is_upload_resume=False)
 
 while True:
     print("\nplease enter your message:")
