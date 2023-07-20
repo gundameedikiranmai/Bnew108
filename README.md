@@ -15,11 +15,16 @@ See detailed documentation in docs directory.
 - [Ask a Question and explore jobs](/docs/greet.md)
 
 
+### Finished in Last Update
+- **Display file upload component in resume upload question as part of job screening if resume wasn't uploaded during job search.**
+- **add is_cancel_allowed in upload resume**
+- **Add placeholder text for screening questions wherever applicable.**
+
 ### Pending Work
 
 Explore Jobs
 
 Job Screening
-- **Display file upload component in resume upload question as part of job screening if resume wasn't uploaded during job search.**
 - **Add validations for questions based on input type (email, phone etc.)**
-- **Add placeholder text for screening questions wherever applicable.**
+
+

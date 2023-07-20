@@ -149,7 +149,9 @@ Selecting upload resume will return a message to invoke the file upload custom c
         "custom": {
             "ui_component": "resume_upload",
             "intent": "input_resume_upload_data",
-            "entity": "candidate_id"
+            "entity": "candidate_id",
+            "is_cancel_allowed": true,
+            "cancel_message": "/deny"
         }
     }
 ]
@@ -187,6 +189,9 @@ The ui should then take the `candidate_id` and send it to the webhook as the nex
 **Combining the resume upload and chatbot message into a single api was tried but the rasa backend was getting stuck for some reason, hence moving this two step api calls to the UI**
 
 *After uploading the resume, the bot will continue to the answers questions flow. However, the resume upload question will not be presented again in the job_screening section after selecting a job.*
+
+##### Cancel resume upload
+To if `is_cancel_allowed` is True, only then should the cancel button be shown in the UI. After clicking on the button, the UI should send the value of `cancel_message` key as the user message.
 
 #### Answer Questions: Job title and location
 Bot will respond by asking job title and location. Both questions require a custom UI component.
