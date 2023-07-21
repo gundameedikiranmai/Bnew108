@@ -150,6 +150,7 @@ Selecting upload resume will return a message to invoke the file upload custom c
             "ui_component": "resume_upload",
             "intent": "input_resume_upload_data",
             "entity": "candidate_id",
+            "placeholder_text": "Upload your resume",
             "is_cancel_allowed": true,
             "cancel_message": "/deny"
         }
@@ -212,7 +213,8 @@ Bot will respond by asking job title and location. Both questions require a cust
             "ui_component": "job_title",
             "titles": ["client", "software developer"],
             "intent": "input_job_title",
-            "entity": "job_title"
+            "entity": "job_title",
+            "placeholder_text": "Select a Job Title"
         }
     }
 ]

@@ -123,6 +123,7 @@ class AskResumeUploadAction(AskCustomBaseAction):
         kwargs = {
             "responses": ["utter_ask_" + self.action_name],
             "data": {
+                "placeholder_text": "Upload your resume",
                 "is_cancel_allowed": is_cancel_allowed,
                 "cancel_message": "/deny"
             }
@@ -141,6 +142,7 @@ class AskJobTitleAction(AskCustomBaseAction):
             "responses": ["utter_ask_" + self.entity_name],
             "data": {
                 "titles": ["client", "software developer"],
+                "placeholder_text": "Select a Job Title",
             }
         }
         return super().run(dispatcher, tracker, domain, **kwargs)
@@ -155,6 +157,9 @@ class AskJobLocationAction(AskCustomBaseAction):
     ) -> List[EventType]:
         kwargs = {
             "responses": ["utter_ask_" + self.entity_name],
+            "data": {
+                "placeholder_text": "Select a location",
+            }
         }
         return super().run(dispatcher, tracker, domain, **kwargs)
 
