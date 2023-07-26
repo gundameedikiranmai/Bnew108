@@ -135,8 +135,6 @@ class AskResumeUploadAction(AskCustomBaseAction):
         is_cancel_allowed = False
         if tracker.active_loop_name == "explore_jobs_form":
             is_cancel_allowed = True
-        elif tracker.active_loop_name == "job_screening_form":
-            dispatcher.utter_message(json_message={"screening_start": True})
         kwargs = {
             "responses": ["utter_ask_" + self.action_name],
             "data": {
@@ -211,6 +209,7 @@ class ExploreJobsFormSubmit(Action):
         questions_data, slots = get_screening_questions_for_job_id(tracker)
         result += slots
         logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
+        dispatcher.utter_message(json_message={"screening_start": True})
         result += [
             # set questions to be asked after the selecting a job
             SlotSet("job_screening_questions", questions_data),
