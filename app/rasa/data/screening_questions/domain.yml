@@ -10,8 +10,11 @@ entities:
 forms:
   job_screening_form:
     required_slots:
-    - screening_question
     - resume_upload
+    - full_name
+    - email
+    - phone_number
+    - screening_question
 slots:
   screening_question:
     type: text
@@ -23,6 +26,36 @@ slots:
       conditions:
       - active_loop: job_screening_form
         requested_slot: screening_question
+  email:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_screening_response
+      entity: screening_response
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: email
+  phone_number:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_screening_response
+      entity: screening_response
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: phone_number
+  full_name:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_screening_response
+      entity: screening_response
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: full_name
   screening_question_history:
     type: any
     # initial_value: []
@@ -38,6 +71,9 @@ slots:
     - type: custom
 actions:
 - utter_screening_start
+- utter_ask_email
+- utter_ask_phone_number
+- utter_ask_full_name
 - action_ask_screening_question
 - validate_job_screening_form
 - job_screening_form_submit

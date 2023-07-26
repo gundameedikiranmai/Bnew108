@@ -63,7 +63,6 @@ class ValidateJobScreeningForm(FormValidationAction):
             result_dict["screening_question"] = None
         else:
             result_dict["screening_question"] = slot_value
-            dispatcher.utter_message(json_message={"screening_start": False})
             print(history)
         return result_dict
 
@@ -129,11 +128,14 @@ class JobScreeningFormSubmit(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
         """Define what the form has to do after all required slots are filled"""
         result = []
+        dispatcher.utter_message(json_message={"screening_start": False})
         dispatcher.utter_message(response="utter_submit")
         # dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
         result += [
             SlotSet("job_screening_questions", None),
             SlotSet("job_screening_questions_count", None),
         ]
+
+        utils.accuick_job_apply(tracker.get_slot("resume_upload"), tracker.get_slot("select_job"))
 
         return result

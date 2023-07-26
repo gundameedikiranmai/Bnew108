@@ -11,6 +11,12 @@ responses:
   # job screening
   utter_screening_start:
   - text: We have a few questions about your background and experience to get your application started.
+  utter_ask_email:
+  - text: What is your email address? We promise to not send you spam emails
+  utter_ask_phone_number:
+  - text: What is your preferred phone number so that we can reach you promptly?
+  utter_ask_full_name:
+  - text: Please tell us your full name.
   utter_submit:
   - text: Your responses have been submitted.
   # ask_a_question
@@ -30,6 +36,8 @@ responses:
     text: Would you like to upload your resume or answer questions?
   utter_ask_resume_upload:
   - text: "Please upload your resume"
+  utter_resume_upload_cancel:
+  - text: "Your resume upload was cancelled."
   utter_ask_job_title:
   - text: "Great!\n\nNext question. What's your preferred job title? We'll try finding similar jobs."
   utter_ask_job_location:

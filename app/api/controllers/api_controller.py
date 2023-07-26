@@ -29,12 +29,23 @@ async def upload_resume(request: Request):
         response = requests.request("POST", url, files=files)
         # response = requests.request("POST", url, data=payload)
         resp = response.json()
-        settings.logger.debug(json.dumps(resp, indent=4))
+        settings.logger.info("Resume Upload API response:" + json.dumps(resp, indent=4))
 
         # TODO add integration with resume upload api
         # metadata = json.loads(form_data["metadata"]) if "metadata" in form_data else None
         # message = '/input_resume_upload_data{"candidate_id": "1234"}'
         # rasa_payload = RasaWebhook(sender=form_data["sender"], message=message, metadata=metadata)
+
+        slots = {
+            "phone_number": resp.get("phone-number", "").strip(),
+            "full_name": resp.get("full-name", "").strip(),
+            "email": resp.get("email", "").strip(),
+            # "phone_number": "9998887776",
+            # "full_name": "John doe",
+            # "email": "abc@gmail.com",
+        }
+
+        utils.add_slot_set_events(form_data["sender"], slots)
 
         # return rasa_webhook(rasa_payload)
         return utils.JsonResponse({"message": resp["message"], "success": True, "candidate_id": resp["candidateId"]}, 200)

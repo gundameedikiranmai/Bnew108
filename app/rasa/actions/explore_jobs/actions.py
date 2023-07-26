@@ -62,6 +62,21 @@ class ValidateExploreJobsForm(FormValidationAction):
         if not slot_value:
             result_dict["resume_upload"] = "false"
         return result_dict
+
+    def validate_resume_upload(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `resume_upload` value."""
+        result_dict = {
+            "resume_upload": slot_value
+        }
+        if slot_value == "false":
+            dispatcher.utter_message(response="utter_resume_upload_cancel")
+        return result_dict
     
     def validate_job_location(
         self,
@@ -120,6 +135,8 @@ class AskResumeUploadAction(AskCustomBaseAction):
         is_cancel_allowed = False
         if tracker.active_loop_name == "explore_jobs_form":
             is_cancel_allowed = True
+        elif tracker.active_loop_name == "job_screening_form":
+            dispatcher.utter_message(json_message={"screening_start": True})
         kwargs = {
             "responses": ["utter_ask_" + self.action_name],
             "data": {
@@ -232,6 +249,12 @@ def get_screening_questions_for_job_id(tracker):
                 result += [SlotSet("resume_upload", None)]
             # resume has a separate slot, don't add in screening questions list
             continue
+
+        # TODO text put here as adhoc for full_name
+        elif q["inputType"] in ["text", "email", "phone-number"]:
+            # ignore these input types as they are mandatory.
+            continue
+        
         if q.get("labelName") is not None:
             q_transformed["text"] = q.get("labelName")
         inputType = q.get("inputType")

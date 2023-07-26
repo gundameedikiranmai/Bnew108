@@ -48,6 +48,10 @@ def parse_response(text, user_data):
             is_success (bool): whether set session was successful or not.
             text message for rasa webhook
     """
+    # if message is in rasa intent-entity format, return it without modification
+    if len(text) > 0 and text[0] == "/":
+        return True, text
+
     chat_session = session.get_session(user_data, "uuid")
     if chat_session is not None:
         last_message = chat_session.get("last_message", {})

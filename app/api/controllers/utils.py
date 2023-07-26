@@ -3,6 +3,7 @@ Utils
 """
 from bson import json_util
 import json
+import time
 from config.conf import settings
 import requests
 import traceback
@@ -43,3 +44,34 @@ def nlu(text):
         intent_conf = -1
 
     return intent_conf, intent_name, entity
+
+
+def add_events_to_rasa(sender_id, data):
+    params = {
+        "token": settings.RASA_WEBHOOK["TOKEN"],
+    }
+    headers = {"Content-Type": "application/json"}
+    rasa_x_url = settings.RASA_WEBHOOK["URL"] + f'/conversations/{sender_id}/tracker/events'
+    rasa_response = requests.post(rasa_x_url, json=data, headers=headers,params=params)
+
+    return rasa_response
+
+
+def add_slot_set_events(sender_id, slots):
+    """slots is a dict of slots that need to be set"""
+    data = []
+    payload = {
+        "event": "slot",
+        "timestamp": time.time(),
+    }
+    for slot in slots:
+        # only append if slot has an actual value
+        if slots[slot] is not None and len(slots[slot]) > 0:
+            update_dict = {}
+            update_dict["name"] = slot
+            update_dict["value"] = slots[slot]
+            append_dict = {**payload,**update_dict}
+            data.append(append_dict)
+    if len(data) > 0:
+        return add_events_to_rasa(sender_id, data)
+    return None

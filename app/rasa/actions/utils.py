@@ -1,4 +1,10 @@
+import requests
+import json
+from logging import getLogger
 from rasa_sdk.events import SlotSet
+import actions.config_values as cfg
+
+logger = getLogger(__name__)
 
 def get_metadata_field(tracker, field):
     """ returns field and slotset event if any"""
@@ -18,3 +24,20 @@ def get_metadata_field(tracker, field):
         else:
             print("reading {} from tracker, output None".format(field))
             return None, []
+
+
+def accuick_job_apply(candidate_id, job_id):
+    payload = {
+        "accuickid": candidate_id,
+        "jobid": job_id,
+        "source": "ChatBot"
+    }
+
+    logger.info("Job Apply API payload: " + str(payload))
+
+    resp = requests.post(cfg.ACCUICK_JOB_APPLY_URL, json=payload)
+    try:
+        logger.info("Job Apply API response: " + str(resp.json()))
+    except Exception as e:
+        logger.error(e)
+        logger.error("Could not submit job application")
