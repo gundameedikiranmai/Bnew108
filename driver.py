@@ -56,8 +56,8 @@ def upload_resume():
 
 
 def send_resume_message():
-    # candidate_id = upload_resume()
-    candidate_id = "1234"
+    candidate_id = upload_resume()
+    # candidate_id = "1234"
     send_to_rasa('/input_resume_upload_data{"candidate_id": "' + candidate_id + '"}')
 
 
@@ -68,27 +68,30 @@ def explore_jobs(is_upload_resume=False, cancel=False):
         send_to_rasa("/affirm")
         if cancel:
             send_to_rasa("/deny")
+            # select answer questions path
+            send_to_rasa("/deny")
         else:
             send_resume_message()
     else:
         send_to_rasa("/deny")
     send_to_rasa('/input_job_title{"job_title": "client"}')
-    send_to_rasa('/input_job_location{"job_location": "calif"}')
-    send_to_rasa('/input_select_job{"select_job": "229248"}')
-    send_to_rasa("John Doe")
-    send_to_rasa("01/01/1960")
-    send_to_rasa("me@gmail.com")
-    send_to_rasa("+1 1234567890")
+    send_to_rasa('/input_job_location{"job_location": "TX"}')
+    send_to_rasa('/input_select_job{"select_job": "229664"}')
     # if resume was cancelled initially, upload it again
     if not is_upload_resume or cancel:
         send_resume_message()
+    # send_to_rasa("John Doe")
+    # send_to_rasa("01/01/1960")
+    # send_to_rasa("me@gmail.com")
+    # send_to_rasa("+1 1234567890")
+    
 
 # send_to_rasa("/job_screening")
 # send_to_rasa("/greet")
 
 # explore_jobs(is_upload_resume=True)
-# explore_jobs(is_upload_resume=True, cancel=True)
-explore_jobs(is_upload_resume=False)
+explore_jobs(is_upload_resume=True, cancel=True)
+# explore_jobs(is_upload_resume=False)
 
 while True:
     print("\nplease enter your message:")

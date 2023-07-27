@@ -29,7 +29,7 @@ class ValidateExploreJobsForm(FormValidationAction):
     def fetch_jobs(self, tracker):
         payload = {
             "keyWords":tracker.get_slot("job_title"),
-            "location":"",
+            "location":tracker.get_slot("job_location"),
             "jobType":"",
             "hours":"",
             "payRate":"",
