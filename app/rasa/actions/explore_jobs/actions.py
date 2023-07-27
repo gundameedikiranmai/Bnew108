@@ -76,6 +76,8 @@ class ValidateExploreJobsForm(FormValidationAction):
         }
         if slot_value == "false":
             dispatcher.utter_message(response="utter_resume_upload_cancel")
+            result_dict["resume_upload"] = None
+            result_dict["is_resume_upload"] = None
         return result_dict
     
     def validate_job_location(
@@ -250,7 +252,7 @@ def get_screening_questions_for_job_id(tracker):
             continue
 
         # TODO text put here as adhoc for full_name
-        elif q["inputType"] in ["text", "email", "phone-number"]:
+        elif q["inputType"] in ["ssn", "email", "phone-number"]:
             # ignore these input types as they are mandatory.
             continue
         
