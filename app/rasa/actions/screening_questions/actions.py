@@ -166,7 +166,7 @@ def sync_screening_responses(tracker):
         "jobId": tracker.get_slot("select_job"),
         "candidateResponses": [{"id": q["id"], "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
     }
-    print("Sending sync response: " + json.dumps(payload, indent=4))
+    logger.debug("Sending sync response: " + str(payload))
     response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
     try:
         print(response.status_code, response.text)
