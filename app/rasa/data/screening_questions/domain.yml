@@ -71,9 +71,9 @@ slots:
     - type: custom
 actions:
 - utter_screening_start
-- utter_ask_email
-- utter_ask_phone_number
-- utter_ask_full_name
+- action_ask_email
+- action_ask_phone_number
+- action_ask_full_name
 - action_ask_screening_question
 - validate_job_screening_form
 - job_screening_form_submit

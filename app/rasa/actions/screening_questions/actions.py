@@ -9,7 +9,8 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import yaml
 import actions.utils as utils
-from actions.common_actions import add_placeholder_utterance, add_date_utterance
+from actions.common_actions import AskUtteranceWithPlaceholderAction, add_date_utterance
+import actions.config_values as cfg
 
 logger = getLogger(__name__)
 
@@ -67,6 +68,19 @@ class ValidateJobScreeningForm(FormValidationAction):
         return result_dict
 
 
+class AskEmailAction(AskUtteranceWithPlaceholderAction):
+    def __init__(self):
+        self.set_params("email", cfg.PLACEHOLDER_EMAIL)
+
+class AskEmailAction(AskUtteranceWithPlaceholderAction):
+    def __init__(self):
+        self.set_params("phone_number", cfg.PLACEHOLDER_PHONE_NUMBER)
+
+class AskEmailAction(AskUtteranceWithPlaceholderAction):
+    def __init__(self):
+        self.set_params("full_name", cfg.PLACEHOLDER_FULL_NAME)
+
+
 class AskScreeningQuestionAction(Action):
     def name(self) -> Text:
         return "action_ask_screening_question"
@@ -111,10 +125,6 @@ class AskScreeningQuestionAction(Action):
             # dispatcher.utter_message(text=questions_data[n_history].get("text"), buttons=questions_data[n_history].get("buttons"), json_message=questions_data[n_history].get("custom"))
             if input_type == "date":
                 add_date_utterance(dispatcher)
-            elif input_type == "email":
-                add_placeholder_utterance(dispatcher, "me@email.com")
-            elif input_type == "phone-number":
-                add_placeholder_utterance(dispatcher, "123-456-7890")
         else:
             dispatcher.utter_message(text="Error.... all questions have been answered...")
         return result

@@ -58,6 +58,23 @@ class AskCustomBaseAction(Action):
         return result
 
 
+class AskUtteranceWithPlaceholderAction(AskCustomBaseAction):
+    """Custom Class to show an utterance followed by a placeholder text"""
+    placeholder = None
+
+    def set_params(self, entity_name, placeholder, action_name=None):
+        self.placeholder = placeholder
+        super().set_params(entity_name, intent_name=None, ui_component=None, action_name=action_name)
+        
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
+    ) -> List[EventType]:
+        result = []
+        dispatcher.utter_message(response=f"utter_ask_{self.entity_name}")
+        add_placeholder_utterance(dispatcher, self.placeholder)
+
+
 def add_placeholder_utterance(dispatcher, placeholder_text):
     utt = {
         "ui_component": "placeholder",
