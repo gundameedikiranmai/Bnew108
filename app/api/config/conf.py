@@ -25,6 +25,7 @@ class AppSettings(BaseSettings):
 def get_app_settings():
     app_env = os.environ.get('ENV','local')
     app_config = os.environ.get('APP_CONFIG','')
+    
     config = AppSettings
 
     with open("config/logging.yml", 'rt',encoding='utf-8') as f:

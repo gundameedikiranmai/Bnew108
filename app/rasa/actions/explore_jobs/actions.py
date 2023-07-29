@@ -28,20 +28,18 @@ class ValidateExploreJobsForm(FormValidationAction):
     
     def fetch_jobs(self, tracker):
         payload = {
-            "keyWords":tracker.get_slot("job_title"),
+            "keyword":tracker.get_slot("job_title"),
             "location":tracker.get_slot("job_location"),
-            "jobType":"",
-            "hours":"",
-            "payRate":"",
-            "next":"0",
-            "userId":0
         }
         try:
             job_resp = requests.post(cfg.ACCUICK_SEARCH_JOBS_URL, json=payload)
             logger.info("job_resp status: {}".format(job_resp.status_code))
             if job_resp.status_code == 200:
                 jobs = job_resp.json()
-                return jobs.get("Match", [])[:cfg.N_JOBS_TO_SHOW]
+                jobs_to_show = jobs.get("jobList", [])[:cfg.N_JOBS_TO_SHOW]
+                log_subset =  [{key: value for key, value in j.items() if key in ["requisitionId_", "title_"]} for j in jobs_to_show[:3]]
+                logger.info("found jobs: " + json.dumps(log_subset, indent=4))
+                return jobs_to_show
         except Exception as e:
             logger.error(e)
             logger.error("could not fetch jobs from search api.")
@@ -120,9 +118,8 @@ class ValidateExploreJobsForm(FormValidationAction):
         # set select_job_title
         jobs = tracker.get_slot("search_jobs_list")
         for job in jobs:
-            print("finding job_id", slot_value, job["jobid"], job["jobtitle"])
-            if job["jobid"] == slot_value:
-                result_dict["select_job_title"] = job["jobtitle"]
+            if job["requisitionId_"] == slot_value:
+                result_dict["select_job_title"] = job["title_"]
                 break
         return result_dict
 

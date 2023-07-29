@@ -30,8 +30,10 @@ def send_to_rasa(msg):
     # print("Bot responded:")
     for msg in resp.json():
         if msg.get("custom", {}).get("ui_component") == "select_job":
+            log_jobs = []
             for j in msg.get("custom", {}).get("jobs"):
-                j.update({"description": "some desc"})
+                log_jobs.append({key: value for key, value in j.items() if key in ["requisitionId_", "title_"]})
+            msg["custom"]["jobs"] = log_jobs
         print("Bot:\n", msg, "\n")
 
     return resp
@@ -74,16 +76,16 @@ def explore_jobs(is_upload_resume=False, cancel=False):
             send_resume_message()
     else:
         send_to_rasa("/deny")
-    send_to_rasa('/input_job_title{"job_title": "client"}')
-    send_to_rasa('/input_job_location{"job_location": "TX"}')
-    send_to_rasa('/input_select_job{"select_job": "229664"}')
+    send_to_rasa('/input_job_title{"job_title": "Java Developer"}')
+    send_to_rasa('/input_job_location{"job_location": "CA"}')
+    send_to_rasa('/input_select_job{"select_job": "227842"}')
     # if resume was cancelled initially, upload it again
     if not is_upload_resume or cancel:
         send_resume_message()
-    # send_to_rasa("John Doe")
-    # send_to_rasa("01/01/1960")
-    # send_to_rasa("me@gmail.com")
-    # send_to_rasa("+1 1234567890")
+    send_to_rasa("John Doe")
+    send_to_rasa("me@gmail.com")
+    send_to_rasa("+1 1234567890")
+    send_to_rasa("01/01/1960")
     
 
 # send_to_rasa("/job_screening")

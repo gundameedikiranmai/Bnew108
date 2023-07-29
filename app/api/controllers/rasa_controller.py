@@ -124,7 +124,7 @@ def rasa_webhook(rasa_data: RasaWebhook):
 
     if response.status_code == 200:
         rasa_data = response.json()
-        settings.logger.info("response from rasa: " + json.dumps(rasa_data, indent=4))
+        settings.logger.info("response from rasa: " + json.dumps(rasa_data, indent=4)[:settings.MAX_LOGGING_LENGTH])
         rasa_data, user_data = remove_state_messages(rasa_data, user_data)
         
         if len(rasa_data) > 0:
