@@ -1,5 +1,6 @@
 import os
 import copy
+import json
 from logging import getLogger
 from typing import Text, List, Any, Dict
 
@@ -141,11 +142,27 @@ class JobScreeningFormSubmit(Action):
         dispatcher.utter_message(json_message={"screening_start": False})
         dispatcher.utter_message(response="utter_submit")
         # dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
+        
+        sync_screening_responses(tracker)
+        utils.accuick_job_apply(tracker.get_slot("resume_upload"), tracker.get_slot("select_job"))
+        
         result += [
             SlotSet("job_screening_questions", None),
             SlotSet("job_screening_questions_count", None),
         ]
 
-        utils.accuick_job_apply(tracker.get_slot("resume_upload"), tracker.get_slot("select_job"))
-
         return result
+
+
+############# utils #################
+
+def sync_screening_responses(tracker):
+    payload = {
+        "email": tracker.get_slot("email"),
+        "candidateId": tracker.get_slot("resume_upload"),
+        "fullName": tracker.get_slot("full_name"),
+        "phoneNumber": tracker.get_slot("phone_number"),
+        "jobId": tracker.get_slot("select_job"),
+        "candidateResponses": [{"id": q["id"], "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
+    }
+    print("Sending sync response: " + json.dumps(payload, indent=4))

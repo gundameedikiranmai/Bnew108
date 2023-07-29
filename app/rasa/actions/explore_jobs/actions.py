@@ -243,7 +243,6 @@ def get_screening_questions_for_job_id(tracker):
 
     questions_data_transformed = []
     for q in questions_data:
-        q_transformed = {"input_type": q["inputType"]}
         if q["inputType"] == "attachment":
             # if resume was cancelled, set it to None so that it can be asked later again....
             if tracker.get_slot("resume_upload") == "false":
@@ -256,6 +255,7 @@ def get_screening_questions_for_job_id(tracker):
             # ignore these input types as they are mandatory.
             continue
         
+        q_transformed = {"id": q.get("id"), "input_type": q["inputType"]}
         if q.get("labelName") is not None:
             q_transformed["text"] = q.get("labelName")
         inputType = q.get("inputType")
