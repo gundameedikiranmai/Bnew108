@@ -8,6 +8,8 @@ responses:
     - payload: /ask_a_question
       title: 'Ask a question'
     text: Hi! How can we be at your side today?
+  utter_nice_to_meet_you:
+  - text: Nice to meet you, {full_name}
   # job screening
   utter_screening_start:
   - text: We have a few questions about your background and experience to get your application started.

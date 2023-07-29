@@ -156,7 +156,7 @@ class AskJobTitleAction(AskCustomBaseAction):
             "responses": ["utter_ask_" + self.entity_name],
             "data": {
                 "titles": ["client", "software developer"],
-                "placeholder_text": "Select a Job Title",
+                "placeholder_text": "Start typing to select job title",
             }
         }
         return super().run(dispatcher, tracker, domain, **kwargs)
@@ -172,7 +172,7 @@ class AskJobLocationAction(AskCustomBaseAction):
         kwargs = {
             "responses": ["utter_ask_" + self.entity_name],
             "data": {
-                "placeholder_text": "Select a location",
+                "placeholder_text": "Reply to choose locations..",
             }
         }
         return super().run(dispatcher, tracker, domain, **kwargs)

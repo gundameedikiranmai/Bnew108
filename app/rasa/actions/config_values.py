@@ -8,4 +8,4 @@ ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = "https://search.accuick.com/Twilio/webhook
 #### Placeholders
 PLACEHOLDER_EMAIL = "me@email.com"
 PLACEHOLDER_PHONE_NUMBER = "123-456-7890"
-PLACEHOLDER_FULL_NAME = "Enter your full name"
+PLACEHOLDER_FULL_NAME = "Type your full name.."
