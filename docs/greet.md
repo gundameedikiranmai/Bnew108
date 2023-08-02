@@ -189,7 +189,27 @@ The ui should then take the `candidate_id` and send it to the webhook as the nex
 
 **Combining the resume upload and chatbot message into a single api was tried but the rasa backend was getting stuck for some reason, hence moving this two step api calls to the UI**
 
-*After uploading the resume, the bot will continue to the answers questions flow. However, the resume upload question will not be presented again in the job_screening section after selecting a job.*
+##### Parsed data from resume
+The upload resume on the api returns the following parsed data:
+
+```
+{
+    "phone-number": "",
+    "jobTitles": [
+        "Senior IT Specialist",
+        ...
+    ],
+    "location": "",
+    "message": "Resume uploaded successfully.",
+    "candidateId": "9517024",
+    "full-name": "Jannet Morgan",
+    "email": "jannet.j.morgan@me.com"
+}
+```
+
+The values can either be empty strings or parsed from the resume. Empty strings are ignored whereas other values are stored in the chatbot session and they will not be asked again. For job titles, the first title from the list is taken as the value for job_title field.
+
+If either job_title or job_location is present in the response, the chatbot will directly display the job recommendations, else, it will continue to the answer questions branch. The resume upload question will not be presented again in the job_screening section after selecting a job.
 
 ##### Cancel resume upload
 To if `is_cancel_allowed` is True, only then should the cancel button be shown in the UI. After clicking on the button, the UI should send the value of `cancel_message` key as the user message.
@@ -211,7 +231,7 @@ Bot will respond by asking job title and location. Both questions require a cust
         "recipient_id": "a0c526cc-1a51-11ee-9858-a19875d5b355",
         "custom": {
             "ui_component": "job_title",
-            "titles": ["client", "software developer"],
+            "titles": ["last job title"] or [],
             "intent": "input_job_title",
             "entity": "job_title",
             "placeholder_text": "Select a Job Title"
@@ -220,6 +240,8 @@ Bot will respond by asking job title and location. Both questions require a cust
 ]
 
 ```
+
+**if titles list is not empty, then the last job title should be considered as pre-selected value and if user clicks send button, the last job title should string should be sent as string.**
 
 After answering title and location, the bot will query job search api (https://sequence.accuick.com/Sequence/searchjobs) to fetch matching jobs and display.
 
@@ -260,29 +282,21 @@ Bot message:
             "ui_component": "select_job",
             "jobs": [
                 {
-                    "date": "2023-06-21 10:28:19.0",
-                    "isremote": false,
-                    "jobtitle": " RAC Collections Agent - TX/AZ",
-                    "city": "Tempe",
-                    "description": "html formatted string....",
-                    "jobtype": "Full-Time Contract",
-                    "zipcode": "",
-                    "jobid": "228332",
-                    "assessment": "ALL",
-                    "state": "AZ",
-                    "payrange": "15.00",
-                    "compname": "ASK Consulting",
-                    "paytype": "",
-                    "status": "1: Open Req"
+                    'requisitionId_': '208114', 
+                    'title_': 'SR. Java Consultant/Lead with Agile and Support',
+                    ... other fields
                 },
                 .....
             ],
             "intent": "input_select_job",
-            "entity": "select_job"
+            "entity": "select_job",
+            'refine_job_search_message': '/refine_job_search'
         }
     }
 ]
 ```
+**if jobs is null or empty array, then no job recommendations were found, only the refine job search card should be displayed.**
+
 
 User message:
 ```
@@ -292,6 +306,30 @@ User message:
     "metadata": {}
 }
 ```
+
+
+##### Refine Job search
+After receiving the refine job search message, the following message will be sent from chatbot:
+
+```
+{
+        "recipient_id": "4589a7fc-30f3-11ee-8feb-05190da7ef8d",
+        "text": "Which field would you like to update?",
+        "buttons": [
+            {
+                "payload": "/input_refine_job_search_field{\"refine_job_search_field\": \"job_location\"}",
+                "title": "Preferred Location"
+            },
+            {
+                "payload": "/input_refine_job_search_field{\"refine_job_search_field\": \"job_title\"}",
+                "title": "Recent Job Title"
+            }
+        ]
+    }
+
+```
+
+Upon clicking either of the button, the relevant question will be displayed and the job recommendations will be modified based on provided input.
 
 ##### Followup after Job selection
 The [Job screening](/docs/job_screening.md) form is triggered wherein the selected job is used to fetch the relevant questionnaire for the job and renders it.
