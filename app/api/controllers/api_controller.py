@@ -36,10 +36,21 @@ async def upload_resume(request: Request):
         # message = '/input_resume_upload_data{"candidate_id": "1234"}'
         # rasa_payload = RasaWebhook(sender=form_data["sender"], message=message, metadata=metadata)
 
+        past_job_titles = resp.get("jobTitles", [])
+        job_title = past_job_titles[0] if len(past_job_titles) > 0 else None
+        job_location = resp.get("location", "").strip()
+
+        if job_title is None and job_location == "":
+            job_title = "ignore"
+        if job_title is not None and job_location == "":
+            job_location = "ignore"
+
         slots = {
             "phone_number": resp.get("phone-number", "").strip(),
             "full_name": resp.get("full-name", "").strip(),
             "email": resp.get("email", "").strip(),
+            "job_title": job_title,
+            "job_location": job_location,
             # "phone_number": "9998887776",
             # "full_name": "John doe",
             # "email": "abc@gmail.com",

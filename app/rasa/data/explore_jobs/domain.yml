@@ -8,11 +8,14 @@ intents:
 - input_job_location
 - input_select_job
 - input_resume_upload_data
+- refine_job_search
+- input_refine_job_search_field
 entities:
 - job_title
 - job_location
 - select_job
 - candidate_id
+- refine_job_search_field
 forms:
   explore_jobs_form:
     required_slots:
@@ -21,6 +24,7 @@ forms:
     - job_title
     - job_location
     - select_job
+    - refine_job_search_field
 slots:
   is_resume_upload:
     type: bool
@@ -89,6 +93,27 @@ slots:
       conditions:
       - active_loop: explore_jobs_form
         requested_slot: select_job
+    - type: from_intent
+      value: "restart"
+      intent: refine_job_search
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: select_job
+  refine_job_search_field:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_refine_job_search_field
+      entity: refine_job_search_field
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: refine_job_search_field
+  previous_job_title:
+    type: any
+    influence_conversation: false
+    mappings:
+    - type: custom
   search_jobs_list:
     type: any
     influence_conversation: false
@@ -109,3 +134,4 @@ actions:
 - action_ask_job_title
 - action_ask_job_location
 - action_ask_select_job
+- utter_ask_refine_job_search_field

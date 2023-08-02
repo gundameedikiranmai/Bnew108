@@ -168,10 +168,12 @@ def sync_screening_responses(tracker):
     }
     logger.debug("Sending sync response: " + str(payload))
     response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
-    try:
-        print(response.status_code, response.text)
-        resp = response.json()
-        print(json.dumps(resp, indent=4))
-    except Exception as e:
-        logger.error("Could not submit screening responses to webhook")
-        logger.error(e)
+    logger.info("received status code from sync response: " + str(response.status_code))
+    #  no need to check for response body as it is empty, only printing the status code
+    # try:
+    #     print(response.status_code, response.text)
+    #     resp = response.json()
+    #     print(json.dumps(resp, indent=4))
+    # except Exception as e:
+    #     logger.error("Could not submit screening responses to webhook")
+    #     logger.error(e)

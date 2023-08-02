@@ -26,25 +26,6 @@ class ValidateExploreJobsForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_explore_jobs_form"
     
-    def fetch_jobs(self, tracker):
-        payload = {
-            "keyword":tracker.get_slot("job_title"),
-            "location":tracker.get_slot("job_location"),
-        }
-        try:
-            job_resp = requests.post(cfg.ACCUICK_SEARCH_JOBS_URL, json=payload)
-            logger.info("job_resp status: {}".format(job_resp.status_code))
-            if job_resp.status_code == 200:
-                jobs = job_resp.json()
-                jobs_to_show = jobs.get("jobList", [])[:cfg.N_JOBS_TO_SHOW]
-                log_subset =  [{key: value for key, value in j.items() if key in ["requisitionId_", "title_"]} for j in jobs_to_show[:3]]
-                logger.info("found jobs: " + json.dumps(log_subset, indent=4))
-                return jobs_to_show
-        except Exception as e:
-            logger.error(e)
-            logger.error("could not fetch jobs from search api.")
-        return None
-    
     def validate_is_resume_upload(
         self,
         slot_value: Any,
@@ -72,35 +53,29 @@ class ValidateExploreJobsForm(FormValidationAction):
         result_dict = {
             "resume_upload": slot_value
         }
+        # resume upload cancel
         if slot_value == "false":
             dispatcher.utter_message(response="utter_resume_upload_cancel")
             result_dict["resume_upload"] = None
             result_dict["is_resume_upload"] = None
         return result_dict
-    
-    def validate_job_location(
+
+    def validate_refine_job_search_field(
         self,
         slot_value: Any,
         dispatcher: CollectingDispatcher,
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        """Validate `job_location` value."""
-        jobs = self.fetch_jobs(tracker)
-        # set as default none, update later 
+        """Validate `refine_job_search_field` value."""
         result_dict = {
-            "job_title": None,
-            "job_location": None
+            "refine_job_search_field": slot_value
         }
-        if jobs is None:
-            dispatcher.utter_message(response="utter_error_explore_jobs")
-        elif len(jobs) == 0:
-            dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found")
-        else:
-            result_dict = {
-                "search_jobs_list": jobs,
-                "job_location": slot_value
-            }
+        if slot_value not in [None, "ignore"]:
+            result_dict[slot_value] = None
+            # deselect job also
+            result_dict["select_job"] = None
+            result_dict["previous_job_title"] = tracker.get_slot("job_title")
             
         return result_dict
 
@@ -115,12 +90,15 @@ class ValidateExploreJobsForm(FormValidationAction):
         result_dict = {
             "select_job": slot_value
         }
-        # set select_job_title
-        jobs = tracker.get_slot("search_jobs_list")
-        for job in jobs:
-            if job["requisitionId_"] == slot_value:
-                result_dict["select_job_title"] = job["title_"]
-                break
+        if not slot_value == "restart":
+            result_dict["refine_job_search_field"] = "ignore"
+            
+            # set select_job_title
+            jobs = tracker.get_slot("search_jobs_list")
+            for job in jobs:
+                if job["requisitionId_"] == slot_value:
+                    result_dict["select_job_title"] = job["title_"]
+                    break
         return result_dict
 
 
@@ -152,14 +130,26 @@ class AskJobTitleAction(AskCustomBaseAction):
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
+        result = []
+        utt = self.entity_name
+        titles = []
+        responses = []
+        if tracker.get_slot("refine_job_search_field") == "job_title":
+            utt += "_refined"
+            result += [SlotSet("refine_job_search_field", None)]
+            logger.info("refined - job title: " + str(tracker.get_slot("previous_job_title")))
+            if tracker.get_slot("previous_job_title") not in [None, ""]:
+                titles += [tracker.get_slot("previous_job_title")]
+        else:
+            responses += ["utter_perfect"]
         kwargs = {
-            "responses": ["utter_ask_" + self.entity_name],
+            "responses": responses + ["utter_ask_" + utt],
             "data": {
-                "titles": ["client", "software developer"],
+                "titles": titles,
                 "placeholder_text": "Start typing to select job title",
             }
         }
-        return super().run(dispatcher, tracker, domain, **kwargs)
+        return result + super().run(dispatcher, tracker, domain, **kwargs)
 
 
 class AskJobLocationAction(AskCustomBaseAction):
@@ -169,30 +159,71 @@ class AskJobLocationAction(AskCustomBaseAction):
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
+        responses = []
+        result = []
+        if not tracker.get_slot("refine_job_search_field") == "job_location":
+            responses += ["utter_thank_you"]
+        else:
+            result += [SlotSet("refine_job_search_field", None)]
         kwargs = {
-            "responses": ["utter_ask_" + self.entity_name],
+            "responses": responses + ["utter_ask_" + self.entity_name],
             "data": {
                 "placeholder_text": "Reply to choose locations..",
             }
         }
-        return super().run(dispatcher, tracker, domain, **kwargs)
+        return result + super().run(dispatcher, tracker, domain, **kwargs)
 
 
 class AskSelectJobAction(AskCustomBaseAction):
     def __init__(self):
         self.set_params("select_job")
+    
+    def fetch_jobs(self, tracker):
+        job_location = tracker.get_slot("job_location")
+        # set location as empty value if it has to be ignored.
+        if job_location in [None, "ignore"]:
+            job_location = ""
+        payload = {
+            "keyword": tracker.get_slot("job_title"),
+            "location": job_location,
+        }
+        try:
+            logger.info("job search params: " + str(payload))
+            job_resp = requests.post(cfg.ACCUICK_SEARCH_JOBS_URL, json=payload)
+            logger.info("job_resp status: {}".format(job_resp.status_code))
+            if job_resp.status_code == 200:
+                jobs = job_resp.json()
+                jobs_to_show = jobs.get("jobList", [])[:cfg.N_JOBS_TO_SHOW]
+                log_subset =  [{key: value for key, value in j.items() if key in ["requisitionId_", "title_"]} for j in jobs_to_show[:3]]
+                logger.info("found jobs: " + json.dumps(log_subset, indent=4))
+                return jobs_to_show
+        except Exception as e:
+            logger.error(e)
+            logger.error("could not fetch jobs from search api.")
+        return None
 
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
-        jobs = tracker.get_slot("search_jobs_list")
+        result = []
+        jobs = self.fetch_jobs(tracker)
+        
+        if jobs is None:
+            dispatcher.utter_message(response="utter_error_explore_jobs")
+        elif len(jobs) == 0:
+            dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found")
+        else:
+            result += [SlotSet("search_jobs_list", jobs)]
+        
+        # jobs = tracker.get_slot("search_jobs_list")
         # logger.info("matched jobs: " + json.dumps(jobs, indent=4))
         kwargs = {
             "data": {
                 "jobs": jobs,
+                "refine_job_search_message": "/refine_job_search"
             }
         }
-        return super().run(dispatcher, tracker, domain, **kwargs)
+        return result + super().run(dispatcher, tracker, domain, **kwargs)
 
 
 class ExploreJobsFormSubmit(Action):
