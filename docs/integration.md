@@ -10,7 +10,10 @@ The bot request format is:
 {
     "sender": UUID,
     "message": msg,
-    "metadata": {},
+    "metadata": {
+        "chatbot_type": "1", // "1" or "2"
+        "job_location": "TX" // job location from cookie
+    }
 }
 ```
 

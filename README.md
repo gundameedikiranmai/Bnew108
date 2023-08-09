@@ -16,15 +16,12 @@ See detailed documentation in docs directory.
 
 
 ### Finished in Last Update
-- **Display file upload component in resume upload question as part of job screening if resume wasn't uploaded during job search.**
-- **add is_cancel_allowed in upload resume**
-- **Add placeholder text for screening questions wherever applicable.**
 
 ### Pending Work
 
 Explore Jobs
 
 Job Screening
-- **Add validations for questions based on input type (email, phone etc.)**
+- **Add ability to go back while answering screening questions**
 
 
