@@ -28,7 +28,7 @@ def get_metadata_field(tracker, field):
 
 def accuick_job_apply(candidate_id, job_id):
     payload = {
-        "accuickid": candidate_id,
+        "accuickid": get_default_slot_value(candidate_id),
         "jobid": job_id,
         "source": "ChatBot"
     }

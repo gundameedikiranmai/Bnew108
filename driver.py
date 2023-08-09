@@ -11,7 +11,7 @@ url = "http://localhost:8000"
 # url = "http://52.40.250.118:8888"
 # url = "http://localhost:6005/webhooks/nlu"
 UUID = str(uuid.uuid1())
-chatbot_type = "2"
+chatbot_type = "1"
 
 def send_to_rasa(usr_msg):
     payload = {
@@ -123,7 +123,8 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None):
 # explore_jobs(is_upload_resume=True)
 # explore_jobs(is_upload_resume=True, cancel=True)
 # explore_jobs(is_upload_resume=False)
-explore_jobs(is_upload_resume=False, refine_job_search="title")
+# explore_jobs(is_upload_resume=False, refine_job_search="location")
+explore_jobs(is_upload_resume=True, refine_job_search="location")
 
 while True:
     print("\nplease enter your message:")

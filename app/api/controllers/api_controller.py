@@ -50,7 +50,7 @@ async def upload_resume(request: Request):
             "full_name": resp.get("full-name", "").strip(),
             "email": resp.get("email", "").strip(),
             "job_title": job_title,
-            "job_location": job_location,
+            # "job_location": job_location,
             # "phone_number": "9998887776",
             # "full_name": "John doe",
             # "email": "abc@gmail.com",
