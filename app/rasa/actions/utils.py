@@ -41,3 +41,9 @@ def accuick_job_apply(candidate_id, job_id):
     except Exception as e:
         logger.error(e)
         logger.error("Could not submit job application")
+
+
+def get_default_slot_value(val, default_val=""):
+    if val in cfg.SLOT_IGNORE_VALUES:
+        return default_val
+    return val

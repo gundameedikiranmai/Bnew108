@@ -29,6 +29,6 @@ rules:
   - action: action_deactivate_loop
   - active_loop: null
   # start explore jobs form now
-  - action: utter_start_explore_jobs
+  - action: action_start_explore_jobs
   - action: explore_jobs_form
   - active_loop: explore_jobs_form

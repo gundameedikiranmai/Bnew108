@@ -127,7 +127,7 @@ slots:
 actions:
 - validate_explore_jobs_form
 - explore_jobs_form_submit
-- utter_start_explore_jobs
+- action_start_explore_jobs
 # form slots
 - utter_ask_is_resume_upload
 - action_ask_resume_upload

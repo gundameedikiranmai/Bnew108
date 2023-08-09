@@ -16,15 +16,44 @@ import actions.config_values as cfg
 
 logger = getLogger(__name__)
 
-def load_faqs():
-    faq_file = os.path.join("chatbot_data", "faq", "faq.yml")
-    return yaml.load(open(faq_file), Loader=yaml.FullLoader)["faqs"]
+class ActionStartExploreJobs(Action):
 
-faqs = load_faqs()
+    def name(self) -> Text:
+        return "action_start_explore_jobs"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
+        result = []
+        # set slot values 
+        chatbot_type, chatbot_type_slot = utils.get_metadata_field(tracker, "chatbot_type")
+        job_location, job_location_slot = utils.get_metadata_field(tracker, "job_location")
+        
+        if chatbot_type == "1":
+            dispatcher.utter_message(response="utter_start_explore_jobs")
+        elif chatbot_type == "2":
+            result += [
+                SlotSet("is_resume_upload", False),
+                SlotSet("resume_upload", "ignore"),
+                SlotSet("job_title", "ignore"),
+            ]
+            dispatcher.utter_message(response="utter_start_explore_jobs_without_asking", slots={"job_location": job_location})
+        
+        return result + chatbot_type_slot + job_location_slot
 
 class ValidateExploreJobsForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_explore_jobs_form"
+    
+    # async def required_slots(
+    #     self,
+    #     domain_slots: List[Text],
+    #     dispatcher: "CollectingDispatcher",
+    #     tracker: "Tracker",
+    #     domain: "DomainDict",
+    # ) -> List[Text]:
+    #     chatbot_type, _ = utils.get_metadata_field(tracker, "chatbot_type")
+    #     if chatbot_type == "1":
+    #         return cfg.EXPLORE_JOBS_MATCHING_CRITERIA_SLOTS + domain_slots
+    #     return domain_slots
     
     def validate_is_resume_upload(
         self,
@@ -71,7 +100,7 @@ class ValidateExploreJobsForm(FormValidationAction):
         result_dict = {
             "refine_job_search_field": slot_value
         }
-        if slot_value not in [None, "ignore"]:
+        if slot_value not in cfg.SLOT_IGNORE_VALUES:
             result_dict[slot_value] = None
             # deselect job also
             result_dict["select_job"] = None
@@ -138,7 +167,7 @@ class AskJobTitleAction(AskCustomBaseAction):
             utt += "_refined"
             result += [SlotSet("refine_job_search_field", None)]
             logger.info("refined - job title: " + str(tracker.get_slot("previous_job_title")))
-            if tracker.get_slot("previous_job_title") not in [None, ""]:
+            if tracker.get_slot("previous_job_title") not in cfg.SLOT_IGNORE_VALUES:
                 titles += [tracker.get_slot("previous_job_title")]
         else:
             responses += ["utter_perfect"]
@@ -179,13 +208,9 @@ class AskSelectJobAction(AskCustomBaseAction):
         self.set_params("select_job")
     
     def fetch_jobs(self, tracker):
-        job_location = tracker.get_slot("job_location")
-        # set location as empty value if it has to be ignored.
-        if job_location in [None, "ignore"]:
-            job_location = ""
         payload = {
-            "keyword": tracker.get_slot("job_title"),
-            "location": job_location,
+            "keyword": utils.get_default_slot_value(tracker.get_slot("job_title")),
+            "location": utils.get_default_slot_value(tracker.get_slot("job_location")),
         }
         try:
             logger.info("job search params: " + str(payload))

@@ -11,14 +11,17 @@ url = "http://localhost:8000"
 # url = "http://52.40.250.118:8888"
 # url = "http://localhost:6005/webhooks/nlu"
 UUID = str(uuid.uuid1())
+chatbot_type = "2"
 
-def send_to_rasa(msg):
+def send_to_rasa(usr_msg):
     payload = {
         "sender": UUID,
-        "message": msg,
-        # "metadata": {
-        #     "job_id": "2"
-        # },
+        "message": usr_msg,
+        "metadata": {
+            "job_id": "2",
+            "chatbot_type": chatbot_type,
+            "job_location": "TX"
+        },
     }
 
     headers = {
@@ -63,37 +66,64 @@ def send_resume_message():
     send_to_rasa('/input_resume_upload_data{"candidate_id": "' + candidate_id + '"}')
 
 
-def explore_jobs(is_upload_resume=False, cancel=False):
-    send_to_rasa("/greet")
-    send_to_rasa("/explore_jobs")
-    if is_upload_resume:
-        send_to_rasa("/affirm")
-        if cancel:
-            send_to_rasa("/deny")
-            # select answer questions path
-            send_to_rasa("/deny")
-        else:
-            send_resume_message()
-    else:
-        send_to_rasa("/deny")
-    send_to_rasa('/input_job_title{"job_title": "Java Developer"}')
-    send_to_rasa('/input_job_location{"job_location": "CA"}')
-    send_to_rasa('/input_select_job{"select_job": "227842"}')
-    # if resume was cancelled initially, upload it again
-    if not is_upload_resume or cancel:
-        send_resume_message()
+def screening_questions():
     send_to_rasa("John Doe")
     send_to_rasa("me@gmail.com")
     send_to_rasa("+1 1234567890")
     send_to_rasa("01/01/1960")
+
+def answer_job_title():
+    send_to_rasa('/input_job_title{"job_title": "Java Developer"}')
+
+def answer_job_location():
+    send_to_rasa('/input_job_location{"job_location": "CA"}')
+
+def send_job():
+    send_to_rasa('/input_select_job{"select_job": "227842"}')
+
+def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None):
+    send_to_rasa("/greet")
+    send_to_rasa("/explore_jobs")
+    if chatbot_type == "1":
+        if is_upload_resume:
+            send_to_rasa("/affirm")
+            if cancel:
+                send_to_rasa("/deny")
+                # select answer questions path
+                send_to_rasa("/deny")
+                answer_job_title()
+            else:
+                send_resume_message()
+        else:
+            send_to_rasa("/deny")
+            answer_job_title()
+    elif chatbot_type == "2":
+        pass
+    
+    # jobs have been displayed, now send_job or refine.
+    if refine_job_search is not None:
+        send_to_rasa("/refine_job_search")
+        if refine_job_search == "location":
+            send_to_rasa('/input_refine_job_search_field{"refine_job_search_field": "job_location"}')
+            answer_job_location()
+        elif refine_job_search == "title":
+            send_to_rasa('/input_refine_job_search_field{"refine_job_search_field": "job_title"}')
+            answer_job_title()
+    
+    # send_job()
+    # # if resume was cancelled initially, upload it again
+    # if not is_upload_resume or cancel:
+    #     send_resume_message()
+    # screening_questions()
     
 
 # send_to_rasa("/job_screening")
 # send_to_rasa("/greet")
 
 # explore_jobs(is_upload_resume=True)
-explore_jobs(is_upload_resume=True, cancel=True)
+# explore_jobs(is_upload_resume=True, cancel=True)
 # explore_jobs(is_upload_resume=False)
+explore_jobs(is_upload_resume=False, refine_job_search="title")
 
 while True:
     print("\nplease enter your message:")
@@ -102,4 +132,6 @@ while True:
     #     break
 
     print()
+    if "job:" in msg:
+        msg = '/input_select_job{"select_job": "' + msg.split(":")[1].strip() + '"}'
     send_to_rasa(msg)

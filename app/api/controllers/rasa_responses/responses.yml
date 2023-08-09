@@ -18,7 +18,7 @@ responses:
   - text: Nice to meet you, {full_name}
   # job screening
   utter_screening_start:
-  - text: We have a few questions about your background and experience to get your application started.
+  - text: Awesome! I would like to apply for this position. In order to do that, I will need to gather some additional information from you.
   utter_ask_email:
   - text: What is your email address? We promise to not send you spam emails
   utter_ask_phone_number:
@@ -34,7 +34,9 @@ responses:
   - text: Here are a few questions that might be relevant for you
   # explore jobs
   utter_start_explore_jobs:
-  - text: "We want to personalize your job recommendations.\n\nTo find you the right job, we need to know more about your background and interests."
+  - text: "Let's personalize your job recommendations based on your background and interests."
+  utter_start_explore_jobs_without_asking:
+  - text: "It looks like you are near {job_location}. Here are some jobs we have in that area and/or 100% Remote"
   utter_ask_is_resume_upload:
   - buttons:
     - payload: /affirm

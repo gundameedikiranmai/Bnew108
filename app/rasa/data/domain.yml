@@ -19,6 +19,11 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
+  chatbot_type:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
 actions:
 - action_core_default
 - utter_iamabot
