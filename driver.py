@@ -18,7 +18,7 @@ def send_to_rasa(usr_msg):
         "sender": UUID,
         "message": usr_msg,
         "metadata": {
-            "job_id": "2",
+            # "job_id": "2",
             "chatbot_type": chatbot_type,
             "job_location": "TX"
         },
@@ -30,7 +30,7 @@ def send_to_rasa(usr_msg):
     print(json.dumps(payload, indent=4))
 
     resp = requests.post(url + "/webhooks/rest/webhook", json=payload, headers=headers)
-    # print("Bot responded:")
+    # print("Bot responded:", resp.json())
     for msg in resp.json():
         if msg.get("custom", {}).get("ui_component") == "select_job":
             log_jobs = []
@@ -123,8 +123,8 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None):
 # explore_jobs(is_upload_resume=True)
 # explore_jobs(is_upload_resume=True, cancel=True)
 # explore_jobs(is_upload_resume=False)
-# explore_jobs(is_upload_resume=False, refine_job_search="location")
-explore_jobs(is_upload_resume=True, refine_job_search="location")
+explore_jobs(is_upload_resume=False, refine_job_search="location")
+# explore_jobs(is_upload_resume=True, refine_job_search="location")
 
 while True:
     print("\nplease enter your message:")
