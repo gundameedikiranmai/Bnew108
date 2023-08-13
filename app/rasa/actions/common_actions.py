@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Text, List, Any, Dict
 
 from rasa_sdk import Tracker, Action
-from rasa_sdk.events import EventType, SlotSet
+from rasa_sdk.events import EventType, SlotSet, Restarted
 from rasa_sdk.executor import CollectingDispatcher
 import actions.utils as utils
 import actions.config_values as cfg
@@ -73,6 +73,37 @@ class AskUtteranceWithPlaceholderAction(AskCustomBaseAction):
         result = []
         dispatcher.utter_message(response=f"utter_ask_{self.entity_name}")
         add_placeholder_utterance(dispatcher, self.placeholder)
+
+
+class ActionRestart(Action):
+    
+    def name(self) -> Text:
+        return "action_restart"
+    
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
+    ) -> List[EventType]:
+        slots_to_retain = []
+        for slot in ["full_name"]:
+        # for slots in ["full_name", "email", "phone_number"]
+            if tracker.get_slot(slot) is not None:
+                slots_to_retain.append(SlotSet(slot, tracker.get_slot(slot)))
+        return [Restarted()] + slots_to_retain
+
+
+class ActionUtterGreet(Action):
+    
+    def name(self) -> Text:
+        return "action_utter_greet"
+    
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
+    ) -> List[EventType]:
+        if tracker.get_slot("full_name") is not None:
+            dispatcher.utter_message(response="utter_greet_known")
+        else:
+            dispatcher.utter_message(response="utter_greet")
+        return []
 
 
 def add_placeholder_utterance(dispatcher, placeholder_text):

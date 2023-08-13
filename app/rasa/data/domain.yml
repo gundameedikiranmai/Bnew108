@@ -26,5 +26,6 @@ slots:
     - type: custom
 actions:
 - action_core_default
+- action_restart
 - utter_iamabot
-- utter_greet
+- action_utter_greet
