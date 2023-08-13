@@ -19,6 +19,10 @@ responses:
   # job screening
   utter_screening_start:
   - text: Awesome! I would like to apply for this position. In order to do that, I will need to gather some additional information from you.
+  utter_screening_go_back:
+  - text: Ok we can go back to the previous question.
+  utter_screening_show_back_prompt:
+  - text: You can always go back to previous question by typing back
   utter_ask_email:
   - text: What is your email address? We promise to not send you spam emails
   utter_ask_phone_number:

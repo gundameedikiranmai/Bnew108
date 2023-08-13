@@ -59,6 +59,12 @@ class ValidateJobScreeningForm(FormValidationAction):
         if history is None:
             history = []
         n_history = len(history)
+
+        # check for back message
+        if n_history > 0 and slot_value.upper() == cfg.SCREENING_FORM_BACK_KEYWORD:
+            dispatcher.utter_message(response="utter_screening_go_back")
+            return {"screening_question": None, "screening_question_history": history[:-1]}
+        
         result_dict = {
             "screening_question_history": history + [slot_value]
         }
@@ -127,6 +133,10 @@ class AskScreeningQuestionAction(Action):
             # dispatcher.utter_message(text=questions_data[n_history].get("text"), buttons=questions_data[n_history].get("buttons"), json_message=questions_data[n_history].get("custom"))
             if input_type == "date":
                 add_date_utterance(dispatcher)
+            
+            if n_history == 1:
+                # show back prompt on second question
+                dispatcher.utter_message(response="utter_screening_show_back_prompt")
         else:
             dispatcher.utter_message(text="Error.... all questions have been answered...")
         return result

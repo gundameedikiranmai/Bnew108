@@ -58,15 +58,18 @@ slots:
         requested_slot: full_name
   screening_question_history:
     type: any
+    influence_conversation: false
     # initial_value: []
     mappings:
     - type: custom
   job_screening_questions:
     type: any
+    influence_conversation: false
     mappings:
     - type: custom
   job_screening_questions_count:
     type: any
+    influence_conversation: false
     mappings:
     - type: custom
 actions:
