@@ -39,3 +39,6 @@ The bot response format is (buttons array is optional and may not always be pres
 ```
 
 If buttons array is provided, then the text input box should not be shown.
+
+### Identifying existing session
+The UI should store the UUID in local storage and use it for sending chatbot messages. If local storage is empty, initialize new UUID and store it.
