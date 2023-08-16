@@ -52,7 +52,7 @@ async def get_responses(request: Request):
 
 def get_response_text(template, params):
     resp = copy.deepcopy(rasa_responses[template])
-    print("get_response_text **********************")
+    print("get_response_text **********************", len(resp))
     if params is not None:
         print("type : ", type(params))
         print("content : ", str(params))
@@ -65,19 +65,21 @@ def get_response_text(template, params):
         else:
             choice = resp[0]
     # if there are only buttons but different text variations, choose text randomly 
-    elif len(resp) == 1 and 'text' in resp[0].keys() and isinstance(resp[0]['text'], list):
+    elif len(resp) == 1 and 'text' in resp[0].keys() and (isinstance(resp[0]['text'], list) or isinstance(resp[0]['text'], dict)):
+        resp_cpy = resp
         if "trigger_flag" in params.keys() and params["trigger_flag"] is True and len(resp[0]['text']) > 1:
-            resp_cpy = resp
             resp_text = resp_cpy[0]['text'][random.randrange(1, len(resp_cpy[0]['text']), 1)]
             resp_cpy[0]['text'] = resp_text
             print("Random selection list :: {}, {}".format(len(resp_cpy[0]['text']), str(resp_cpy)))
-            choice = resp_cpy[0]
+        elif "greet" in params.keys() and params["greet"] is not None:
+            resp_text = resp_cpy[0]['text'][params["greet"]]
+            resp_cpy[0]['text'] = resp_text
+            print("greet selected text :: {}".format(str(resp_cpy)))
         else:
-            resp_cpy = resp
             resp_text = resp_cpy[0]['text'][0]
             resp_cpy[0]['text'] = resp_text
             print("first selection list :: {}".format(str(resp_cpy)))
-            choice = resp_cpy[0]
+        choice = resp_cpy[0]
     else:
         print("first selection :::")
         choice = resp[0]

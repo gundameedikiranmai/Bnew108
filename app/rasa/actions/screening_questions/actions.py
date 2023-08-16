@@ -160,7 +160,9 @@ class JobScreeningFormSubmit(Action):
         result += [
             SlotSet("job_screening_questions", None),
             SlotSet("job_screening_questions_count", None),
+            SlotSet("select_job", None),
         ]
+        dispatcher.utter_message(response="utter_greet", greet="after_apply")
 
         return result
 

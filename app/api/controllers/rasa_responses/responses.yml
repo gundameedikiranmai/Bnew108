@@ -7,14 +7,10 @@ responses:
       title: 'Explore Jobs'
     - payload: /ask_a_question
       title: 'Ask a question'
-    text: Hi! How can we be at your side today?
-  utter_greet_known:
-  - buttons:
-    - payload: /explore_jobs
-      title: 'Explore Jobs'
-    - payload: /ask_a_question
-      title: 'Ask a question'
-    text: Welcome back {full_name}, How can I help you?
+    text:
+      unknown: Hi! How can we be at your side today?
+      known: Welcome back {full_name}, How can I help you?
+      after_apply: What would you like to do next?
   utter_perfect:
   - text: Perfect!
   utter_great:

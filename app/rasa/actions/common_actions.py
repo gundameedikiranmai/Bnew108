@@ -100,9 +100,10 @@ class ActionUtterGreet(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
     ) -> List[EventType]:
         if tracker.get_slot("full_name") is not None:
-            dispatcher.utter_message(response="utter_greet_known")
+            greet_param = "known"
         else:
-            dispatcher.utter_message(response="utter_greet")
+            greet_param = "unknown"
+        dispatcher.utter_message(response="utter_greet", greet=greet_param)
         return []
 
 

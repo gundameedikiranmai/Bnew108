@@ -272,8 +272,7 @@ class ExploreJobsFormSubmit(Action):
             SlotSet("job_screening_questions", questions_data),
             SlotSet("job_screening_questions_count", len(questions_data)),
             # reset explore jobs form
-            SlotSet("job_title", None),
-            SlotSet("job_location", None),
+            SlotSet("refine_job_search_field", None),
             # reset job_screening_form
             SlotSet("screening_question", None),
             SlotSet("screening_question_history", None),
