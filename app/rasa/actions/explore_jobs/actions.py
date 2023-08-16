@@ -87,7 +87,7 @@ class ValidateExploreJobsForm(FormValidationAction):
             dispatcher.utter_message(response="utter_resume_upload_cancel")
             result_dict["resume_upload"] = None
             result_dict["is_resume_upload"] = None
-        if tracker.get_slot("full_name") is not None:
+        if tracker.get_slot("first_name") is not None:
             dispatcher.utter_message(response="utter_nice_to_meet_you")
         return result_dict
 

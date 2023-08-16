@@ -56,6 +56,11 @@ slots:
       conditions:
       - active_loop: job_screening_form
         requested_slot: full_name
+  first_name:
+    type: any
+    influence_conversation: false
+    mappings:
+    - type: custom
   screening_question_history:
     type: any
     influence_conversation: false

@@ -47,7 +47,8 @@ async def upload_resume(request: Request):
 
         slots = {
             "phone_number": resp.get("phone-number", "").strip(),
-            "full_name": resp.get("full-name", "").strip(),
+            "full_name": resp.get("full-name_1", "").strip(),
+            "first_name": resp.get("full-name", "").strip(),
             "email": resp.get("email", "").strip(),
             "job_title": job_title,
             # "job_location": job_location,

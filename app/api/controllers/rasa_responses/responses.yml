@@ -22,7 +22,7 @@ responses:
   utter_thank_you:
   - text: Thank you!
   utter_nice_to_meet_you:
-  - text: Nice to meet you, {full_name}
+  - text: Nice to meet you, {first_name}
   # job screening
   utter_screening_start:
   - text: Awesome! I would like to apply for this position. In order to do that, I will need to gather some additional information from you.
