@@ -1,6 +1,7 @@
 import os
 import copy
 import json
+import re
 import requests
 from logging import getLogger
 from typing import Text, List, Any, Dict
@@ -35,6 +36,43 @@ class ValidateJobScreeningForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_job_screening_form"
     
+    def validate_email(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `email` value."""
+        logger.info(f"validating input {slot_value}")
+        if slot_value is not None and cfg.email_pattern.match(slot_value):
+            print("valid email from slot:", slot_value.lower())
+            return {"email": slot_value.lower()}
+        else:
+            dispatcher.utter_message(response="utter_email_invalid")
+            return {"email": None}
+
+
+    def validate_phone_number(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `phone_number` value."""
+        logger.info(f"validating input {slot_value}")
+
+        if cfg.phone_pattern.match(slot_value):
+            phone = re.sub("[^0-9]", "", slot_value)
+            if len(phone) == 10:
+                return {"phone_number": phone}
+
+        # else case
+        dispatcher.utter_message(response="utter_phone_number_error")
+        return {"phone_number": None}
+
+
     def validate_screening_question(
         self,
         slot_value: Any,

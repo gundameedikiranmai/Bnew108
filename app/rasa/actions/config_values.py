@@ -1,3 +1,5 @@
+import re
+
 SLOT_IGNORE_VALUES = [None, "", "ignore"]
 
 ACCUICK_SEARCH_JOBS_URL = "https://sequence.accuick.com/CloudTalentApi/api/chatbotsearchjobs"
@@ -19,3 +21,9 @@ SCREENING_FORM_BACK_KEYWORD = "BACK"
 PLACEHOLDER_EMAIL = "me@email.com"
 PLACEHOLDER_PHONE_NUMBER = "123-456-7890"
 PLACEHOLDER_FULL_NAME = "Type your full name.."
+
+#### validations
+EMAIL_REGEX = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+[^.@#$%^&*<>?/|\}\{\(\)\[\]:;\\\'\",`~]$)"
+PHONE_REGEX = r'^([(]\d{3}[)][\s]*[.-]?\d{3}[\s]*[.-]?\d{4}[\s]*$)|^(\d{3}[\s]*[.-]?\d{3}[\s]*[.-]?\d{4}[\s]*$)|^\d{10}[\s]*$'
+email_pattern = re.compile(EMAIL_REGEX)
+phone_pattern = re.compile(PHONE_REGEX)
