@@ -1,5 +1,6 @@
 import requests
 import json
+from datetime import datetime
 from logging import getLogger
 from rasa_sdk.events import SlotSet
 import actions.config_values as cfg
@@ -47,3 +48,10 @@ def get_default_slot_value(val, default_val=""):
     if val in cfg.SLOT_IGNORE_VALUES:
         return default_val
     return val
+
+
+def validate_date(date_str):
+    try:
+        return bool(datetime.strptime(date_str, cfg.DATE_FORMAT))
+    except ValueError:
+        return False

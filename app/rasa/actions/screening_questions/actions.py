@@ -98,10 +98,15 @@ class ValidateJobScreeningForm(FormValidationAction):
             history = []
         n_history = len(history)
 
+        input_type = job_screening_questions[n_history].get("input_type")
+
         # check for back message
         if n_history > 0 and slot_value.upper() == cfg.SCREENING_FORM_BACK_KEYWORD:
             dispatcher.utter_message(response="utter_screening_go_back")
             return {"screening_question": None, "screening_question_history": history[:-1]}
+        elif input_type == "date" and not utils.validate_date(slot_value):
+            dispatcher.utter_message(response="utter_date_error")
+            return {"screening_question": None}
         
         result_dict = {
             "screening_question_history": history + [slot_value]
