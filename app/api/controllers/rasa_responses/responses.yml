@@ -8,7 +8,7 @@ responses:
     - payload: /ask_a_question
       title: 'Ask a question'
     text:
-      unknown: Hi! How can we be at your side today?
+      unknown: Hi there How can I help you today?
       known: Welcome back {full_name}, How can I help you?
       after_apply: What would you like to do next?
   utter_perfect:
@@ -21,7 +21,7 @@ responses:
   - text: Nice to meet you, {first_name}
   # job screening
   utter_screening_start:
-  - text: Awesome! I would like to apply for this position. In order to do that, I will need to gather some additional information from you.
+  - text: Great! To assist you in applying for this position, I'll need to collect some additional information from you.
   utter_screening_go_back:
   - text: Ok we can go back to the previous question.
   utter_screening_show_back_prompt:
@@ -47,7 +47,7 @@ responses:
   - text: Here are a few questions that might be relevant for you
   # explore jobs
   utter_start_explore_jobs:
-  - text: "Let's personalize your job recommendations based on your background and interests."
+  - text: "Let's tailor job recommendations to match your unique background and interests."
   utter_start_explore_jobs_without_asking:
   - text: "It looks like you are near {job_location}. Here are some jobs we have in that area and/or 100% Remote"
   utter_ask_is_resume_upload:
@@ -56,13 +56,13 @@ responses:
       title: 'Upload Resume'
     - payload: /deny
       title: 'Answer Questions'
-    text: Would you like to upload your resume or answer questions?
+    text: Prefer to share your resume or answer a few questions to refine job suggestions for you?
   utter_ask_resume_upload:
   - text: "Please upload your resume"
   utter_resume_upload_cancel:
   - text: "Your resume upload was cancelled."
   utter_ask_job_title:
-  - text: "Next question. What's your preferred job title? We'll try finding similar jobs."
+  - text: "What job title do you prefer? We'll use this to find related positions for you."
   utter_ask_job_title_refined:
   - text: "What's your preferred job title? We'll try finding similar jobs."
   utter_ask_job_location:
@@ -77,6 +77,6 @@ responses:
   utter_error_explore_jobs:
   - text: "There was an error in finding jobs, please try again later"
   utter_explore_jobs_no_jobs_found:
-  - text: "We could not find any jobs matching with your search criteria."
+  - text: "Unfortunately, I couldn't locate any positions that match your search criteria at the moment."
   utter_explore_jobs_apply_success:
   - text: "Thanks for applying to the job: {select_job_title}"
