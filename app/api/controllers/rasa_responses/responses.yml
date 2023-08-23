@@ -78,5 +78,7 @@ responses:
   - text: "There was an error in finding jobs, please try again later"
   utter_explore_jobs_no_jobs_found:
   - text: "Unfortunately, I couldn't locate any positions that match your search criteria at the moment."
+  utter_explore_jobs_jobs_found:
+  - text: Great! Take a look at the positions I found for you
   utter_explore_jobs_apply_success:
   - text: "Thanks for applying to the job: {select_job_title}"

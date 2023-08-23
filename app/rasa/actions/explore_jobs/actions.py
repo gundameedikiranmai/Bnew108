@@ -240,6 +240,7 @@ class AskSelectJobAction(AskCustomBaseAction):
         elif len(jobs) == 0:
             dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found")
         else:
+            dispatcher.utter_message(response="utter_explore_jobs_jobs_found")
             result += [SlotSet("search_jobs_list", jobs)]
         
         # jobs = tracker.get_slot("search_jobs_list")
