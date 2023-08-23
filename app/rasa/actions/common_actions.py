@@ -84,7 +84,7 @@ class ActionRestart(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
     ) -> List[EventType]:
         slots_to_retain = []
-        for slot in ["full_name", "first_name"]:
+        for slot in cfg.SLOTS_TO_KEEP_AFTER_RESTART:
         # for slots in ["full_name", "email", "phone_number"]
             if tracker.get_slot(slot) is not None:
                 slots_to_retain.append(SlotSet(slot, tracker.get_slot(slot)))

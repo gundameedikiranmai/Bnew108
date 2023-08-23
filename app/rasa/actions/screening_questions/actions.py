@@ -196,14 +196,19 @@ class JobScreeningFormSubmit(Action):
         dispatcher.utter_message(json_message={"screening_start": False})
         dispatcher.utter_message(response="utter_submit")
         # dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
+        selected_job = tracker.get_slot("select_job")
         
         sync_screening_responses(tracker)
-        utils.accuick_job_apply(tracker.get_slot("resume_upload"), tracker.get_slot("select_job"))
+        is_success = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job)
+        applied_jobs = tracker.get_slot("applied_jobs")
+        if is_success:
+            applied_jobs += [selected_job]
         
         result += [
             SlotSet("job_screening_questions", None),
             SlotSet("job_screening_questions_count", None),
             SlotSet("select_job", None),
+            SlotSet("applied_jobs", applied_jobs)
         ]
         dispatcher.utter_message(response="utter_greet", greet="after_apply")
 

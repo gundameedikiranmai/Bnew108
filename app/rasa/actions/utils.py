@@ -28,6 +28,7 @@ def get_metadata_field(tracker, field):
 
 
 def accuick_job_apply(candidate_id, job_id):
+    is_success = False
     payload = {
         "accuickid": get_default_slot_value(candidate_id),
         "jobid": job_id,
@@ -39,9 +40,11 @@ def accuick_job_apply(candidate_id, job_id):
     resp = requests.post(cfg.ACCUICK_JOB_APPLY_URL, json=payload)
     try:
         logger.info("Job Apply API response: " + str(resp.json()))
+        is_success = True
     except Exception as e:
         logger.error(e)
         logger.error("Could not submit job application")
+    return is_success
 
 
 def get_default_slot_value(val, default_val=""):

@@ -28,3 +28,5 @@ PHONE_REGEX = r'^([(]\d{3}[)][\s]*[.-]?\d{3}[\s]*[.-]?\d{4}[\s]*$)|^(\d{3}[\s]*[
 email_pattern = re.compile(EMAIL_REGEX)
 phone_pattern = re.compile(PHONE_REGEX)
 DATE_FORMAT = "%m-%d-%Y"
+
+SLOTS_TO_KEEP_AFTER_RESTART = ["full_name", "first_name", "applied_jobs"]

@@ -109,6 +109,12 @@ slots:
       conditions:
       - active_loop: explore_jobs_form
         requested_slot: refine_job_search_field
+  applied_jobs:
+    type: any
+    initial_value: []
+    influence_conversation: false
+    mappings:
+    - type: custom
   previous_job_title:
     type: any
     influence_conversation: false
