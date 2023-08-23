@@ -31,7 +31,7 @@ responses:
   utter_email_invalid :
   - text: You have entered an invalid email
   utter_ask_phone_number:
-  - text: What is your preferred phone number so that we can reach you promptly?
+  - text: What's your preferred phone number?
   utter_phone_number_error:
   - text: You have entered an invalid phone number
   utter_ask_full_name:
