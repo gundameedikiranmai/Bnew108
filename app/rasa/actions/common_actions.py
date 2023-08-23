@@ -84,7 +84,7 @@ class ActionRestart(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
     ) -> List[EventType]:
         slots_to_retain = []
-        for slot in ["full_name"]:
+        for slot in ["full_name", "first_name"]:
         # for slots in ["full_name", "email", "phone_number"]
             if tracker.get_slot(slot) is not None:
                 slots_to_retain.append(SlotSet(slot, tracker.get_slot(slot)))
@@ -99,7 +99,7 @@ class ActionUtterGreet(Action):
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
     ) -> List[EventType]:
-        if tracker.get_slot("full_name") is not None:
+        if tracker.get_slot("first_name") is not None:
             greet_param = "known"
         else:
             greet_param = "unknown"

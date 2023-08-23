@@ -9,7 +9,7 @@ responses:
       title: 'Ask a question'
     text:
       unknown: Hi there How can I help you today?
-      known: Welcome back {full_name}, How can I help you?
+      known: Welcome back {first_name}, How can I help you?
       after_apply: What would you like to do next?
   utter_perfect:
   - text: Perfect!
@@ -63,8 +63,6 @@ responses:
   - text: "Your resume upload was cancelled."
   utter_ask_job_title:
   - text: "What job title do you prefer? We'll use this to find related positions for you."
-  utter_ask_job_title_refined:
-  - text: "What's your preferred job title? We'll try finding similar jobs."
   utter_ask_job_location:
   - text: "Where do you want to work? This can be your current location or a different preferred locations."
   utter_ask_refine_job_search_field:

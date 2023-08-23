@@ -162,11 +162,9 @@ class AskJobTitleAction(AskCustomBaseAction):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
         result = []
-        utt = self.entity_name
         titles = []
         responses = []
         if tracker.get_slot("refine_job_search_field") == "job_title":
-            utt += "_refined"
             result += [SlotSet("refine_job_search_field", None)]
             logger.info("refined - job title: " + str(tracker.get_slot("previous_job_title")))
             if tracker.get_slot("previous_job_title") not in cfg.SLOT_IGNORE_VALUES:
@@ -174,7 +172,7 @@ class AskJobTitleAction(AskCustomBaseAction):
         else:
             responses += ["utter_perfect"]
         kwargs = {
-            "responses": responses + ["utter_ask_" + utt],
+            "responses": responses + ["utter_ask_" + self.entity_name],
             "data": {
                 "titles": titles,
                 "placeholder_text": "Start typing to select job title",
