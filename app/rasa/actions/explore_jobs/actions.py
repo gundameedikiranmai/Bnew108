@@ -218,8 +218,10 @@ class AskSelectJobAction(AskCustomBaseAction):
             logger.info("job_resp status: {}".format(job_resp.status_code))
             if job_resp.status_code == 200:
                 jobs = job_resp.json().get("jobList", [])
+                logger.info(f"total job count: {len(jobs)}")
                 applied_jobs = tracker.get_slot("applied_jobs")
                 jobs_filtered = [j for j in jobs if j["requisitionId_"] not in applied_jobs]
+                logger.info(f"filtered job count: {len(jobs_filtered)}")
                 jobs_to_show = jobs_filtered[:cfg.N_JOBS_TO_SHOW]
                 log_subset =  [{key: value for key, value in j.items() if key in ["requisitionId_", "title_"]} for j in jobs_to_show[:3]]
                 logger.info("found jobs: " + json.dumps(log_subset, indent=4))
