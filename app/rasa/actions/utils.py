@@ -1,6 +1,6 @@
 import requests
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from logging import getLogger
 from rasa_sdk.events import SlotSet
 import actions.config_values as cfg
@@ -56,7 +56,8 @@ def get_default_slot_value(val, default_val=""):
 def validate_date(date_str):
     try:
         given_date = datetime.strptime(date_str, cfg.DATE_FORMAT)
-        today_date = datetime.now() - timedelta(days=1)
-        return given_date < today_date
+        today_date = datetime.now()
+        last_valid_date = today_date.replace(year=today_date.year - cfg.DATE_MIN_YEARS_DIFFERENCE)
+        return given_date < last_valid_date
     except ValueError:
         return False
