@@ -13,6 +13,7 @@ See detailed documentation in docs directory.
 - [UI Integration](/docs/integration.md)
 - [Job screening](/docs/job_screening.md)
 - [Ask a Question and explore jobs](/docs/greet.md)
+- [Analytics](/docs/analytics.md)
 
 
 ### Finished in Last Update

@@ -107,8 +107,59 @@ class ChatSession(object):
         else:
             settings.logger.info(f"unable to get tracker object for sender_id = {sender_id}")
             return None
-        
+    
 
+    ######## analytics #########
+    def get_conversation_count(self, from_date, to_date):
+        job_applications = [
+            {"$unwind": "$events"},
+            {"$match": {"events.event": "action", "events.name": "explore_jobs_form_submit", "slots.email": {"$ne": None}}},
+            # {"$project": {"slots.email": 1}}
+            # {"$count": "count"},
+            {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
+        ]
+
+        screening_questions_completed = [
+            {"$unwind": "$events"},
+            {"$match": {"events.event": "action", "events.name": "job_screening_form_submit", "slots.email": {"$ne": None}}},
+            {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
+        ]
+
+        resume_files_uploaded = [
+            {"$unwind": "$events"},
+            {"$match": {
+                "events.event": "user",
+                "events.parse_data.intent.name": "input_resume_upload_data",
+                "events.parse_data.intent.confidence": 1,
+                "slots.email": {"$ne": None}
+            }},
+            {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
+        ]
+
+        returning_users_session_count = [
+            {"$unwind": "$events"},
+            {"$match": {"events.event": "bot", "events.metadata.utter_action": "utter_greet_known", "slots.email": {"$ne": None}}},
+            {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
+        ]
+
+
+        analytics = list(settings.db[self.conversations_collection_name].aggregate([
+            {
+                "$match": {
+                    "latest_event_time": {"$gt": from_date, "$lt": to_date}
+                }
+            },
+            {
+                "$facet": {
+                    "total_sessions_by_chatbot_type": [{"$group": {"_id": "$slots.chatbot_type", "count": { "$sum": 1 } }}],
+                    "job_applications": job_applications,
+                    "screening_questions_completed": screening_questions_completed,
+                    "resume_files_uploaded": resume_files_uploaded,
+                    "returning_users_session_count": returning_users_session_count
+                }
+            }
+        ]))
+        return analytics
 
 
 # export a chat session object for importing in other places

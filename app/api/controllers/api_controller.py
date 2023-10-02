@@ -9,6 +9,7 @@ import controllers.utils as utils
 from controllers.models import session
 from controllers.schema import RasaWebhook
 from controllers.rasa_controller import rasa_webhook
+from datetime import date, datetime, timedelta
 
 # intents to ignore
 router = APIRouter()
@@ -88,3 +89,15 @@ def get_conversation_responses(sender_id: str):
             "error": f"Error: no conversation for sender_id= {sender_id}"
         }
     return utils.JsonResponse(data, 200)
+
+
+@router.get("/analytics/")
+def get_analytics(
+        from_date: datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days=30),
+        to_date : datetime = datetime.combine(date.today(), datetime.min.time()) + timedelta(days=1)
+    ):
+    """
+    """
+    settings.logger.info(f"finding analytics from {from_date} to {to_date}")
+    data = session.get_conversation_count(from_date.timestamp(), to_date.timestamp())
+    return data
