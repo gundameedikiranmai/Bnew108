@@ -93,11 +93,13 @@ def get_conversation_responses(sender_id: str):
 
 @router.get("/analytics/")
 def get_analytics(
-        from_date: datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days=30),
-        to_date : datetime = datetime.combine(date.today(), datetime.min.time()) + timedelta(days=1)
+        from_date: datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days=90),
+        to_date : datetime = datetime.combine(date.today(), datetime.min.time()) + timedelta(days=1),
+        chatbot_type: str = None
     ):
     """
     """
     settings.logger.info(f"finding analytics from {from_date} to {to_date}")
-    data = session.get_conversation_count(from_date.timestamp(), to_date.timestamp())
+    settings.logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
+    data = session.get_conversation_count(from_date.timestamp(), to_date.timestamp(), chatbot_type)
     return data

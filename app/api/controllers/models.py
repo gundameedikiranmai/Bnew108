@@ -110,19 +110,54 @@ class ChatSession(object):
     
 
     ######## analytics #########
-    def get_conversation_count(self, from_date, to_date):
-        job_applications = [
-            {"$unwind": "$events"},
-            {"$match": {"events.event": "action", "events.name": "explore_jobs_form_submit", "slots.email": {"$ne": None}}},
-            # {"$project": {"slots.email": 1}}
-            # {"$count": "count"},
-            {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
+    def get_conversation_count(self, from_date, to_date, chatbot_type):
+        def get_events_unwind_query_group_by_user(event, name, group_by_user=False, is_only_count=False, is_email_slot=True):
+            match = {"$match": {"events.event": event, "events.name": name}}
+            if is_email_slot:
+                match["$match"].update({"slots.email": {"$ne": None}})
+            # print(match)
+            base_query = [
+                {"$unwind": "$events"},
+                match
+                # {"$project": {"slots.email": 1}}
+                # {"$count": "count"},
+            ]
+            if group_by_user:
+                base_query += [{"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}]
+            elif is_only_count:
+                base_query += [{"$count": 'count' }]
+            return base_query
+
+
+        total_sessions = [{"$count": 'count' }]
+
+        top_sessions_by_location = [
+            {"$match": {"slots.job_location": {"$ne": None}} },
+            # {"$group": {"_id": "$slots.job_location", "count": { "$sum": 1 } }},
+            { "$sortByCount": "$slots.job_location" },
         ]
 
-        screening_questions_completed = [
-            {"$unwind": "$events"},
-            {"$match": {"events.event": "action", "events.name": "job_screening_form_submit", "slots.email": {"$ne": None}}},
-            {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
+        recent_users = [
+            {"$match": {"slots.email": {"$ne": None}} },
+            { "$sort": { "latest_event_time": -1 } },
+            {"$group": {"_id": "$slots.email", "last_seen": { "$first": "$latest_event_time" } }},
+            {"$project": {"last_seen": {"$toDate": {"$multiply": [1000, "$last_seen"]}} }},
+            { "$sort": { "last_seen": -1 } },
+        ]
+
+        total_sessions_by_day = [
+            {"$group": {
+                "_id": {
+                    "$dateToString": {
+                        "format": "%Y-%m-%d",
+                        "date": {
+                            "$toDate": {"$multiply": [1000, "$latest_event_time"]}
+                        },
+                    }
+                },
+                "count": {"$sum": 1},
+            }},
+            {"$sort": {"_id":1} }
         ]
 
         resume_files_uploaded = [
@@ -133,7 +168,8 @@ class ChatSession(object):
                 "events.parse_data.intent.confidence": 1,
                 "slots.email": {"$ne": None}
             }},
-            {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
+            # {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
+            {"$count": 'count' }
         ]
 
         returning_users_session_count = [
@@ -151,11 +187,16 @@ class ChatSession(object):
             },
             {
                 "$facet": {
-                    "total_sessions_by_chatbot_type": [{"$group": {"_id": "$slots.chatbot_type", "count": { "$sum": 1 } }}],
-                    "job_applications": job_applications,
-                    "screening_questions_completed": screening_questions_completed,
+                    "total_sessions": total_sessions,
+                    "explore_jobs": get_events_unwind_query_group_by_user(event="action", name="action_start_explore_jobs", is_only_count=True),
+                    "ask_a_question": get_events_unwind_query_group_by_user(event="action", name="utter_start_ask_a_question", is_only_count=True, is_email_slot=False),
+                    # "job_applications": get_events_unwind_query_group_by_user(event="action", name="explore_jobs_form_submit", group_by_user=True),
+                    # "screening_questions_completed": get_events_unwind_query_group_by_user(event="action", name="job_screening_form_submit", group_by_user=True),
                     "resume_files_uploaded": resume_files_uploaded,
-                    "returning_users_session_count": returning_users_session_count
+                    "top_sessions_by_location": top_sessions_by_location,
+                    "total_sessions_by_day": total_sessions_by_day,
+                    "recent_users": recent_users
+                    # "returning_users_session_count": returning_users_session_count
                 }
             }
         ]))
