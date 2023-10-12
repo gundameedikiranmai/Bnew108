@@ -132,7 +132,7 @@ class ChatSession(object):
         total_sessions = [{"$count": 'count' }]
 
         top_sessions_by_location = [
-            {"$match": {"slots.job_location": {"$ne": None}} },
+            {"$match": {"slots.job_location": { "$nin" : [ None, "ignore" ] }} },
             # {"$group": {"_id": "$slots.job_location", "count": { "$sum": 1 } }},
             { "$sortByCount": "$slots.job_location" },
         ]

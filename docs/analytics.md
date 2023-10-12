@@ -7,117 +7,107 @@ example: http://52.40.250.118:8888/api/analytics/?from_date=2023-08-23T10:20:30&
 The parameters from_date and to_date are optionals and if they are not provided, the default value for from_date is 30 days ago and to_date is today.
 
 ### Metrics
-#### total_sessions_by_chatbot_type
-This metric is the count of chatbot sessions grouped by chatbot type
+#### total_sessions
+The total number of chatbot sessions for the selected time period
 
-#### job_applications
-A list of unique email id's along with the number of jobs applied by that user
+#### explore_jobs
+The total number of times when the user selected explore jobs option. The user may select this option multiple times in a single conversation and the metric will reflect this fact.
 
-#### screening_questions_completed
-A list of unique email id's along with the number of times the user answered the screening questions after applying to a job. It should be noted that a user may not necessarily answer the questions and may drop off after showing interest in a job.
+#### ask_a_question
+The total number of times when the user selected ask a question option. The user may select this option multiple times in a single conversation and the metric will reflect this fact.
 
 #### resume_files_uploaded
-A list of unique email id's along with the number of times the user uploaded a resume file in distinct chatbot sessions, i.e. they accessed the chatbot as an unknown user, either via incognito mode or by clearing the cache or on multiple devices.
+The number of times a resume was uploaded during a conversation.
 
-#### returning_users_session_count
-A list of unique email id's along with the number of times they accessed the chatbot as a known user, i.e. their data was cached in browser cookies and they opened the chatbot again to be greeted by a welcome back message.
+#### top_sessions_by_location
+A list of unique locations along with the count of chatbot sessions, sorted in descending order
 
+#### total_sessions_by_day
+A time series of chatbot sessions on a daily time window.
+
+#### recent_users
+A list of users who recently used the chatbot
+
+#### top_searched_jobs
+A list of job_titles that were provided by users, either manually or extracted via resume parsing while searching for jobs.
 
 Sample API Response:
 
 ```
 [
-    {
-        "total_sessions_by_chatbot_type": [
-            {
-                "_id": "1",
-                "count": 18
-            },
-            {
-                "_id": "2",
-                "count": 31
-            }
-        ],
-        "job_applications": [
-            {
-                "_id": "8df@gmail.com",
-                "count": 1
-            },
-            {
-                "_id": "me@gmail.com",
-                "count": 25
-            },
-            {
-                "_id": "jannet.j.morgan@me.com",
-                "count": 9
-            },
-            {
-                "_id": "a@gmail.com",
-                "count": 1
-            },
-            {
-                "_id": "me@email.com",
-                "count": 2
-            },
-            {
-                "_id": "abc@gmail.com",
-                "count": 2
-            }
-        ],
-        "screening_questions_completed": [
-            {
-                "_id": "me@gmail.com",
-                "count": 8
-            },
-            {
-                "_id": "8df@gmail.com",
-                "count": 1
-            },
-            {
-                "_id": "abc@gmail.com",
-                "count": 2
-            },
-            {
-                "_id": "a@gmail.com",
-                "count": 1
-            },
-            {
-                "_id": "me@email.com",
-                "count": 2
-            },
-            {
-                "_id": "jannet.j.morgan@me.com",
-                "count": 7
-            }
-        ],
-        "resume_files_uploaded": [
-            {
-                "_id": "a@gmail.com",
-                "count": 1
-            },
-            {
-                "_id": "me@gmail.com",
-                "count": 7
-            },
-            {
-                "_id": "abc@gmail.com",
-                "count": 1
-            },
-            {
-                "_id": "8df@gmail.com",
-                "count": 1
-            },
-            {
-                "_id": "jannet.j.morgan@me.com",
-                "count": 11
-            }
-        ],
-        "returning_users_session_count": [
-            {
-                "_id": "me@gmail.com",
-                "count": 3
-            }
-        ]
-    }
+  {
+    "total_sessions": [
+      {
+        "count": 15
+      }
+    ],
+    "explore_jobs": [
+      {
+        "count": 34
+      }
+    ],
+    "ask_a_question": [
+      {
+        "count": 4
+      }
+    ],
+    "resume_files_uploaded": [
+      {
+        "count": 11
+      }
+    ],
+    "top_sessions_by_location": [
+      {
+        "_id": "TX",
+        "count": 29
+      },
+      {
+        "_id": "CA",
+        "count": 18
+      }
+    ],
+    "total_sessions_by_day": [
+      {
+        "_id": "2023-08-31",
+        "count": 5
+      },
+      {
+        "_id": "2023-09-02",
+        "count": 1
+      },
+      {
+        "_id": "2023-09-05",
+        "count": 1
+      }
+    ],
+    "recent_users": [
+      {
+        "_id": "me@gmail.com",
+        "last_seen": "2023-09-05T13:47:42.583000"
+      },
+      {
+        "_id": "me@email.com",
+        "last_seen": "2023-08-18T11:10:38.724000"
+      },
+      {
+        "_id": "abc@gmail.com",
+        "last_seen": "2023-08-17T14:18:58.025000"
+      }
+    ],
+    "top_searched_jobs": [
+      {
+        "_id": "Java Developer",
+        "count": 58
+      },
+      {
+        "_id": "Senior IT Specialist",
+        "count": 15
+      },
+      {
+        "_id": "Business Analyst",
+        "count": 8
+      }
+    ]
+  }
 ]
 ```
