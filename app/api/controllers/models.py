@@ -178,6 +178,16 @@ class ChatSession(object):
             {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
         ]
 
+        top_searched_jobs = [
+            {"$unwind": "$events"},
+            {"$match": {
+                "events.event": "slot",
+                "events.name": "job_title",
+                "events.value":  { "$nin" : [ None, "ignore" ] }
+            }},
+            { "$sortByCount": "$events.value" },
+        ]
+
 
         analytics = list(settings.db[self.conversations_collection_name].aggregate([
             {
@@ -195,7 +205,8 @@ class ChatSession(object):
                     "resume_files_uploaded": resume_files_uploaded,
                     "top_sessions_by_location": top_sessions_by_location,
                     "total_sessions_by_day": total_sessions_by_day,
-                    "recent_users": recent_users
+                    "recent_users": recent_users,
+                    "top_searched_jobs": top_searched_jobs
                     # "returning_users_session_count": returning_users_session_count
                 }
             }
