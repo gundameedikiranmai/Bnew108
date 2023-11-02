@@ -236,7 +236,9 @@ class ChatSession(object):
 
         for metric, prev_value in analytics_previous_timeperiod[0].items():
             print(metric, prev_value)
-            if len(prev_value) > 0 and len(analytics[0][metric]):
+            if len(analytics[0][metric]) == 0:
+                analytics[0][metric] = [{"count": 0}]
+            if len(prev_value) > 0:
                 percent_change = round((analytics[0][metric][0]["count"]/prev_value[0]["count"] - 1)*100, 2)
                 analytics[0][metric][0]["percent_change"] = percent_change
             else:
