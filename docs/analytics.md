@@ -8,7 +8,7 @@ The parameters from_date and to_date are optionals and if they are not provided,
 
 ### Metrics
 #### total_sessions
-The total number of chatbot sessions for the selected time period
+The total number of chatbot sessions for the selected time period along with percentage change over previous timeperiod.
 
 #### explore_jobs
 The total number of times when the user selected explore jobs option. The user may select this option multiple times in a single conversation and the metric will reflect this fact.
@@ -38,22 +38,27 @@ Sample API Response:
   {
     "total_sessions": [
       {
-        "count": 15
+        "count": 15,
+        "percent_change": 252.83
       }
     ],
     "explore_jobs": [
       {
-        "count": 34
+        "count": 34,
+        "percent_change": 67
       }
     ],
     "ask_a_question": [
       {
-        "count": 4
+        "count": 4,
+        "percent_change": -20
+
       }
     ],
     "resume_files_uploaded": [
       {
-        "count": 11
+        "count": 11,
+        "percent_change": 25
       }
     ],
     "top_sessions_by_location": [
