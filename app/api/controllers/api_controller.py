@@ -101,5 +101,5 @@ def get_analytics(
     """
     settings.logger.info(f"finding analytics from {from_date} to {to_date}")
     settings.logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
-    data = session.get_conversation_count(from_date.timestamp(), to_date.timestamp(), chatbot_type)
+    data = session.get_conversation_count(from_date, to_date, chatbot_type)
     return data

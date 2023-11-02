@@ -3,6 +3,7 @@
 import json
 import base64
 from config.conf import settings
+from datetime import timedelta
 
 class ChatSession(object):
 
@@ -192,7 +193,7 @@ class ChatSession(object):
         analytics = list(settings.db[self.conversations_collection_name].aggregate([
             {
                 "$match": {
-                    "latest_event_time": {"$gt": from_date, "$lt": to_date}
+                    "latest_event_time": {"$gt": from_date.timestamp(), "$lt": to_date.timestamp()}
                 }
             },
             {
@@ -211,6 +212,35 @@ class ChatSession(object):
                 }
             }
         ]))
+
+        timeperiod_length = to_date - from_date
+        print(timeperiod_length)
+        to_date_previous = from_date - timedelta(days=1)
+        from_date_previous = to_date_previous - timeperiod_length
+
+        analytics_previous_timeperiod = list(settings.db[self.conversations_collection_name].aggregate([
+            {
+                "$match": {
+                    "latest_event_time": {"$gt": from_date_previous.timestamp(), "$lt": to_date_previous.timestamp()}
+                }
+            },
+            {
+                "$facet": {
+                    "total_sessions": total_sessions,
+                    "explore_jobs": get_events_unwind_query_group_by_user(event="action", name="action_start_explore_jobs", is_only_count=True),
+                    "ask_a_question": get_events_unwind_query_group_by_user(event="action", name="utter_start_ask_a_question", is_only_count=True, is_email_slot=False),
+                    "resume_files_uploaded": resume_files_uploaded,
+                }
+            }
+        ]))
+
+        for metric, prev_value in analytics_previous_timeperiod[0].items():
+            print(metric, prev_value)
+            if len(prev_value) > 0 and len(analytics[0][metric]):
+                percent_change = round((analytics[0][metric][0]["count"]/prev_value[0]["count"] - 1)*100, 2)
+                analytics[0][metric][0]["percent_change"] = percent_change
+            else:
+                analytics[0][metric][0]["percent_change"] = 0
         return analytics
 
 
