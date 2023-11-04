@@ -200,6 +200,14 @@ class ChatSession(object):
             { "$sortByCount": "$events.value" },
         ]
 
+        drop_off_point_last_user_messages = [
+            {"$match": {"slots.applied_jobs.0": {"$exists": False} } },
+            {"$group": {"_id": "$latest_message.text", "count": {"$sum": 1} }},
+            # {"$project": {"_id": {"$arrayElemAt":[{"$split": ["$_id" , "#"]}, 0]}}},
+            { "$sort": { "count": -1 } },
+            { "$limit": 10 },
+        ]
+
 
         analytics = list(settings.db[self.conversations_collection_name].aggregate([
             {
@@ -220,7 +228,8 @@ class ChatSession(object):
                     "total_sessions_by_day": total_sessions_by_day,
                     "recent_users": recent_users,
                     "recent_anon_users": recent_anon_users,
-                    "top_searched_jobs": top_searched_jobs
+                    "top_searched_jobs": top_searched_jobs,
+                    "drop_off_point_last_user_messages": drop_off_point_last_user_messages
                     # "returning_users_session_count": returning_users_session_count
                 }
             }
