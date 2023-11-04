@@ -202,7 +202,7 @@ class ChatSession(object):
 
         drop_off_point_last_user_messages = [
             {"$match": {"slots.applied_jobs.0": {"$exists": False}, "latest_message.text": {"$ne": None} } },
-            {"$project": {"latest_message": { "$arrayElemAt": [{"$split": ["$latest_message.text", "{"]}, 0] } }},
+            {"$project": {"latest_message": {"$ltrim": {"input": { "$arrayElemAt": [{"$split": ["$latest_message.text", "{"]}, 0] }, "chars": "/"}}  }},
             {"$group": {"_id": "$latest_message", "count": {"$sum": 1} }},
             { "$sort": { "count": -1 } },
             { "$limit": 10 },
