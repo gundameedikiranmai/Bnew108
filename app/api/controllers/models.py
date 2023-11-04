@@ -4,7 +4,6 @@ import json
 import base64
 from config.conf import settings
 from datetime import timedelta
-from controllers.utils import parse_rasa_message
 
 class ChatSession(object):
 
@@ -202,9 +201,9 @@ class ChatSession(object):
         ]
 
         drop_off_point_last_user_messages = [
-            {"$match": {"slots.applied_jobs.0": {"$exists": False} } },
-            {"$group": {"_id": "$latest_message.text", "count": {"$sum": 1} }},
-            # {"$project": {"_id": {"$arrayElemAt":[{"$split": ["$_id" , "#"]}, 0]}}},
+            {"$match": {"slots.applied_jobs.0": {"$exists": False}, "latest_message.text": {"$ne": None} } },
+            {"$project": {"latest_message": { "$arrayElemAt": [{"$split": ["$latest_message.text", "{"]}, 0] } }},
+            {"$group": {"_id": "$latest_message", "count": {"$sum": 1} }},
             { "$sort": { "count": -1 } },
             { "$limit": 10 },
         ]
@@ -235,9 +234,6 @@ class ChatSession(object):
                 }
             }
         ]))
-
-        for msg in analytics[0]["drop_off_point_last_user_messages"]:
-            msg["_id"] = parse_rasa_message(msg["_id"])
 
         timeperiod_length = to_date - from_date
         print(timeperiod_length)

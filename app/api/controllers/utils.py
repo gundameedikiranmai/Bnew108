@@ -75,6 +75,3 @@ def add_slot_set_events(sender_id, slots):
     if len(data) > 0:
         return add_events_to_rasa(sender_id, data)
     return None
-
-def parse_rasa_message(message):
-    return message.split("{")[0].replace("/", "")
