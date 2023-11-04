@@ -132,6 +132,9 @@ class ChatSession(object):
 
         total_sessions = [{"$count": 'count' }]
 
+        # count of anon user
+        anon_sessions = [{"$match": {"slots.email": None}}, {"$count": 'count' }]
+
         top_sessions_by_location = [
             {"$match": {"slots.job_location": { "$nin" : [ None, "ignore" ] }} },
             # {"$group": {"_id": "$slots.job_location", "count": { "$sum": 1 } }},
@@ -141,9 +144,17 @@ class ChatSession(object):
         recent_users = [
             {"$match": {"slots.email": {"$ne": None}} },
             { "$sort": { "latest_event_time": -1 } },
-            {"$group": {"_id": "$slots.email", "last_seen": { "$first": "$latest_event_time" } }},
-            {"$project": {"last_seen": {"$toDate": {"$multiply": [1000, "$last_seen"]}} }},
+            {"$group": {"_id": "$slots.email", "last_seen": { "$first": "$latest_event_time" }, "full_name": { "$first": "$slots.full_name" } }},
+            {"$project": {"last_seen": {"$toDate": {"$multiply": [1000, "$last_seen"]}}, "full_name": 1 }},
             { "$sort": { "last_seen": -1 } },
+        ]
+
+        recent_anon_users = [
+            {"$match": {"slots.email": None} },
+            { "$sort": { "latest_event_time": -1 } },
+            # {"$group": {"_id": "$slots.email", "last_seen": { "$first": "$latest_event_time" }, "full_name": { "$first": "$slots.full_name" } }},
+            {"$project": {"_id": {"$toString": "$_id"}, "last_seen": {"$toDate": {"$multiply": [1000, "$latest_event_time"]}} }},
+            { "$limit": 5 },
         ]
 
         total_sessions_by_day = [
@@ -199,6 +210,7 @@ class ChatSession(object):
             {
                 "$facet": {
                     "total_sessions": total_sessions,
+                    "anon_sessions": anon_sessions,
                     "explore_jobs": get_events_unwind_query_group_by_user(event="action", name="action_start_explore_jobs", is_only_count=True),
                     "ask_a_question": get_events_unwind_query_group_by_user(event="action", name="utter_start_ask_a_question", is_only_count=True, is_email_slot=False),
                     # "job_applications": get_events_unwind_query_group_by_user(event="action", name="explore_jobs_form_submit", group_by_user=True),
@@ -207,6 +219,7 @@ class ChatSession(object):
                     "top_sessions_by_location": top_sessions_by_location,
                     "total_sessions_by_day": total_sessions_by_day,
                     "recent_users": recent_users,
+                    "recent_anon_users": recent_anon_users,
                     "top_searched_jobs": top_searched_jobs
                     # "returning_users_session_count": returning_users_session_count
                 }
@@ -227,6 +240,7 @@ class ChatSession(object):
             {
                 "$facet": {
                     "total_sessions": total_sessions,
+                    "anon_sessions": anon_sessions,
                     "explore_jobs": get_events_unwind_query_group_by_user(event="action", name="action_start_explore_jobs", is_only_count=True),
                     "ask_a_question": get_events_unwind_query_group_by_user(event="action", name="utter_start_ask_a_question", is_only_count=True, is_email_slot=False),
                     "resume_files_uploaded": resume_files_uploaded,
