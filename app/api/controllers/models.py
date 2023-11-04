@@ -4,6 +4,7 @@ import json
 import base64
 from config.conf import settings
 from datetime import timedelta
+from controllers.utils import parse_rasa_message
 
 class ChatSession(object):
 
@@ -234,6 +235,9 @@ class ChatSession(object):
                 }
             }
         ]))
+
+        for msg in analytics[0]["drop_off_point_last_user_messages"]:
+            msg["_id"] = parse_rasa_message(msg["_id"])
 
         timeperiod_length = to_date - from_date
         print(timeperiod_length)
