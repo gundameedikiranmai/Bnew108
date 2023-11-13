@@ -103,3 +103,14 @@ def get_analytics(
     settings.logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
     data = session.get_conversation_count(from_date, to_date, chatbot_type)
     return data
+
+
+@router.get("/transcript/")
+def get_transcript(
+        sender_id: str = None,
+        email: str = None
+    ):
+    """
+    """
+    data = session.get_transcript(sender_id=sender_id, email=email)
+    return data

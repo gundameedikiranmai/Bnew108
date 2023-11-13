@@ -4,6 +4,7 @@ import json
 import base64
 from config.conf import settings
 from datetime import timedelta
+import copy
 
 class ChatSession(object):
 
@@ -153,7 +154,7 @@ class ChatSession(object):
             {"$match": {"slots.email": None} },
             { "$sort": { "latest_event_time": -1 } },
             # {"$group": {"_id": "$slots.email", "last_seen": { "$first": "$latest_event_time" }, "full_name": { "$first": "$slots.full_name" } }},
-            {"$project": {"_id": {"$toString": "$_id"}, "last_seen": {"$toDate": {"$multiply": [1000, "$latest_event_time"]}} }},
+            {"$project": {"_id": "$sender_id", "last_seen": {"$toDate": {"$multiply": [1000, "$latest_event_time"]}} }},
             { "$limit": 5 },
         ]
 
@@ -236,7 +237,7 @@ class ChatSession(object):
         ]))
 
         timeperiod_length = to_date - from_date
-        print(timeperiod_length)
+        settings.logger.info(timeperiod_length)
         to_date_previous = from_date - timedelta(days=1)
         from_date_previous = to_date_previous - timeperiod_length
 
@@ -258,7 +259,7 @@ class ChatSession(object):
         ]))
 
         for metric, prev_value in analytics_previous_timeperiod[0].items():
-            print(metric, prev_value)
+            settings.logger.info(f"metric={metric}, prev_value={prev_value}")
             if len(analytics[0][metric]) == 0:
                 analytics[0][metric] = [{"count": 0}]
             if len(prev_value) > 0:
@@ -267,6 +268,59 @@ class ChatSession(object):
             else:
                 analytics[0][metric][0]["percent_change"] = 0
         return analytics
+
+    def get_transcript(self, sender_id, email):
+        if sender_id is not None:
+            match = {"sender_id": sender_id}
+        elif email is not None:
+            match = {"slots.email": email}
+        docs = list(settings.db[self.conversations_collection_name].find(match, {"_id": 0}).sort("latest_event_time",  -1).limit(1))
+        transcript = []
+        if len(docs) == 0:
+            return transcript
+        print(docs[0]["sender_id"])
+        events = docs[0].get("events", [])
+        prev_buttons = None
+        for e in events:
+            if e["event"] == "user":
+                msg = {k: e[k] for k in ('event', 'text', 'timestamp')}
+                # if msg["text"] is not None:
+                #     msg["text"] = settings.INTENT_TO_STRING_MAPPING.get(msg["text"], msg["text"])
+                if prev_buttons is not None:
+                    if prev_buttons["type"] == "btn":
+                        for btn in prev_buttons["data"]:
+                            if msg["text"] == btn["payload"]:
+                                msg["text"] = btn["title"]
+                    elif prev_buttons["type"] == "custom":
+                        intent = prev_buttons["data"].get("intent")
+                        entity = prev_buttons["data"].get("entity")
+                        text = prev_buttons["data"]["ui_component"]
+                        if "input_screening_response" in msg["text"]:
+                            intent = "input_screening_response"
+                            entity = "screening_response"
+                            text = ""
+                        if intent is not None and intent in msg["text"]:
+                            if entity in msg["text"]:
+                                entity = msg["text"].replace("/"+ intent, "").split(":")[1].strip().replace('"', "")[:-1]
+                                if len(text) > 0:
+                                    text += f": {entity}"
+                                else:
+                                    text = entity
+                            msg["text"] = text
+                transcript.append(msg)
+            
+            if e["event"] == "bot":
+                msg = {k: e[k] for k in ('event', 'text', 'timestamp')}
+                if e.get("data", {}).get("buttons") is not None:
+                    msg["buttons"] = e.get("data", {}).get("buttons")
+                    prev_buttons = copy.copy({"type": "btn", "data": msg["buttons"]})
+                elif e.get("data", {}).get("custom") is not None:
+                    msg["custom"] = e.get("data", {}).get("custom")
+                    prev_buttons = copy.copy({"type": "custom", "data": msg["custom"]})
+                else:
+                    prev_buttons = None
+                transcript.append(msg)
+        return transcript
 
 
 # export a chat session object for importing in other places

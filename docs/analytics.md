@@ -42,6 +42,12 @@ Sample API Response:
         "percent_change": 252.83
       }
     ],
+    "anon_sessions": [
+      {
+        "count": 158,
+        "percent_change": 731.58
+      }
+    ],
     "explore_jobs": [
       {
         "count": 34,
@@ -88,15 +94,40 @@ Sample API Response:
     "recent_users": [
       {
         "_id": "me@gmail.com",
+        "full_name": "Me"
         "last_seen": "2023-09-05T13:47:42.583000"
       },
       {
         "_id": "me@email.com",
+        "full_name": "me another"
         "last_seen": "2023-08-18T11:10:38.724000"
       },
       {
         "_id": "abc@gmail.com",
+        "full_name": "abc",
         "last_seen": "2023-08-17T14:18:58.025000"
+      }
+    ],
+    "recent_anon_users": [
+      {
+        "_id": "652ed611b7ef55e4d137e5b5",
+        "last_seen": "2023-11-07T06:49:22.377000"
+      },
+      {
+        "_id": "652f8615b7ef55e4d1381dd9",
+        "last_seen": "2023-11-07T06:49:06.955000"
+      },
+      {
+        "_id": "6549d6b6b7ef55e4d140b96c",
+        "last_seen": "2023-11-07T06:19:44.609000"
+      },
+      {
+        "_id": "65360a2bb7ef55e4d13a3cf5",
+        "last_seen": "2023-11-07T06:04:10.149000"
+      },
+      {
+        "_id": "6549cf81b7ef55e4d140b6f6",
+        "last_seen": "2023-11-07T05:47:45.196000"
       }
     ],
     "top_searched_jobs": [
@@ -112,7 +143,100 @@ Sample API Response:
         "_id": "Business Analyst",
         "count": 8
       }
+    ],
+    "drop_off_point_last_user_messages": [
+      {
+        "_id": "greet",
+        "count": 132
+      },
+      {
+        "_id": "explore_jobs",
+        "count": 24
+      },
+      {
+        "_id": "input_resume_upload_data",
+        "count": 9
+      },
+      {
+        "_id": "affirm",
+        "count": 7
+      },
+      {
+        "_id": "deny",
+        "count": 5
+      },
+      {
+        "_id": "refine_job_search",
+        "count": 5
+      },
+      {
+        "_id": "california",
+        "count": 5
+      },
+      {
+        "_id": "input_screening_response",
+        "count": 4
+      },
+      {
+        "_id": "ask_a_question",
+        "count": 3
+      },
+      {
+        "_id": "input_user_question",
+        "count": 3
+      }
     ]
   }
 ]
 ```
+
+### Conversation Transcript
+
+HOST: http://52.40.250.118:8888
+API endpoint: $HOST/api/analytics/?sender_id=id&email=email
+
+**Only sender_id OR email should be send in the url parameters. If both are sent, only sender_id value will be considered for providing the response.**
+
+If email is provided, the transcript of the last session of that given user will be returned.
+
+Examples:
+```
+http://52.40.250.118:8888/api/transcript/?email=me@gmail.com
+http://52.40.250.118:8888/api/transcript/?sender_id=b4b2cd14-4171-11ee-8866-390f976937e1
+```
+
+**Return Format**
+A list of bot and user messages
+```
+[
+    {
+        "event": "bot",
+        "text": "Hi there How can I help you today?",
+        "timestamp": 1692766711.4709046,
+        "buttons": [
+            {
+                "payload": "/explore_jobs",
+                "title": "Explore Jobs"
+            },
+            {
+                "payload": "/ask_a_question",
+                "title": "Ask a question"
+            }
+        ]
+    },
+    {
+        "event": "user",
+        "text": "Explore Jobs",
+        "timestamp": 1692766711.487466
+    },
+    {
+        "event": "bot",
+        "text": "Let's tailor job recommendations to match your unique background and interests.",
+        "timestamp": 1692766711.514332
+    }
+    ...
+]
+```
+
+**Usage**
+In the recent users and recent anon users sections, the results displayed in the UI can be made clickable. Upon clicking, the transcript api can be called with either sender_id (for anon_users) or email (for recent users) as the url parameter.
