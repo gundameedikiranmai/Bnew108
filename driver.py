@@ -11,7 +11,7 @@ url = "http://localhost:8000"
 # url = "http://52.40.250.118:8888"
 # url = "http://localhost:6005/webhooks/nlu"
 UUID = str(uuid.uuid1())
-# UUID = "5f6289ba-39a8-11ee-a92f-bd908e3f3b0c"
+# UUID = "6971537150"
 chatbot_type = "2"
 
 def send_to_rasa(usr_msg):
@@ -19,9 +19,10 @@ def send_to_rasa(usr_msg):
         "sender": UUID,
         "message": usr_msg,
         "metadata": {
-            # "job_id": "2",
+            "job_id": "1",
             "chatbot_type": chatbot_type,
-            "job_location": "TX"
+            "job_location": 'TX',
+            "ip_address": "1.1.1.2"
         },
     }
 
@@ -126,9 +127,9 @@ send_to_rasa("/restart")
 # send_to_rasa("/job_screening")
 # send_to_rasa("/greet")
 
-# explore_jobs(is_upload_resume=True)
+explore_jobs(is_upload_resume=True)
 # explore_jobs(is_upload_resume=True, cancel=True)
-explore_jobs(is_upload_resume=False)
+# explore_jobs(is_upload_resume=False)
 # explore_jobs(is_upload_resume=False, refine_job_search="location")
 # explore_jobs(is_upload_resume=True, refine_job_search="location")
 

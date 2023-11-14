@@ -12,7 +12,8 @@ The bot request format is:
     "message": msg,
     "metadata": {
         "chatbot_type": "1", // "1" or "2"
-        "job_location": "TX" // job location from cookie
+        "job_location": "TX" // job location from cookie,
+        "ip_address": "0.0.0.0"
     }
 }
 ```

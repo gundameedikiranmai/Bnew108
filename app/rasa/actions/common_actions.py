@@ -99,12 +99,13 @@ class ActionUtterGreet(Action):
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
     ) -> List[EventType]:
+        _, result = utils.get_metadata_field(tracker, "ip_address")
         if tracker.get_slot("first_name") is not None:
             greet_param = "known"
         else:
             greet_param = "unknown"
         dispatcher.utter_message(response="utter_greet", greet=greet_param)
-        return []
+        return result
 
 
 def add_placeholder_utterance(dispatcher, placeholder_text):

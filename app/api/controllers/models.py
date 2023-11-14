@@ -296,6 +296,16 @@ class ChatSession(object):
 
 
     def get_transcript(self, sender_id, email):
+        def extract_intent_entity(msg, text, intent, entity):
+            if intent is not None and intent in msg["text"]:
+                if entity in msg["text"]:
+                    entity = msg["text"].replace("/"+ intent, "").split(":")[1].strip().replace('"', "")[:-1]
+                    if len(text) > 0:
+                        text += f": {entity}"
+                    else:
+                        text = entity
+                msg["text"] = text
+
         if sender_id is not None:
             match = {"sender_id": sender_id}
         elif email is not None:
@@ -325,14 +335,10 @@ class ChatSession(object):
                             intent = "input_screening_response"
                             entity = "screening_response"
                             text = ""
-                        if intent is not None and intent in msg["text"]:
-                            if entity in msg["text"]:
-                                entity = msg["text"].replace("/"+ intent, "").split(":")[1].strip().replace('"', "")[:-1]
-                                if len(text) > 0:
-                                    text += f": {entity}"
-                                else:
-                                    text = entity
-                            msg["text"] = text
+                        extract_intent_entity(msg, text, intent, entity)
+                else:
+                    if "input_screening_response" in msg["text"]:
+                        extract_intent_entity(msg, text, intent, entity)
                 transcript.append(msg)
             
             if e["event"] == "bot":
@@ -342,6 +348,8 @@ class ChatSession(object):
                     prev_buttons = copy.copy({"type": "btn", "data": msg["buttons"]})
                 elif e.get("data", {}).get("custom") is not None:
                     msg["custom"] = e.get("data", {}).get("custom")
+                    if "screening_start" in msg["custom"]:
+                        continue
                     prev_buttons = copy.copy({"type": "custom", "data": msg["custom"]})
                 else:
                     prev_buttons = None

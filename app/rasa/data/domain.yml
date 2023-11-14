@@ -24,6 +24,11 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
+  ip_address:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
 actions:
 - action_core_default
 - action_restart
