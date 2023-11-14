@@ -114,3 +114,17 @@ def get_transcript(
     """
     data = session.get_transcript(sender_id=sender_id, email=email)
     return data
+
+
+@router.get("/get_session_list/")
+def get_session_list(
+        from_date: datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days=30),
+        to_date : datetime = datetime.combine(date.today(), datetime.min.time()) + timedelta(days=1),
+        query_type: str = "total_sessions"
+    ):
+    """
+    """
+    settings.logger.info(f"finding analytics from {from_date} to {to_date}")
+    settings.logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
+    data = session.get_session_list(from_date, to_date, query_type)
+    return data

@@ -191,9 +191,7 @@ Sample API Response:
 ```
 
 ### Conversation Transcript
-
-HOST: http://52.40.250.118:8888
-API endpoint: $HOST/api/analytics/?sender_id=id&email=email
+API endpoint: $HOST/api/transcript/?sender_id=id&email=email
 
 **Only sender_id OR email should be send in the url parameters. If both are sent, only sender_id value will be considered for providing the response.**
 
@@ -240,3 +238,50 @@ A list of bot and user messages
 
 **Usage**
 In the recent users and recent anon users sections, the results displayed in the UI can be made clickable. Upon clicking, the transcript api can be called with either sender_id (for anon_users) or email (for recent users) as the url parameter.
+
+### Get Session Details
+API endpoint: $HOST/api/get_session_list/?from_date=YYYY-MM-DDTHH:MM:SS&to_date=YYYY-MM-DDTHH:MM:SS&query_type=type
+
+The parameters from_date and to_date are optionals and if they are not provided, the default value for from_date is 30 days ago and to_date is today.
+
+Possible values for query_type are:
+- total_sessions
+- anon_sessions
+
+examples:
+```
+http://localhost:8000/api/get_session_list/?query_type=total_sessions
+http://localhost:8000/api/get_session_list/?query_type=anon_sessions
+```
+
+**Return Format**
+A list of sessions
+```
+[
+ {
+    "sender_id": "2127c434-4971-11ee-b5d3-533674769a29",
+    "email": "me@gmail.com",
+    "full_name": "John Doe",
+    "last_seen": "2023-09-02T09:15:21.649000"
+  },
+  {
+    "sender_id": "b8f8dfe0-4bf2-11ee-80e9-43cc2b744725",
+    "email": "me@gmail.com",
+    "full_name": "John Doe",
+    "last_seen": "2023-09-05T13:47:42.583000"
+  },
+  {
+    "sender_id": "31860a90-68b9-11ee-b788-75bb1468e698",
+    "email": null,
+    "full_name": null,
+    "last_seen": "2023-10-12T04:38:35.894000"
+  }
+  ...
+]
+
+```
+
+Since the format is same for all session types, the email and full_name value can also be null. There may also be repetitions of email and full_name since a single person may have multiple conversation sessions. However, the sender_id values will be unique.
+
+**Usage**
+Upon clicking the count values in the dashboard (eg. total_sessions), this API can be called to get a list of the corresponding sessions. To view the transcript of a single session, then transcript api can be be called.

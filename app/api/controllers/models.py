@@ -112,8 +112,7 @@ class ChatSession(object):
     
 
     ######## analytics #########
-    def get_conversation_count(self, from_date, to_date, chatbot_type):
-        def get_events_unwind_query_group_by_user(event, name, group_by_user=False, is_only_count=False, is_email_slot=True):
+    def get_events_unwind_query_group_by_user(self, event, name, group_by_user=False, is_only_count=False, is_email_slot=True):
             match = {"$match": {"events.event": event, "events.name": name}}
             if is_email_slot:
                 match["$match"].update({"slots.email": {"$ne": None}})
@@ -130,12 +129,22 @@ class ChatSession(object):
                 base_query += [{"$count": 'count' }]
             return base_query
 
+    
+    def get_conversations_base_query(self, from_date, to_date):
+        base_query = {
+            "$match": {"latest_event_time": {"$gt": from_date.timestamp(), "$lt": to_date.timestamp()}}
+        }
+        return base_query
+    
+    def query_utils(self, query_type):
+        if query_type == "total_sessions":
+            return [{"$count": 'count' }]
+        elif query_type == "anon_sessions":
+            # count of anon user
+            return [{"$match": {"slots.email": None}}, {"$count": 'count' }]
 
-        total_sessions = [{"$count": 'count' }]
 
-        # count of anon user
-        anon_sessions = [{"$match": {"slots.email": None}}, {"$count": 'count' }]
-
+    def get_conversation_count(self, from_date, to_date, chatbot_type):
         top_sessions_by_location = [
             {"$match": {"slots.job_location": { "$nin" : [ None, "ignore" ] }} },
             # {"$group": {"_id": "$slots.job_location", "count": { "$sum": 1 } }},
@@ -212,18 +221,16 @@ class ChatSession(object):
 
         analytics = list(settings.db[self.conversations_collection_name].aggregate([
             {
-                "$match": {
-                    "latest_event_time": {"$gt": from_date.timestamp(), "$lt": to_date.timestamp()}
-                }
+                **self.get_conversations_base_query(from_date, to_date)
             },
             {
                 "$facet": {
-                    "total_sessions": total_sessions,
-                    "anon_sessions": anon_sessions,
-                    "explore_jobs": get_events_unwind_query_group_by_user(event="action", name="action_start_explore_jobs", is_only_count=True),
-                    "ask_a_question": get_events_unwind_query_group_by_user(event="action", name="utter_start_ask_a_question", is_only_count=True, is_email_slot=False),
-                    # "job_applications": get_events_unwind_query_group_by_user(event="action", name="explore_jobs_form_submit", group_by_user=True),
-                    # "screening_questions_completed": get_events_unwind_query_group_by_user(event="action", name="job_screening_form_submit", group_by_user=True),
+                    "total_sessions": self.query_utils("total_sessions"),
+                    "anon_sessions": self.query_utils("anon_sessions"),
+                    "explore_jobs": self.get_events_unwind_query_group_by_user(event="action", name="action_start_explore_jobs", is_only_count=True),
+                    "ask_a_question": self.get_events_unwind_query_group_by_user(event="action", name="utter_start_ask_a_question", is_only_count=True, is_email_slot=False),
+                    # "job_applications": self.get_events_unwind_query_group_by_user(event="action", name="explore_jobs_form_submit", group_by_user=True),
+                    # "screening_questions_completed": self.get_events_unwind_query_group_by_user(event="action", name="job_screening_form_submit", group_by_user=True),
                     "resume_files_uploaded": resume_files_uploaded,
                     "top_sessions_by_location": top_sessions_by_location,
                     "total_sessions_by_day": total_sessions_by_day,
@@ -243,16 +250,14 @@ class ChatSession(object):
 
         analytics_previous_timeperiod = list(settings.db[self.conversations_collection_name].aggregate([
             {
-                "$match": {
-                    "latest_event_time": {"$gt": from_date_previous.timestamp(), "$lt": to_date_previous.timestamp()}
-                }
+                **self.get_conversations_base_query(from_date_previous, to_date_previous)
             },
             {
                 "$facet": {
-                    "total_sessions": total_sessions,
-                    "anon_sessions": anon_sessions,
-                    "explore_jobs": get_events_unwind_query_group_by_user(event="action", name="action_start_explore_jobs", is_only_count=True),
-                    "ask_a_question": get_events_unwind_query_group_by_user(event="action", name="utter_start_ask_a_question", is_only_count=True, is_email_slot=False),
+                    "total_sessions": self.query_utils("total_sessions"),
+                    "anon_sessions": self.query_utils("anon_sessions"),
+                    "explore_jobs": self.get_events_unwind_query_group_by_user(event="action", name="action_start_explore_jobs", is_only_count=True),
+                    "ask_a_question": self.get_events_unwind_query_group_by_user(event="action", name="utter_start_ask_a_question", is_only_count=True, is_email_slot=False),
                     "resume_files_uploaded": resume_files_uploaded,
                 }
             }
@@ -268,6 +273,27 @@ class ChatSession(object):
             else:
                 analytics[0][metric][0]["percent_change"] = 0
         return analytics
+
+
+    def get_session_list(self, from_date, to_date, query_type):
+        query = self.query_utils(query_type)
+        if query is not None:
+            projection = [
+                {"$project": {
+                    "_id": 0,
+                    "sender_id": "$sender_id",
+                    "email": "$slots.email",
+                    "full_name": "$slots.full_name",
+                    "last_seen": {"$toDate": {"$multiply": [1000, "$latest_event_time"]}}
+                }}
+            ]
+            session_list = list(settings.db[self.conversations_collection_name].aggregate([
+                {
+                    **self.get_conversations_base_query(from_date, to_date)
+                }] + query[:-1] + projection ))
+            return session_list
+        return []
+
 
     def get_transcript(self, sender_id, email):
         if sender_id is not None:
