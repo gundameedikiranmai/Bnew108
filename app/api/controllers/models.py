@@ -142,6 +142,26 @@ class ChatSession(object):
         elif query_type == "anon_sessions":
             # count of anon user
             return [{"$match": {"slots.email": None}}, {"$count": 'count' }]
+        elif query_type == "explore_jobs":
+            return [
+                {"$match": {"events.event": "action", "events.name": "action_start_explore_jobs", "slots.email": {"$ne": None}}},
+                {}
+            ]
+        elif query_type == "ask_a_question":
+            return [
+                {"$match": {"events.event": "action", "events.name": "utter_start_ask_a_question"}},
+                {}
+            ]
+        elif query_type == "resume_files_uploaded":
+            return [
+                {"$match": {
+                    "events.event": "user",
+                    "events.parse_data.intent.name": "input_resume_upload_data",
+                    "events.parse_data.intent.confidence": 1,
+                    "slots.email": {"$ne": None}
+                }},
+                {"$count": 'count' }
+            ]
 
 
     def get_conversation_count(self, from_date, to_date, chatbot_type):
@@ -182,17 +202,7 @@ class ChatSession(object):
             {"$sort": {"_id":1} }
         ]
 
-        resume_files_uploaded = [
-            {"$unwind": "$events"},
-            {"$match": {
-                "events.event": "user",
-                "events.parse_data.intent.name": "input_resume_upload_data",
-                "events.parse_data.intent.confidence": 1,
-                "slots.email": {"$ne": None}
-            }},
-            # {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
-            {"$count": 'count' }
-        ]
+        resume_files_uploaded = [{"$unwind": "$events"}] + self.query_utils("resume_files_uploaded")
 
         returning_users_session_count = [
             {"$unwind": "$events"},
