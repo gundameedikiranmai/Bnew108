@@ -6,6 +6,10 @@ from config.conf import settings
 from datetime import timedelta
 import copy
 
+import random
+import socket
+import struct
+
 class ChatSession(object):
 
     """Summary
@@ -109,6 +113,23 @@ class ChatSession(object):
         else:
             settings.logger.info(f"unable to get tracker object for sender_id = {sender_id}")
             return None
+
+
+    def add_ip(self, dry_run):
+        print("dry_run", dry_run)
+        document_list = list(settings.db[self.conversations_collection_name].find({}))
+        for doc in document_list:
+            # get for latest session
+            ip = doc.get("slots").get("ip_address")
+            print(ip)
+            if ip is None:
+                ip = socket.inet_ntoa(struct.pack('>I', random.randint(1, 0xffffffff)))
+                print("new ip", ip, doc.get("sender_id"), str(doc.get("_id")))
+                if not dry_run:
+                    status = settings.db[self.conversations_collection_name].update_one({"sender_id": doc.get("sender_id")}, {"$set": {"slots.ip_address": ip} })
+                    print("update status", status.modified_count)
+            
+        
     
 
     ######## analytics #########
@@ -183,7 +204,7 @@ class ChatSession(object):
             {"$match": {"slots.email": None} },
             { "$sort": { "latest_event_time": -1 } },
             # {"$group": {"_id": "$slots.email", "last_seen": { "$first": "$latest_event_time" }, "full_name": { "$first": "$slots.full_name" } }},
-            {"$project": {"_id": "$sender_id", "last_seen": {"$toDate": {"$multiply": [1000, "$latest_event_time"]}} }},
+            {"$project": {"_id": "$slots.ip_address", "sender_id": "$sender_id", "last_seen": {"$toDate": {"$multiply": [1000, "$latest_event_time"]}} }},
             { "$limit": 5 },
         ]
 
@@ -324,7 +345,7 @@ class ChatSession(object):
         transcript = []
         if len(docs) == 0:
             return transcript
-        print(docs[0]["sender_id"])
+        settings.logger.info(f'sender id of transcript: {docs[0]["sender_id"]}')
         events = docs[0].get("events", [])
         prev_buttons = None
         for e in events:

@@ -128,3 +128,10 @@ def get_session_list(
     settings.logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
     data = session.get_session_list(from_date, to_date, query_type)
     return data
+
+@router.get("/add_ip/")
+def add_ip(dry_run: bool = True):
+    """
+    """
+    data = session.add_ip(dry_run)
+    return data
