@@ -247,11 +247,16 @@ The parameters from_date and to_date are optionals and if they are not provided,
 Possible values for query_type are:
 - total_sessions
 - anon_sessions
+- explore_jobs
+- ask_a_question
+- resume_files_uploaded
+- top_searched_jobs
 
 examples:
 ```
 http://localhost:8000/api/get_session_list/?query_type=total_sessions
 http://localhost:8000/api/get_session_list/?query_type=anon_sessions
+http://localhost:8000/api/get_session_list/?query_type=top_searched_jobs&job_title=Java%20Developer
 ```
 
 **Return Format**

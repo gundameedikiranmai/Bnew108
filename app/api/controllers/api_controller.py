@@ -120,14 +120,17 @@ def get_transcript(
 def get_session_list(
         from_date: datetime = datetime.combine(date.today(), datetime.min.time()) - timedelta(days=30),
         to_date : datetime = datetime.combine(date.today(), datetime.min.time()) + timedelta(days=1),
-        query_type: str = "total_sessions"
+        query_type: str = "total_sessions",
+        job_title: str = None
     ):
     """
     """
     settings.logger.info(f"finding analytics from {from_date} to {to_date}")
     settings.logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
-    data = session.get_session_list(from_date, to_date, query_type)
+    extra_params = {"job_title": job_title}
+    data = session.get_session_list(from_date, to_date, query_type, extra_params)
     return data
+
 
 @router.get("/add_ip/")
 def add_ip(dry_run: bool = True):

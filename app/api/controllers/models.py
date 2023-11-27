@@ -183,6 +183,16 @@ class ChatSession(object):
                 }},
                 {"$count": 'count' }
             ]
+        elif query_type == "top_searched_jobs":
+            return [
+                {"$unwind": "$events"},
+                {"$match": {
+                    "events.event": "slot",
+                    "events.name": "job_title",
+                    "events.value":  { "$nin" : [ None, "ignore" ] }
+                }},
+                { "$sortByCount": "$events.value" },
+            ]
 
 
     def get_conversation_count(self, from_date, to_date, chatbot_type):
@@ -231,15 +241,7 @@ class ChatSession(object):
             {"$group": {"_id": "$slots.email", "count": { "$sum": 1 } }}
         ]
 
-        top_searched_jobs = [
-            {"$unwind": "$events"},
-            {"$match": {
-                "events.event": "slot",
-                "events.name": "job_title",
-                "events.value":  { "$nin" : [ None, "ignore" ] }
-            }},
-            { "$sortByCount": "$events.value" },
-        ]
+        top_searched_jobs = self.query_utils("top_searched_jobs")
 
         drop_off_point_last_user_messages = [
             {"$match": {"slots.applied_jobs.0": {"$exists": False}, "latest_message.text": {"$ne": None} } },
@@ -306,8 +308,20 @@ class ChatSession(object):
         return analytics
 
 
-    def get_session_list(self, from_date, to_date, query_type):
+    def get_session_list(self, from_date, to_date, query_type, extra_params):
         query = self.query_utils(query_type)
+        if query_type == "top_searched_jobs":
+            if extra_params.get("job_title") is not None:
+                query = [
+                    {"$match": {
+                        "events.event": "slot",
+                        "events.name": "job_title",
+                        "events.value":  extra_params.get("job_title")
+                    }}, {}
+                ]
+            else:
+                print(extra_params)
+                return []
         if query is not None:
             projection = [
                 {"$project": {
@@ -315,7 +329,8 @@ class ChatSession(object):
                     "sender_id": "$sender_id",
                     "email": "$slots.email",
                     "full_name": "$slots.full_name",
-                    "last_seen": {"$toDate": {"$multiply": [1000, "$latest_event_time"]}}
+                    "last_seen": {"$toDate": {"$multiply": [1000, "$latest_event_time"]}},
+                    "ip_address": "$slots.ip_address"
                 }}
             ]
             session_list = list(settings.db[self.conversations_collection_name].aggregate([
