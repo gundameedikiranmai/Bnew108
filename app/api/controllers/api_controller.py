@@ -132,9 +132,9 @@ def get_session_list(
     return data
 
 
-@router.get("/add_ip/")
-def add_ip(dry_run: bool = True):
-    """
-    """
-    data = session.add_ip(dry_run)
-    return data
+# @router.get("/add_ip/")
+# def add_ip(dry_run: bool = True):
+#     """
+#     """
+#     data = session.add_ip(dry_run)
+#     return data
