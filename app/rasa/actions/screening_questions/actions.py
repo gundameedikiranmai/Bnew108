@@ -192,26 +192,11 @@ class JobScreeningFormSubmit(Action):
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
         """Define what the form has to do after all required slots are filled"""
-        result = []
         dispatcher.utter_message(json_message={"screening_start": False})
         dispatcher.utter_message(response="utter_submit")
         # dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
         selected_job = tracker.get_slot("select_job")
-        
-        sync_screening_responses(tracker)
-        is_success = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job)
-        applied_jobs = tracker.get_slot("applied_jobs")
-        if is_success:
-            applied_jobs += [selected_job]
-        
-        result += [
-            SlotSet("job_screening_questions", None),
-            SlotSet("job_screening_questions_count", None),
-            SlotSet("select_job", None),
-            SlotSet("applied_jobs", applied_jobs)
-        ]
-        dispatcher.utter_message(response="utter_greet", greet="after_apply")
-
+        result = job_screening_submit_integration(tracker, selected_job, dispatcher)
         return result
 
 
@@ -224,8 +209,12 @@ def sync_screening_responses(tracker):
         "fullName": tracker.get_slot("full_name"),
         "phoneNumber": tracker.get_slot("phone_number"),
         "jobId": tracker.get_slot("select_job"),
-        "candidateResponses": [{"id": q["id"], "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
+        "candidateResponses": [],
+        "clientId": tracker.get_slot("client_id")
     }
+    if tracker.get_slot("job_screening_questions") is not None and tracker.get_slot("screening_question_history") is not None:
+        payload["candidateResponses"]: [{"id": q["id"], "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
+    
     logger.debug("Sending sync response: " + str(payload))
     response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
     logger.info("received status code from sync response: " + str(response.status_code))
@@ -237,3 +226,20 @@ def sync_screening_responses(tracker):
     # except Exception as e:
     #     logger.error("Could not submit screening responses to webhook")
     #     logger.error(e)
+
+
+def job_screening_submit_integration(tracker, selected_job, dispatcher):
+    sync_screening_responses(tracker)
+    is_success = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job, tracker.get_slot("client_id"))
+    applied_jobs = tracker.get_slot("applied_jobs")
+    if is_success:
+        applied_jobs += [selected_job]
+    
+    result = [
+        SlotSet("job_screening_questions", None),
+        SlotSet("job_screening_questions_count", None),
+        SlotSet("select_job", None),
+        SlotSet("applied_jobs", applied_jobs)
+    ]
+    dispatcher.utter_message(response="utter_greet", greet="after_apply")
+    return result

@@ -9,6 +9,7 @@ class Metadata(BaseModel):
     chatbot_type: Optional[str] = "1"
     job_location: Optional[str] = None
     ip_address: str = None
+    client_id: str = None
     # channel : str
 
 class RasaWebhook(BaseModel):

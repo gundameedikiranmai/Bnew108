@@ -12,6 +12,7 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import actions.utils as utils
 from actions.common_actions import AskCustomBaseAction
+from actions.screening_questions.actions import job_screening_submit_integration
 import actions.config_values as cfg
 
 logger = getLogger(__name__)
@@ -208,9 +209,27 @@ class AskSelectJobAction(AskCustomBaseAction):
         self.set_params("select_job")
     
     def fetch_jobs(self, tracker):
+        # payload = {
+        #     "keyword": utils.get_default_slot_value(tracker.get_slot("job_title")),
+        #     "location": utils.get_default_slot_value(tracker.get_slot("job_location")),
+        # }
         payload = {
-            "keyword": utils.get_default_slot_value(tracker.get_slot("job_title")),
-            "location": utils.get_default_slot_value(tracker.get_slot("job_location")),
+            "jobquery": [
+                {
+                    "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
+                    "clientId": tracker.get_slot("client_id"),
+                    "jobType": "All Job Types",
+                    "datePosted": "0",
+                    "locationFilters": [
+                        {"address": utils.get_default_slot_value(tracker.get_slot("job_location")), "regionCode": "", "distanceInMiles": 0}
+                    ],
+                }
+            ],
+            "searchMode": "JOB_SEARCH",
+            "disableKeywordMatch": False,
+            "enableBroadening": True,
+            "keywordMatchMode": "KEYWORD_MATCH_ALL",
+            "offset": 0,
         }
         try:
             logger.info("job search params: " + str(payload))
@@ -220,7 +239,7 @@ class AskSelectJobAction(AskCustomBaseAction):
                 jobs = job_resp.json().get("jobList", [])
                 logger.info(f"total job count: {len(jobs)}")
                 applied_jobs = tracker.get_slot("applied_jobs")
-                jobs_filtered = [j for j in jobs if j["requisitionId_"] not in applied_jobs]
+                jobs_filtered = [j["job_"] for j in jobs if j["job_"]["requisitionId_"] not in applied_jobs]
                 logger.info(f"filtered job count: {len(jobs_filtered)}")
                 jobs_to_show = jobs_filtered[:cfg.N_JOBS_TO_SHOW]
                 log_subset =  [{key: value for key, value in j.items() if key in ["requisitionId_", "title_"]} for j in jobs_to_show[:3]]
@@ -265,22 +284,27 @@ class ExploreJobsFormSubmit(Action):
         """Define what the form has to do after all required slots are filled"""
         result = []
         dispatcher.utter_message(response="utter_explore_jobs_apply_success")
-        dispatcher.utter_message(response="utter_screening_start")
         questions_data, slots = get_screening_questions_for_job_id(tracker)
         result += slots
         logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
         dispatcher.utter_message(json_message={"screening_start": True})
         result += [
-            # set questions to be asked after the selecting a job
-            SlotSet("job_screening_questions", questions_data),
-            SlotSet("job_screening_questions_count", len(questions_data)),
             # reset explore jobs form
             SlotSet("refine_job_search_field", None),
             # reset job_screening_form
             SlotSet("screening_question", None),
             SlotSet("screening_question_history", None),
-            FollowupAction("job_screening_form")
         ]
+        if len(questions_data) > 0:
+            result += [
+                # set questions to be asked after the selecting a job
+                SlotSet("job_screening_questions", questions_data),
+                SlotSet("job_screening_questions_count", len(questions_data)),
+                FollowupAction("job_screening_form")
+            ]
+            dispatcher.utter_message(response="utter_screening_start")
+        else:
+            result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher)
         return result
 
 
@@ -293,14 +317,19 @@ def get_screening_questions_for_job_id(tracker):
     # questions_data = json.load(open(sample_questions_path, 'r'))["components"]
     
     # use hardcoded job id
-    payload = {"action":"get","jobId":"228679","recrId":"1893"}
+    payload = {"action":"get","jobId": job_id, "recrId":"1893", "clientId": tracker.get_slot("client_id")}
 
     resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_URL, json=payload)
-    questions_data = json.loads(resp.json()["json"])["components"]
+    resp_json = resp.json()
+    print(payload)
+    questions_data = []
+    if len(resp_json["json"].strip()) > 0:
+        # json object is not empty
+        questions_data = json.loads(resp.json()["json"])["components"]
 
     questions_data_transformed = []
     for q in questions_data:
-        if q["inputType"] == "attachment":
+        if q["inputType"] in ["attachment", "fileupload"]:
             # if resume was cancelled, set it to None so that it can be asked later again....
             if tracker.get_slot("resume_upload") == "false":
                 result += [SlotSet("resume_upload", None)]
@@ -308,7 +337,7 @@ def get_screening_questions_for_job_id(tracker):
             continue
 
         # TODO text put here as adhoc for full_name
-        elif q["inputType"] in ["ssn", "email", "phone-number"]:
+        elif q["fieldType"] in ["ssn", "email", "phone"]:
             # ignore these input types as they are mandatory.
             continue
         
@@ -317,7 +346,10 @@ def get_screening_questions_for_job_id(tracker):
             q_transformed["text"] = q.get("labelName")
         inputType = q.get("inputType")
         if inputType == "radio":
-            q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
+            if q.get("fieldType") == "yes/no":
+                q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
+            else:
+                q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
         elif inputType == "text":
             pass
         questions_data_transformed.append(q_transformed)

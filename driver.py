@@ -12,7 +12,7 @@ url = "http://localhost:8000"
 # url = "http://localhost:6005/webhooks/nlu"
 UUID = str(uuid.uuid1())
 # UUID = "6971537150"
-chatbot_type = "2"
+chatbot_type = "1"
 
 def send_to_rasa(usr_msg):
     payload = {
@@ -22,7 +22,8 @@ def send_to_rasa(usr_msg):
             "job_id": "1",
             "chatbot_type": chatbot_type,
             "job_location": 'TX',
-            "ip_address": "1.1.1.2"
+            "ip_address": "1.1.1.2",
+            "client_id": "2"
         },
     }
 

@@ -21,13 +21,13 @@ async def upload_resume(request: Request):
     settings.logger.info("dict: " + str(dict(form_data)))
     resume_file = form_data["resume"]
     try:
-        url = "https://www4.accuick.com/ChatBot/resumeUpload.jsp"
+        url = "https://www4.accuick.com/Accuick_API/Curately/Chatbot/resumeUpload.jsp"
         
         files=[
             ('filename',(resume_file.filename, resume_file.file, resume_file.content_type))
         ]
         settings.logger.info(resume_file.content_type + ", " + resume_file.filename)
-        response = requests.request("POST", url, files=files)
+        response = requests.request("POST", url, files=files, data={"clientId": 1})
         # response = requests.request("POST", url, data=payload)
         resp = response.json()
         settings.logger.info("Resume Upload API response:" + json.dumps(resp, indent=4))
@@ -61,7 +61,7 @@ async def upload_resume(request: Request):
         utils.add_slot_set_events(form_data["sender"], slots)
 
         # return rasa_webhook(rasa_payload)
-        return utils.JsonResponse({"message": resp["message"], "success": True, "candidate_id": resp["candidateId"]}, 200)
+        return utils.JsonResponse({"message": resp["message"], "success": True, "candidate_id": resp["UserId"]}, 200)
     except Exception as e:
         settings.logger.error("Could not upload resume.")
         settings.logger.error(e)
