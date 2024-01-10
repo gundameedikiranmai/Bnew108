@@ -17,21 +17,6 @@ import actions.config_values as cfg
 
 logger = getLogger(__name__)
 
-def load_screening_questions():
-    dir_path = os.path.join("chatbot_data", "screening_questions")
-    question_dict = {}
-    n_questions = {}
-    for file in os.listdir(dir_path):
-        name, ext = os.path.splitext(file)
-        if ext in [".yml", ".yaml"]:
-            file_data = yaml.load(open(os.path.join(dir_path, file)), Loader=yaml.FullLoader)
-            question_dict[name.lower()] = file_data["job_questions"] + file_data["common_questions"]
-            n_questions[name.lower()] = len(question_dict[name.lower()])
-    return question_dict, n_questions
-
-question_dict, n_questions = load_screening_questions()
-
-
 class ValidateJobScreeningForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_job_screening_form"
@@ -82,15 +67,11 @@ class ValidateJobScreeningForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         """Validate `screening_question` value."""
         logger.info(f"validating input {slot_value}")
-        if slot_value is None:
-            return {"screening_question": None}
+        if slot_value in [None, "ignore"]:
+            return {"screening_question": slot_value}
         
         job_screening_questions = tracker.get_slot("job_screening_questions")
-        if job_screening_questions is None:
-            job_id, _ = utils.get_metadata_field(tracker, "job_id")
-            job_screening_questions_count = n_questions.get(job_id)
-        else:
-            job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
+        job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
         
         
         history = tracker.get_slot("screening_question_history")
@@ -115,6 +96,7 @@ class ValidateJobScreeningForm(FormValidationAction):
             result_dict["screening_question"] = None
         else:
             result_dict["screening_question"] = slot_value
+            dispatcher.utter_message(json_message={"screening_start": False})
             print(history)
         return result_dict
 
@@ -143,13 +125,7 @@ class AskScreeningQuestionAction(Action):
         result = []
         questions_data = tracker.get_slot("job_screening_questions")
         input_type = None
-        if questions_data is None:
-            job_id, job_id_slot = utils.get_metadata_field(tracker, "job_id")
-            job_screening_questions_count = n_questions.get(job_id)
-            questions_data = copy.copy(question_dict.get(job_id))
-            result += job_id_slot
-        else:
-            job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
+        job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
         
         history = tracker.get_slot("screening_question_history")
         if history is None:
@@ -191,8 +167,7 @@ class JobScreeningFormSubmit(Action):
         return "job_screening_form_submit"
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
-        """Define what the form has to do after all required slots are filled"""
-        dispatcher.utter_message(json_message={"screening_start": False})
+        """Define what the form has to do after all required slots are filled"""   
         dispatcher.utter_message(response="utter_submit")
         # dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
         selected_job = tracker.get_slot("select_job")
@@ -213,9 +188,9 @@ def sync_screening_responses(tracker):
         "clientId": tracker.get_slot("client_id")
     }
     if tracker.get_slot("job_screening_questions") is not None and tracker.get_slot("screening_question_history") is not None:
-        payload["candidateResponses"]: [{"id": q["id"], "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
+        payload["candidateResponses"] = [{"id": q["id"], "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
     
-    logger.debug("Sending sync response: " + str(payload))
+    logger.info("Sending sync response: " + str(payload))
     response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
     logger.info("received status code from sync response: " + str(response.status_code))
     #  no need to check for response body as it is empty, only printing the status code

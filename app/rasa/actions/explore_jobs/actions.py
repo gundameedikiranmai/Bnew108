@@ -304,7 +304,21 @@ class ExploreJobsFormSubmit(Action):
             ]
             dispatcher.utter_message(response="utter_screening_start")
         else:
-            result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher)
+            # check if any mandatory question has to be asked.
+            is_ask_mandatory_question = False
+            for s in cfg.SCREENING_FORM_MANDATORY_QUESTIONS:
+                if tracker.get_slot(s) is None:
+                    is_ask_mandatory_question = True
+                    break
+            if is_ask_mandatory_question:
+                # there is no screening question but one or more of the mandatory questions have been left unanswered.
+                result += [
+                    SlotSet("screening_question", "ignore"),
+                    FollowupAction("job_screening_form")
+                ]
+                dispatcher.utter_message(response="utter_screening_start")
+            else:
+                result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher)
         return result
 
 
@@ -317,6 +331,8 @@ def get_screening_questions_for_job_id(tracker):
     # questions_data = json.load(open(sample_questions_path, 'r'))["components"]
     
     # use hardcoded job id
+    # test job id which has screening questions configured.
+    # payload = {"action":"get","jobId": "1338", "recrId":"1893", "clientId": tracker.get_slot("client_id")}
     payload = {"action":"get","jobId": job_id, "recrId":"1893", "clientId": tracker.get_slot("client_id")}
 
     resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_URL, json=payload)
