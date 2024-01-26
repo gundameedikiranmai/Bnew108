@@ -276,6 +276,10 @@ class ChatSession(object):
             }
         ]))
 
+        # replace intent names in drop_off_point_last_user_messages
+        for intent in analytics[0]["drop_off_point_last_user_messages"]:
+            intent["_id"] = settings.INTENT_NAME_TO_DISPLAY.get(intent["_id"], intent["_id"])
+
         timeperiod_length = to_date - from_date
         settings.logger.info(timeperiod_length)
         to_date_previous = from_date - timedelta(days=1)

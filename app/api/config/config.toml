@@ -29,3 +29,15 @@ MONGO_APP_DATABASE = "rasadb"
 [RASA_WEBHOOK]
 URL = "http://rasa-core:5005"
 TOKEN = "secret"
+
+[INTENT_NAME_TO_DISPLAY]
+greet="Initial Greeting"
+input_screening_response="Response to a screening question"
+job_screening="Begin Job screening"
+explore_jobs="Explore jobs"
+input_select_job="Job Selected"
+input_resume_upload_data="Resume Uploaded"
+affirm="Yes"
+input_job_location="Preferred Job Location"
+input_job_title="Preferred Job Title"
+deny="No"
