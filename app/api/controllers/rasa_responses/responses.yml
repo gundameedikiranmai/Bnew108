@@ -8,9 +8,9 @@ responses:
     - payload: /ask_a_question
       title: 'Ask a question'
     text:
-      unknown: Hi there How can I help you today?
-      known: Welcome back {first_name}, How can I help you?
-      after_apply: What would you like to do next?
+      unknown: Hello! How can I assist you today?
+      known: Welcome back, {first_name}! How can I assist you further today?
+      after_apply: Is there anything else I can assist you with today?
   utter_perfect:
   - text: Perfect!
   utter_great:
@@ -18,12 +18,12 @@ responses:
   utter_thank_you:
   - text: Thank you!
   utter_nice_to_meet_you:
-  - text: Nice to meet you, {first_name}
+  - text: It's a pleasure to meet you, {first_name}
   # job screening
   utter_screening_start:
   - text: Great! To assist you in applying for this position, I'll need to collect some additional information from you.
   utter_screening_go_back:
-  - text: Ok we can go back to the previous question.
+  - text: Let's revisit the previous question.
   utter_screening_show_back_prompt:
   - text: You can always go back to previous question by typing back
   utter_ask_email:
@@ -37,7 +37,7 @@ responses:
   utter_ask_full_name:
   - text: Please tell us your full name.
   utter_submit:
-  - text: Your responses have been submitted.
+  - text: Thank you for providing your details. Your job application has been successfully submitted. We'll be in touch with the next steps soon.
   utter_date_error:
   - text: You have entered an invalid date
   # ask_a_question
@@ -47,7 +47,7 @@ responses:
   - text: Here are a few questions that might be relevant for you
   # explore jobs
   utter_start_explore_jobs:
-  - text: "Let's tailor job recommendations to match your unique background and interests."
+  - text: "Let's find the perfect job for you based on your skills and preferences."
   utter_start_explore_jobs_without_asking:
   - text: "It looks like you are near {job_location}. Here are some jobs we have in that area and/or 100% Remote"
   utter_ask_is_resume_upload:
@@ -56,27 +56,27 @@ responses:
       title: 'Upload Resume'
     - payload: /deny
       title: 'Answer Questions'
-    text: Prefer to share your resume or answer a few questions to refine job suggestions for you?
+    text: Would you like to upload your resume for personalized recommendations, or should we start with a few quick questions?
   utter_ask_resume_upload:
-  - text: "Please upload your resume"
+  - text: "Please upload your resume here"
   utter_resume_upload_cancel:
   - text: "Your resume upload was cancelled."
   utter_ask_job_title:
   - text: "What job title do you prefer? We'll use this to find related positions for you."
   utter_ask_job_location:
-  - text: "Where do you want to work? This can be your current location or a different preferred locations."
+  - text: "Which location are you considering for your next role? Feel free to mention any specific city or region"
   utter_ask_refine_job_search_field:
   - buttons:
     - payload: '/input_refine_job_search_field{"refine_job_search_field": "job_location"}'
       title: 'Preferred Location'
     - payload: '/input_refine_job_search_field{"refine_job_search_field": "job_title"}'
       title: 'Recent Job Title'
-    text: Which field would you like to update?
+    text: "Let's narrow down your job search.\n\nWhat aspect of your job search would you like to modify?"
   utter_error_explore_jobs:
   - text: "There was an error in finding jobs, please try again later"
   utter_explore_jobs_no_jobs_found:
-  - text: "Unfortunately, I couldn't locate any positions that match your search criteria at the moment."
+  - text: "Currently, there are no open positions matching your profile. Let's refine your job search to find the right opportunities."
   utter_explore_jobs_jobs_found:
   - text: Great! Take a look at the positions I found for you
   utter_explore_jobs_apply_success:
-  - text: "Thanks for applying to the job: {select_job_title}"
+  - text: "Thank you for expressing interest in the {select_job_title} position!"
