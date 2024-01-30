@@ -378,6 +378,8 @@ def parse_form_bulder_json(resp_json, tracker):
         if inputType == "radio":
             if q.get("fieldType") == "yes/no":
                 q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
+            elif q.get("fieldType") == "multiplechoice":
+                q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("value")} for val in q.get("choices", [])]
             else:
                 q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
         elif inputType == "text":
