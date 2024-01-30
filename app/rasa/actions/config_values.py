@@ -5,6 +5,7 @@ SLOT_IGNORE_VALUES = [None, "", "ignore"]
 ACCUICK_SEARCH_JOBS_URL = "https://api.cxninja.com/DemoCurately/jobsearch"
 N_JOBS_TO_SHOW = 20
 ACCUICK_JOBS_FORM_BUILDER_URL = "https://www4.accuick.com/Accuick_API/Curately/Chatbot/getForm.jsp"
+ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL = "https://app.curately.ai/Accuick_API/Curately/Chatbot/getDefaultForm.jsp"
 ACCUICK_JOB_APPLY_URL = "https://api.cxninja.com/DemoCurately/jobsapply"
 ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = "https://search.accuick.com/Twilio/webhook_chatbot.jsp"
 SCREENING_FORM_BACK_KEYWORD = "BACK"

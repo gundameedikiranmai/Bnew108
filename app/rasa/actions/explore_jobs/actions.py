@@ -325,7 +325,7 @@ class ExploreJobsFormSubmit(Action):
 ######## utils ########
 def get_screening_questions_for_job_id(tracker):
     job_id = tracker.get_slot("select_job")
-    result = []
+    
     # read from sample file for now.
     # sample_questions_path = os.path.join("chatbot_data", "screening_questions", "sample_questions_after_job_apply.json")
     # questions_data = json.load(open(sample_questions_path, 'r'))["components"]
@@ -338,10 +338,24 @@ def get_screening_questions_for_job_id(tracker):
     resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_URL, json=payload)
     resp_json = resp.json()
     print(payload)
+    
+    questions_data_transformed, result = parse_form_bulder_json(resp_json, tracker)
+
+    if len(questions_data_transformed) == 0:
+        logger.info("using default form builder questions")
+        resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL, json={"clientId":"2", "action":"get"})
+        resp_json1 = resp.json()
+        questions_data_transformed, result = parse_form_bulder_json(resp_json1, tracker)
+    
+    return questions_data_transformed, result
+
+
+def parse_form_bulder_json(resp_json, tracker):
     questions_data = []
+    result = []
     if len(resp_json["json"].strip()) > 0:
         # json object is not empty
-        questions_data = json.loads(resp.json()["json"])["components"]
+        questions_data = json.loads(resp_json["json"])["components"]
 
     questions_data_transformed = []
     for q in questions_data:

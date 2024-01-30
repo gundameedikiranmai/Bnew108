@@ -48,9 +48,9 @@ class AskUserQuestionAction(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
         result = []
-        sample_faqs = dict(random.sample(faqs.items(), 3))
+        # sample_faqs = dict(random.sample(faqs.items(), 3))
         buttons = []
-        for faq_id, question_data in sample_faqs.items():
+        for faq_id, question_data in faqs.items():
             btn_data = {
                 "payload": '/input_user_question{"user_question": "' + faq_id + '" }',
                 "title": question_data["question"]

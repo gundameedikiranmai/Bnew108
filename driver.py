@@ -21,7 +21,7 @@ def send_to_rasa(usr_msg):
         "metadata": {
             "job_id": "1",
             "chatbot_type": chatbot_type,
-            "job_location": 'TX',
+            "job_location": 'IL',
             "ip_address": "1.1.1.2",
             "client_id": "2"
         },
@@ -62,6 +62,10 @@ def upload_resume():
     print(json.dumps(resp, indent=4))
     return resp["candidate_id"]
 
+
+def ask_a_question():
+    send_to_rasa("/greet")
+    send_to_rasa("/ask_a_question")
 
 def send_resume_message():
     candidate_id = upload_resume()
@@ -134,6 +138,8 @@ explore_jobs(is_upload_resume=True)
 # explore_jobs(is_upload_resume=False, refine_job_search="location")
 # explore_jobs(is_upload_resume=True, refine_job_search="location")
 
+# ask_a_question()
+
 while True:
     print("\nplease enter your message:")
     msg = input()
@@ -143,4 +149,7 @@ while True:
     print()
     if "job:" in msg:
         msg = '/input_select_job{"select_job": "' + msg.split(":")[1].strip() + '"}'
+    
+    if "q:" in msg:
+        msg = '/input_user_question{"user_question": "' + msg.split(":")[1].strip() + '"}'
     send_to_rasa(msg)

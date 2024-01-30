@@ -42,9 +42,9 @@ responses:
   - text: You have entered an invalid date
   # ask_a_question
   utter_start_ask_a_question:
-  - text: OK! Here are a few popular questions to help you get started.
+  - text: "Great! I've compiled a list of frequently asked questions to assist you. Please choose one:"
   utter_suggest_more_questions:
-  - text: Here are a few questions that might be relevant for you
+  - text: "If you have any more questions, feel free to choose from the list below. Or, if you're all set, just let me know!"
   # explore jobs
   utter_start_explore_jobs:
   - text: "Let's find the perfect job for you based on your skills and preferences."
