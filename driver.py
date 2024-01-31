@@ -8,7 +8,11 @@ url = "http://localhost:8000"
 # Localhost docker
 # url = "http://localhost:8888"
 # SERVER
+# https://chatbot.curately.ai
 # url = "http://52.40.250.118:8888"
+
+# https://chatbot1.curately.ai/
+# url = "http://52.13.235.156:8888"
 # url = "http://localhost:6005/webhooks/nlu"
 UUID = str(uuid.uuid1())
 # UUID = "6971537150"

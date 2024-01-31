@@ -153,7 +153,7 @@ class AskScreeningQuestionAction(Action):
             if input_type == "date":
                 add_date_utterance(dispatcher)
             
-            if n_history == 1:
+            if n_history == 1 and (questions_data[n_history].get("buttons") is None or len(questions_data[n_history].get("buttons")) == 0):
                 # show back prompt on second question
                 dispatcher.utter_message(response="utter_screening_show_back_prompt")
         else:
