@@ -70,6 +70,9 @@ def upload_resume():
 def ask_a_question():
     send_to_rasa("/greet")
     send_to_rasa("/ask_a_question")
+    for qid in range(1, 6):
+        msg = '/input_user_question{"user_question": "' + str(qid) + '"}'
+        send_to_rasa(msg)
 
 def send_resume_message():
     candidate_id = upload_resume()
@@ -136,13 +139,13 @@ send_to_rasa("/restart")
 # send_to_rasa("/job_screening")
 # send_to_rasa("/greet")
 
-explore_jobs(is_upload_resume=True)
+# explore_jobs(is_upload_resume=True)
 # explore_jobs(is_upload_resume=True, cancel=True)
 # explore_jobs(is_upload_resume=False)
 # explore_jobs(is_upload_resume=False, refine_job_search="location")
 # explore_jobs(is_upload_resume=True, refine_job_search="location")
 
-# ask_a_question()
+ask_a_question()
 
 while True:
     print("\nplease enter your message:")

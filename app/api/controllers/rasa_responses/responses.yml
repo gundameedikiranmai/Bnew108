@@ -45,6 +45,8 @@ responses:
   - text: "Great! I've compiled a list of frequently asked questions to assist you. Please choose one:"
   utter_suggest_more_questions:
   - text: "If you have any more questions, feel free to choose from the list below. Or, if you're all set, just let me know!"
+  utter_no_more_questions_response:
+  - text: "Alright, I'm glad I could assist you today. If you have any more questions in the future or need further assistance, don't hesitate to reach out. Have a great day and best of luck with your job search or application!"
   # explore jobs
   utter_start_explore_jobs:
   - text: "Let's find the perfect job for you based on your skills and preferences."
