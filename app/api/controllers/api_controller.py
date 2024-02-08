@@ -21,7 +21,7 @@ async def upload_resume(request: Request):
     settings.logger.info("dict: " + str(dict(form_data)))
     resume_file = form_data["resume"]
     try:
-        url = "https://www4.accuick.com/Accuick_API/Curately/Chatbot/resumeUpload.jsp"
+        url = "https://app.curately.ai/Accuick_API/Curately/Chatbot/resumeUpload.jsp"
         
         files=[
             ('filename',(resume_file.filename, resume_file.file, resume_file.content_type))
