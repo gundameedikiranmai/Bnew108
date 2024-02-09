@@ -21,17 +21,17 @@ responses:
   - text: It's a pleasure to meet you, {first_name}
   # job screening
   utter_screening_start:
-  - text: Great! To assist you in applying for this position, I'll need to collect some additional information from you.
+  - text: To proceed with your application for the {select_job_title} role, I'll need a few more details from you.
   utter_screening_go_back:
   - text: Let's revisit the previous question.
   utter_screening_show_back_prompt:
   - text: You can always go back to previous question by typing back
   utter_ask_email:
-  - text: What is your email address? We promise to not send you spam emails
+  - text: May I have your email address for further communication?
   utter_email_invalid :
   - text: You have entered an invalid email
   utter_ask_phone_number:
-  - text: What's your preferred phone number?
+  - text: Could you please provide your preferred contact number?
   utter_phone_number_error:
   - text: You have entered an invalid phone number
   utter_ask_full_name:
