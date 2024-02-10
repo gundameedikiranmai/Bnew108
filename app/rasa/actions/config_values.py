@@ -33,3 +33,5 @@ DATE_MIN_YEARS_DIFFERENCE = 19
 
 SLOTS_TO_KEEP_AFTER_RESTART = ["full_name", "first_name", "applied_jobs"]
 SCREENING_FORM_MANDATORY_QUESTIONS = ["resume_upload", "full_name", "email", "phone_number"]
+
+SCREENING_FORM_MIN_DAYS_THRESHOLD = 30

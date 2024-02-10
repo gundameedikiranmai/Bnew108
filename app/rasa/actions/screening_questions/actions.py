@@ -14,6 +14,7 @@ import yaml
 import actions.utils as utils
 from actions.common_actions import AskUtteranceWithPlaceholderAction, add_date_utterance
 import actions.config_values as cfg
+from datetime import datetime
 
 logger = getLogger(__name__)
 
@@ -203,7 +204,7 @@ def sync_screening_responses(tracker):
     #     logger.error(e)
 
 
-def job_screening_submit_integration(tracker, selected_job, dispatcher):
+def job_screening_submit_integration(tracker, selected_job, dispatcher, utter_menu=True):
     sync_screening_responses(tracker)
     is_success = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job, tracker.get_slot("client_id"))
     applied_jobs = tracker.get_slot("applied_jobs")
@@ -214,7 +215,9 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher):
         SlotSet("job_screening_questions", None),
         SlotSet("job_screening_questions_count", None),
         SlotSet("select_job", None),
-        SlotSet("applied_jobs", applied_jobs)
+        SlotSet("applied_jobs", applied_jobs),
+        SlotSet("job_screening_questions_last_update_time", str(datetime.now())),
     ]
-    dispatcher.utter_message(response="utter_greet", greet="after_apply")
+    if utter_menu:
+        dispatcher.utter_message(response="utter_greet", greet="after_apply")
     return result

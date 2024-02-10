@@ -62,3 +62,9 @@ def validate_date(date_str):
         return given_date < last_valid_date
     except ValueError:
         return False
+
+def is_default_screening_form_preference_valid(tracker):
+    job_screening_questions_last_update_time = tracker.get_slot("job_screening_questions_last_update_time")
+    if job_screening_questions_last_update_time is not None and (datetime.now() - datetime.fromisoformat(job_screening_questions_last_update_time)).days < cfg.SCREENING_FORM_MIN_DAYS_THRESHOLD:
+        return True
+    return False

@@ -11,6 +11,7 @@ responses:
       unknown: Hello! How can I assist you today?
       known: Welcome back, {first_name}! How can I assist you further today?
       after_apply: Is there anything else I can assist you with today?
+      after_apply_no_screening_questions: "Your application for {select_job_title} is now submitted. What would you like to do next?"
   utter_perfect:
   - text: Perfect!
   utter_great:

@@ -14,6 +14,7 @@ import actions.utils as utils
 from actions.common_actions import AskCustomBaseAction
 from actions.screening_questions.actions import job_screening_submit_integration
 import actions.config_values as cfg
+from datetime import datetime
 
 logger = getLogger(__name__)
 
@@ -283,7 +284,7 @@ class ExploreJobsFormSubmit(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
         """Define what the form has to do after all required slots are filled"""
         result = []
-        dispatcher.utter_message(response="utter_explore_jobs_apply_success")
+        
         questions_data, slots = get_screening_questions_for_job_id(tracker)
         result += slots
         logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
@@ -302,6 +303,7 @@ class ExploreJobsFormSubmit(Action):
                 SlotSet("job_screening_questions_count", len(questions_data)),
                 FollowupAction("job_screening_form")
             ]
+            dispatcher.utter_message(response="utter_explore_jobs_apply_success")
             dispatcher.utter_message(response="utter_screening_start")
         else:
             # check if any mandatory question has to be asked.
@@ -316,9 +318,11 @@ class ExploreJobsFormSubmit(Action):
                     SlotSet("screening_question", "ignore"),
                     FollowupAction("job_screening_form")
                 ]
+                dispatcher.utter_message(response="utter_explore_jobs_apply_success")
                 dispatcher.utter_message(response="utter_screening_start")
             else:
-                result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher)
+                dispatcher.utter_message(response="utter_greet", greet="after_apply_no_screening_questions")
+                result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher, utter_menu=False)
         return result
 
 
@@ -342,6 +346,8 @@ def get_screening_questions_for_job_id(tracker):
     questions_data_transformed, result = parse_form_bulder_json(resp_json, tracker)
 
     if len(questions_data_transformed) == 0:
+        if utils.is_default_screening_form_preference_valid(tracker):
+            return [], []
         logger.info("using default form builder questions")
         resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL, json={"clientId":"2", "action":"get"})
         resp_json1 = resp.json()

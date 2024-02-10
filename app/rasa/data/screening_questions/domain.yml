@@ -77,6 +77,11 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
+  job_screening_questions_last_update_time:
+    type: any
+    influence_conversation: false
+    mappings:
+    - type: custom
 actions:
 - utter_screening_start
 - action_ask_email
