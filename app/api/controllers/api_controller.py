@@ -138,3 +138,12 @@ def get_session_list(
 #     """
 #     data = session.add_ip(dry_run)
 #     return data
+
+@router.post("/sync_sender_data/")
+async def sync_sender_data(request: Request):
+    """
+    """
+    json_data = await request.json()
+    is_success = session.set_screening_respones(sender_id=json_data["sender_id"], data=json_data["data"])
+    settings.logger.info(f"Sync sender data status: {is_success}")
+    return is_success

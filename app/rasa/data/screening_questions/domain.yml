@@ -82,6 +82,11 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
+  is_default_screening_questions:
+    type: any
+    influence_conversation: false
+    mappings:
+    - type: custom
 actions:
 - utter_screening_start
 - action_ask_email

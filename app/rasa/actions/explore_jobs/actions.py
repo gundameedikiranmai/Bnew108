@@ -321,6 +321,7 @@ class ExploreJobsFormSubmit(Action):
                 dispatcher.utter_message(response="utter_explore_jobs_apply_success")
                 dispatcher.utter_message(response="utter_screening_start")
             else:
+                # no screening question has to be asked.
                 dispatcher.utter_message(response="utter_greet", greet="after_apply_no_screening_questions")
                 result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher, utter_menu=False)
         return result
@@ -352,6 +353,9 @@ def get_screening_questions_for_job_id(tracker):
         resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL, json={"clientId":"2", "action":"get"})
         resp_json1 = resp.json()
         questions_data_transformed, result = parse_form_bulder_json(resp_json1, tracker)
+        result += [SlotSet("is_default_screening_questions", True)]
+    else:
+        result += [SlotSet("is_default_screening_questions", False)]
     
     return questions_data_transformed, result
 

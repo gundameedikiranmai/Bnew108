@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 from datetime import datetime
@@ -68,3 +69,8 @@ def is_default_screening_form_preference_valid(tracker):
     if job_screening_questions_last_update_time is not None and (datetime.now() - datetime.fromisoformat(job_screening_questions_last_update_time)).days < cfg.SCREENING_FORM_MIN_DAYS_THRESHOLD:
         return True
     return False
+
+
+def sync_sender_data(payload):
+    url = os.getenv("API_SERVER_URL")
+    resp = requests.post(url + "/api/sync_sender_data/", json=payload)

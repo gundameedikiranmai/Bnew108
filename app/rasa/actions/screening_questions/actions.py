@@ -218,6 +218,20 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, utter_me
         SlotSet("applied_jobs", applied_jobs),
         SlotSet("job_screening_questions_last_update_time", str(datetime.now())),
     ]
+    if tracker.get_slot("is_default_screening_questions") is True:
+        logger.info("saving default screening questions responses in DB.")
+        sync_sender_data_payload = {
+            "sender_id": tracker.sender_id,
+            "data": {
+                "job_screening_questions": tracker.get_slot("job_screening_questions"),
+                "job_screening_questions_count": tracker.get_slot("job_screening_questions_count"),
+                "screening_question_history": tracker.get_slot("screening_question_history"),
+                "job_screening_questions_last_update_time": str(datetime.now())
+            }
+        }
+        utils.sync_sender_data(sync_sender_data_payload)
+        result += [SlotSet("is_default_screening_questions", False)]
+    
     if utter_menu:
         dispatcher.utter_message(response="utter_greet", greet="after_apply")
     return result
