@@ -144,6 +144,14 @@ class ChatSession(object):
             settings.db[self.screening_responses_collection_name].insert_one({"sender_id": sender_id, "data": data})
             return True
         return False
+    
+
+    def get_synced_sender_data(self, sender_id):
+        responses = settings.db[self.screening_responses_collection_name].find_one({"sender_id": sender_id})
+        if responses is not None:
+            responses.pop("_id")
+            return responses
+        return {}
 
 
     ######## analytics #########

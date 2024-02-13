@@ -58,6 +58,27 @@ class ValidateJobScreeningForm(FormValidationAction):
         dispatcher.utter_message(response="utter_phone_number_error")
         return {"phone_number": None}
 
+    def validate_input_edit_preferences(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `input_edit_preferences` value."""
+        logger.info(f"validating input {slot_value}")
+        result_dict = {"input_edit_preferences": slot_value}
+
+        if slot_value is True:
+            dispatcher.utter_message(response="utter_edit_preferences")
+        elif slot_value is False:
+            synced_data = utils.get_synced_sender_data(tracker.sender_id)
+            # set the slots from synced data
+            result_dict.update(synced_data["data"])
+            result_dict["screening_question"] = "ignore"
+
+        return result_dict
+
 
     def validate_screening_question(
         self,

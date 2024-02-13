@@ -147,3 +147,12 @@ async def sync_sender_data(request: Request):
     is_success = session.set_screening_respones(sender_id=json_data["sender_id"], data=json_data["data"])
     settings.logger.info(f"Sync sender data status: {is_success}")
     return is_success
+
+
+@router.get("/get_synced_sender_data/")
+def get_synced_sender_data(
+        sender_id: str,
+    ):
+    settings.logger.info(f"Fetching synced_sender_data for sender_id={sender_id}")
+    data = session.get_synced_sender_data(sender_id)
+    return data

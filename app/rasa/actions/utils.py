@@ -74,3 +74,9 @@ def is_default_screening_form_preference_valid(tracker):
 def sync_sender_data(payload):
     url = os.getenv("API_SERVER_URL")
     resp = requests.post(url + "/api/sync_sender_data/", json=payload)
+
+
+def get_synced_sender_data(sender_id):
+    url = os.getenv("API_SERVER_URL")
+    resp = requests.get(url + "/api/get_synced_sender_data/", params={"sender_id": sender_id}).json()
+    return resp
