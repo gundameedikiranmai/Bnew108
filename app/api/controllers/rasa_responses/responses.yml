@@ -46,6 +46,15 @@ responses:
     text: Great choice, {first_name}! Before submitting your application, would you like to quickly review and update your employment details to ensure everything is current?
   utter_edit_preferences:
   - text: Let's quickly review your job preferences, {first_name}. Please update any details as needed. 
+  utter_ask_view_edit_preferences_text:
+  - text: "Thank you, {first_name}! Here's a summary of your updated preferences:"
+  utter_ask_view_edit_preferences_buttons:
+  - buttons:
+    - payload: /affirm
+      title: 'Confirm'
+    # - payload: /deny
+    #   title: 'No, submit with current details'
+    text: Is this correct?
   utter_submit:
   - text: Thank you for providing your details. Your job application has been successfully submitted. We'll be in touch with the next steps soon.
   utter_date_error:

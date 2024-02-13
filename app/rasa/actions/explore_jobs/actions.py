@@ -348,7 +348,7 @@ def get_screening_questions_for_job_id(tracker):
 
     if len(questions_data_transformed) == 0:
         if utils.is_default_screening_form_preference_valid(tracker):
-            return [], [SlotSet("input_edit_preferences", "ignore")]
+            return [], [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
         logger.info("using default form builder questions")
         resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL, json={"clientId":"2", "action":"get"})
         resp_json1 = resp.json()
@@ -358,16 +358,17 @@ def get_screening_questions_for_job_id(tracker):
         synced_data = utils.get_synced_sender_data(tracker.sender_id)
         if synced_data.get("data") is not None:
             # this user has already provided preferences that need to be updated.
-            result += [SlotSet("input_edit_preferences", None)]
+            result += [SlotSet("input_edit_preferences", None), SlotSet("view_edit_preferences", None)]
         else:
             # this user is entering preferences for first time.
-            result += [SlotSet("input_edit_preferences", "ignore")]
+            result += [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
 
     else:
         result += [
             SlotSet("is_default_screening_questions", False),
             # don't ask if user want's to edit their preferences.
-            SlotSet("input_edit_preferences", "ignore")
+            SlotSet("input_edit_preferences", "ignore"),
+            SlotSet("view_edit_preferences", "ignore")
         ]
     
     return questions_data_transformed, result

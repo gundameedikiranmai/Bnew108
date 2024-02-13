@@ -16,6 +16,7 @@ forms:
     - phone_number
     - input_edit_preferences
     - screening_question
+    - view_edit_preferences
 slots:
   screening_question:
     type: text
@@ -73,6 +74,22 @@ slots:
       conditions:
       - active_loop: job_screening_form
         requested_slot: input_edit_preferences
+  view_edit_preferences:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_intent
+      value: true
+      intent: affirm
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: view_edit_preferences
+    - type: from_intent
+      value: false
+      intent: deny
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: view_edit_preferences
   first_name:
     type: any
     influence_conversation: false
@@ -113,3 +130,4 @@ actions:
 - validate_job_screening_form
 - job_screening_form_submit
 - utter_ask_input_edit_preferences
+- action_ask_view_edit_preferences

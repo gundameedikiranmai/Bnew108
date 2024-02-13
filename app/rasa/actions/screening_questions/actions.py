@@ -183,6 +183,25 @@ class AskScreeningQuestionAction(Action):
         return result
 
 
+    class ViewEditPreferencesAction(Action):
+        def name(self) -> Text:
+            return "action_ask_view_edit_preferences"
+
+        def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+        ) -> List[EventType]:
+            # either load from slot or look for job id value from metadata.
+            result = []
+            # questions_data = tracker.get_slot("job_screening_questions")
+            # input_type = None
+            # job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
+            screening_question_history = tracker.get_slot("screening_question_history")
+            dispatcher.utter_message(template="utter_ask_view_edit_preferences_text")
+            screening_response_txt = "\n".join(screening_question_history)
+            dispatcher.utter_message(text=screening_response_txt)
+            dispatcher.utter_message(template="utter_ask_view_edit_preferences_buttons")
+
+
 class JobScreeningFormSubmit(Action):
 
     def name(self) -> Text:
