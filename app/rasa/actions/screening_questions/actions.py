@@ -76,6 +76,7 @@ class ValidateJobScreeningForm(FormValidationAction):
             # set the slots from synced data
             result_dict.update(synced_data["data"])
             result_dict["screening_question"] = "ignore"
+            result_dict["view_edit_preferences"] = "ignore"
 
         return result_dict
 
