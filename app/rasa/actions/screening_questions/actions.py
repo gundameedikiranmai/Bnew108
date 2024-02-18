@@ -206,6 +206,7 @@ class JobScreeningFormSubmit(Action):
         elif view_edit_preferences == "confirm":
             result = job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type="after_apply_review_screening_questions")
         elif view_edit_preferences == "edit_details":
+            dispatcher.utter_message(response="utter_screening_review_start")
             result = [FollowupAction("review_screening_questions_form")]
         elif view_edit_preferences == "review_form_completed":
             result = job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type="after_apply_review_screening_questions_form_submit")

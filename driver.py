@@ -25,7 +25,7 @@ def send_to_rasa(usr_msg):
         "metadata": {
             "job_id": "1",
             "chatbot_type": chatbot_type,
-            "job_location": 'IL',
+            "job_location": 'GA',
             "ip_address": "1.1.1.2",
             "client_id": "2"
         },
@@ -51,8 +51,10 @@ def send_to_rasa(usr_msg):
 
 def upload_resume():
     api_url = url + "/api/upload_resume"
+    # resume_path = "/home/dhruv/Downloads/Resume Samples/IT Specialist_Resume.docx"
+    resume_path = "/home/dhruv/Downloads/Dave Paterson.docx"
     files=[
-        ('resume',('IT Specialist_Resume.docx',open('/home/dhruv/Downloads/Resume Samples/IT Specialist_Resume.docx','rb'),'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))
+        ('resume',('Dave Paterson.docx',open(resume_path,'rb'),'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))
     ]
     payload = {
         "sender": UUID,
@@ -94,6 +96,14 @@ def answer_job_location():
 
 def send_job():
     send_to_rasa('/input_select_job{"select_job": "227842"}')
+
+def custom_msgs():
+    send_to_rasa('/input_select_job{"select_job": "788865"}')
+    send_to_rasa('1234567890')
+    send_to_rasa('working freelance')
+    send_to_rasa('available soon')
+    send_to_rasa('freelancer')
+    send_to_rasa('remote')
 
 def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None):
     send_to_rasa("/greet")
@@ -139,13 +149,15 @@ send_to_rasa("/restart")
 # send_to_rasa("/job_screening")
 # send_to_rasa("/greet")
 
-# explore_jobs(is_upload_resume=True)
+explore_jobs(is_upload_resume=True)
 # explore_jobs(is_upload_resume=True, cancel=True)
 # explore_jobs(is_upload_resume=False)
 # explore_jobs(is_upload_resume=False, refine_job_search="location")
 # explore_jobs(is_upload_resume=True, refine_job_search="location")
 
-ask_a_question()
+# ask_a_question()
+custom_msgs()
+# send_to_rasa("/screening_review")
 
 while True:
     print("\nplease enter your message:")

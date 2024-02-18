@@ -146,9 +146,9 @@ class DummyAction(Action):
     ) -> List[EventType]:
         # either load from slot or look for job id value from metadata.
         result = []
-        synced_data = utils.get_synced_sender_data("70e2d6c0-ce83-11ee-9013-8dfddd3614aa")
-        # set the slots from synced data
-        for slot in synced_data["data"]:
-            result.append(SlotSet(slot, synced_data["data"][slot]))
-        result.append(SlotSet("select_job_title", "DUMMY_JOB"))
+        # synced_data = utils.get_synced_sender_data("70e2d6c0-ce83-11ee-9013-8dfddd3614aa")
+        # # set the slots from synced data
+        # for slot in synced_data["data"]:
+        #     result.append(SlotSet(slot, synced_data["data"][slot]))
+        # result.append(SlotSet("select_job_title", "DUMMY_JOB"))
         return result
