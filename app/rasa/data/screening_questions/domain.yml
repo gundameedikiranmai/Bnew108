@@ -79,13 +79,13 @@ slots:
     influence_conversation: false
     mappings:
     - type: from_intent
-      value: true
+      value: "confirm"
       intent: affirm
       conditions:
       - active_loop: job_screening_form
         requested_slot: view_edit_preferences
     - type: from_intent
-      value: false
+      value: "edit_details"
       intent: deny
       conditions:
       - active_loop: job_screening_form

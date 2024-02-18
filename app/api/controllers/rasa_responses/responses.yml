@@ -10,8 +10,10 @@ responses:
     text:
       unknown: Hello! How can I assist you today?
       known: Welcome back, {first_name}! How can I assist you further today?
-      after_apply: Is there anything else I can assist you with today?
+      after_apply: "Thank you for providing your details. Your job application has been successfully submitted. We'll be in touch with the next steps soon. \n\nIs there anything else I can assist you with today?"
       after_apply_no_screening_questions: "Your application for {select_job_title} is now submitted. What would you like to do next?"
+      after_apply_review_screening_questions: "Great! Your details are updated, and we'll use these preferences for your job application. Your application for {select_job_title} is now submitted. What would you like to do next?"
+      after_apply_review_screening_questions_form_submit: "Thank you for confirming your details. We have updated your profile. Your application for {select_job_title} is now submitted. What would you like to do next?"
   utter_perfect:
   - text: Perfect!
   utter_great:
@@ -52,11 +54,9 @@ responses:
   - buttons:
     - payload: /affirm
       title: 'Confirm'
-    # - payload: /deny
-    #   title: 'No, submit with current details'
+    - payload: /deny
+      title: 'Edit Details'
     text: Is this correct?
-  utter_submit:
-  - text: Thank you for providing your details. Your job application has been successfully submitted. We'll be in touch with the next steps soon.
   utter_date_error:
   - text: You have entered an invalid date
   # ask_a_question
@@ -101,3 +101,6 @@ responses:
   - text: Great! Take a look at the positions I found for you
   utter_explore_jobs_apply_success:
   - text: "Thank you for expressing interest in the {select_job_title} position!"
+  # screenign review
+  utter_screening_review_start:
+  - text: Certainly, {first_name}. Let's update your details. Which information would you like to edit?

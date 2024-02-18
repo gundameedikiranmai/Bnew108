@@ -7,7 +7,7 @@ from logging import getLogger
 from typing import Text, List, Any, Dict
 
 from rasa_sdk import Tracker, FormValidationAction, Action
-from rasa_sdk.events import EventType, SlotSet
+from rasa_sdk.events import EventType, SlotSet, FollowupAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import yaml
@@ -163,19 +163,7 @@ class AskScreeningQuestionAction(Action):
             #     if history[n_history - 1] == validation_info["correct_answer"]:
             # logger.info(f"displaying question: {questions[n_history]}")
             logger.info(f"rendering: {questions_data[n_history]}")
-            input_type = questions_data[n_history].get("input_type")
-            
-            # if a question has some metadata, send all of it as a json message to avoid sending multiple messages.
-            if questions_data[n_history].get("metadata"):
-                dispatcher.utter_message(json_message=questions_data[n_history])
-            else:
-                dispatcher.utter_message(**questions_data[n_history])
-            # if "buttons" not in questions_data:
-                # if there are no buttons
-            # dispatcher.utter_message(text=questions_data[n_history].get("text"), buttons=questions_data[n_history].get("buttons"), json_message=questions_data[n_history].get("custom"))
-            if input_type == "date":
-                add_date_utterance(dispatcher)
-            
+            utter_screening_question(dispatcher, questions_data, n_history)
             if n_history == 1 and (questions_data[n_history].get("buttons") is None or len(questions_data[n_history].get("buttons")) == 0):
                 # show back prompt on second question
                 dispatcher.utter_message(response="utter_screening_show_back_prompt")
@@ -193,13 +181,14 @@ class AskScreeningQuestionAction(Action):
         ) -> List[EventType]:
             # either load from slot or look for job id value from metadata.
             result = []
-            # questions_data = tracker.get_slot("job_screening_questions")
-            # input_type = None
+            questions_data = tracker.get_slot("job_screening_questions")
             # job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
             screening_question_history = tracker.get_slot("screening_question_history")
             dispatcher.utter_message(template="utter_ask_view_edit_preferences_text")
-            screening_response_txt = "\n".join(screening_question_history)
-            dispatcher.utter_message(text=screening_response_txt)
+            screening_response_txt = ""
+            for q, a in zip(questions_data, screening_question_history):
+                screening_response_txt += f"{q['data_key']}: {a}\n"
+            dispatcher.utter_message(text=screening_response_txt.strip())
             dispatcher.utter_message(template="utter_ask_view_edit_preferences_buttons")
 
 
@@ -210,14 +199,37 @@ class JobScreeningFormSubmit(Action):
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
         """Define what the form has to do after all required slots are filled"""   
-        dispatcher.utter_message(response="utter_submit")
-        # dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
+        view_edit_preferences = tracker.get_slot("view_edit_preferences")
         selected_job = tracker.get_slot("select_job")
-        result = job_screening_submit_integration(tracker, selected_job, dispatcher)
+        if view_edit_preferences == "ignore":
+            result = job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type="after_apply")
+        elif view_edit_preferences == "confirm":
+            result = job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type="after_apply_review_screening_questions")
+        elif view_edit_preferences == "edit_details":
+            result = [FollowupAction("review_screening_questions_form")]
+        elif view_edit_preferences == "review_form_completed":
+            result = job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type="after_apply_review_screening_questions_form_submit")
+            # reset form slots
+            result += [
+                SlotSet("screening_question_options", None),
+                SlotSet("screening_question_display_q", None),
+                SlotSet("screening_review_context", None),
+            ]
         return result
 
 
 ############# utils #################
+    
+def utter_screening_question(dispatcher, questions_data, n_history):
+    input_type = questions_data[n_history].get("input_type")            
+    # if a question has some metadata, send all of it as a json message to avoid sending multiple messages.
+    if questions_data[n_history].get("metadata"):
+        dispatcher.utter_message(json_message=questions_data[n_history])
+    else:
+        dispatcher.utter_message(**questions_data[n_history])
+    if input_type == "date":
+        add_date_utterance(dispatcher)
+
 
 def sync_screening_responses(tracker):
     payload = {
@@ -245,7 +257,7 @@ def sync_screening_responses(tracker):
     #     logger.error(e)
 
 
-def job_screening_submit_integration(tracker, selected_job, dispatcher, utter_menu=True):
+def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type):
     sync_screening_responses(tracker)
     is_success = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job, tracker.get_slot("client_id"))
     applied_jobs = tracker.get_slot("applied_jobs")
@@ -273,6 +285,5 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, utter_me
         utils.sync_sender_data(sync_sender_data_payload)
         result += [SlotSet("is_default_screening_questions", False)]
     
-    if utter_menu:
-        dispatcher.utter_message(response="utter_greet", greet="after_apply")
+    dispatcher.utter_message(response="utter_greet", greet=greet_type)
     return result

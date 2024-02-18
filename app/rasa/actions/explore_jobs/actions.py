@@ -322,8 +322,7 @@ class ExploreJobsFormSubmit(Action):
                 dispatcher.utter_message(response="utter_screening_start")
             else:
                 # no screening question has to be asked.
-                dispatcher.utter_message(response="utter_greet", greet="after_apply_no_screening_questions")
-                result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher, utter_menu=False)
+                result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher, job_screening_submit_integration="after_apply_no_screening_questions")
         return result
 
 
@@ -395,7 +394,7 @@ def parse_form_bulder_json(resp_json, tracker):
             # ignore these input types as they are mandatory.
             continue
         
-        q_transformed = {"id": q.get("id"), "input_type": q["inputType"]}
+        q_transformed = {"id": q.get("id"), "input_type": q["inputType"], "data_key": q["datakey"]}
         if q.get("labelName") is not None:
             q_transformed["text"] = q.get("labelName")
         inputType = q.get("inputType")
