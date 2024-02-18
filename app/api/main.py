@@ -24,7 +24,6 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    settings.logger.info("Welcome Log")
     return {"status": "Online"}
 
 

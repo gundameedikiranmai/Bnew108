@@ -27,7 +27,7 @@ async def upload_resume(request: Request):
             ('filename',(resume_file.filename, resume_file.file, resume_file.content_type))
         ]
         settings.logger.info(resume_file.content_type + ", " + resume_file.filename)
-        response = requests.request("POST", url, files=files, data={"clientId": 1})
+        response = requests.request("POST", url, files=files, data={"clientId": "2"})
         # response = requests.request("POST", url, data=payload)
         resp = response.json()
         settings.logger.info("Resume Upload API response:" + json.dumps(resp, indent=4))
