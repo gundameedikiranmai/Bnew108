@@ -322,7 +322,7 @@ class ExploreJobsFormSubmit(Action):
                 dispatcher.utter_message(response="utter_screening_start")
             else:
                 # no screening question has to be asked.
-                result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher, job_screening_submit_integration="after_apply_no_screening_questions")
+                result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher, greet_type="after_apply_no_screening_questions")
         return result
 
 
