@@ -2,6 +2,7 @@
 """
 import json
 import base64
+from logging import getLogger
 from config.conf import settings
 from datetime import timedelta
 import copy
@@ -9,6 +10,8 @@ import copy
 import random
 import socket
 import struct
+
+logger = getLogger(__name__)
 
 class ChatSession(object):
 
@@ -80,8 +83,8 @@ class ChatSession(object):
         Returns:
             is_success (bool): whether set session was successful or not.
         """
-        settings.logger.info("lastmessage = " + str(message)[:settings.MAX_LOGGING_LENGTH])
-        settings.logger.info(f'{user_data}')
+        logger.info("lastmessage = " + str(message)[:settings.MAX_LOGGING_LENGTH])
+        logger.info(f'{user_data}')
 
         search_value = self.get_search_value(user_data, search_key)
 
