@@ -94,6 +94,8 @@ class AskScreeningQuestionOptionsAction(Action):
         if screening_review_context is None:
             dispatcher.utter_message(json_message={"screening_start": True})
             screening_review_context = []
+        else:
+            dispatcher.utter_message(response="utter_screening_review_prompt_edit")
             
         buttons = []
         for q in job_screening_questions:

@@ -104,3 +104,5 @@ responses:
   # screenign review
   utter_screening_review_start:
   - text: Certainly, {first_name}. Let's update your details. Which information would you like to edit?
+  utter_screening_review_prompt_edit:
+  - text: Got it. Do you want to update any other details?

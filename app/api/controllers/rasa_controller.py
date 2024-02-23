@@ -73,7 +73,7 @@ def parse_response(text, user_data):
                     if "buttons" in msg and len(msg["buttons"]) > 0:
                         buttons_present = True
                         for button in msg["buttons"]:
-                            if str(button["title"]).lower().strip() == text.lower().strip():
+                            if str(button["title"]).lower().strip() == text.lower().strip() or str(button["payload"]).lower().strip() == text.lower().strip():
                                 settings.logger.debug(button)
                                 return True, '/input_screening_response{"screening_response": "' + button["payload"] + '"}'
                 if buttons_present:
