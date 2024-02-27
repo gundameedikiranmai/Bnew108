@@ -14,7 +14,7 @@ import actions.utils as utils
 from actions.common_actions import AskCustomBaseAction
 from actions.screening_questions.actions import job_screening_submit_integration
 import actions.config_values as cfg
-from datetime import datetime
+from datetime import datetime, timedelta
 
 logger = getLogger(__name__)
 
@@ -56,6 +56,26 @@ class ValidateExploreJobsForm(FormValidationAction):
     #     if chatbot_type == "1":
     #         return cfg.EXPLORE_JOBS_MATCHING_CRITERIA_SLOTS + domain_slots
     #     return domain_slots
+    
+    def validate_resume_last_search(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `resume_last_search` value."""
+        result_dict = {
+            "resume_last_search": slot_value
+        }
+        if slot_value=="false":
+            # user wants to start new search
+            # dispatcher.utter_message(response="utter_resume_last_search_cancel")
+            
+            # reset all params.
+            for slot in cfg.RESUME_LAST_SEARCH_RELEVANT_SLOTS:
+                result_dict[slot] = None
+        return result_dict
     
     def validate_is_resume_upload(
         self,
@@ -214,11 +234,18 @@ class AskSelectJobAction(AskCustomBaseAction):
         #     "keyword": utils.get_default_slot_value(tracker.get_slot("job_title")),
         #     "location": utils.get_default_slot_value(tracker.get_slot("job_location")),
         # }
+        last_job_search_timestamp = tracker.get_slot("last_job_search_timestamp")
+        if last_job_search_timestamp is None or tracker.get_slot("resume_last_search") == "ignore":
+            last_job_search_timestamp = datetime.now() - timedelta(days=365*2)
+        else:
+            # TODO remove timestamp
+            last_job_search_timestamp = datetime.fromisoformat(last_job_search_timestamp) - timedelta(days=60)
         payload = {
             "jobquery": [
                 {
                     "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
                     "clientId": tracker.get_slot("client_id"),
+                    "timeRange": last_job_search_timestamp.isoformat(timespec="seconds") + "Z",
                     "jobType": "All Job Types",
                     "datePosted": "0",
                     "locationFilters": [
@@ -256,13 +283,20 @@ class AskSelectJobAction(AskCustomBaseAction):
     ) -> List[EventType]:
         result = []
         jobs = self.fetch_jobs(tracker)
+        resume_last_search = tracker.get_slot("resume_last_search")
         
         if jobs is None:
             dispatcher.utter_message(response="utter_error_explore_jobs")
         elif len(jobs) == 0:
-            dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found")
+            if resume_last_search=="true":
+                dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found_resume_last_search")
+            else:
+                dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found")
         else:
-            dispatcher.utter_message(response="utter_explore_jobs_jobs_found")
+            if resume_last_search=="true":
+                dispatcher.utter_message(response="utter_explore_jobs_resume_last_search")
+            else:
+                dispatcher.utter_message(response="utter_explore_jobs_jobs_found")
             result += [SlotSet("search_jobs_list", jobs)]
         
         # jobs = tracker.get_slot("search_jobs_list")
@@ -288,7 +322,6 @@ class ExploreJobsFormSubmit(Action):
         questions_data, slots = get_screening_questions_for_job_id(tracker)
         result += slots
         logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
-        dispatcher.utter_message(json_message={"screening_start": True})
         result += [
             # reset explore jobs form
             SlotSet("refine_job_search_field", None),
@@ -297,6 +330,7 @@ class ExploreJobsFormSubmit(Action):
             SlotSet("screening_question_history", None),
         ]
         if len(questions_data) > 0:
+            dispatcher.utter_message(json_message={"screening_start": True})
             result += [
                 # set questions to be asked after the selecting a job
                 SlotSet("job_screening_questions", questions_data),
@@ -314,6 +348,7 @@ class ExploreJobsFormSubmit(Action):
                     break
             if is_ask_mandatory_question:
                 # there is no screening question but one or more of the mandatory questions have been left unanswered.
+                dispatcher.utter_message(json_message={"screening_start": True})
                 result += [
                     SlotSet("screening_question", "ignore"),
                     FollowupAction("job_screening_form")
@@ -355,7 +390,7 @@ def get_screening_questions_for_job_id(tracker):
         result += [SlotSet("is_default_screening_questions", True)]
 
         synced_data = utils.get_synced_sender_data(tracker.sender_id)
-        if synced_data.get("data") is not None:
+        if synced_data.get("data", {}).get("screening_question_history") is not None:
             # this user has already provided preferences that need to be updated.
             result += [SlotSet("input_edit_preferences", None), SlotSet("view_edit_preferences", None)]
         else:

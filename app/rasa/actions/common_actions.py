@@ -85,9 +85,15 @@ class ActionRestart(Action):
     ) -> List[EventType]:
         slots_to_retain = []
         for slot in cfg.SLOTS_TO_KEEP_AFTER_RESTART:
-        # for slots in ["full_name", "email", "phone_number"]
             if tracker.get_slot(slot) is not None:
                 slots_to_retain.append(SlotSet(slot, tracker.get_slot(slot)))
+        # 
+        synced_data = utils.get_synced_sender_data(tracker.sender_id)
+        # set the slots from synced data
+        for slot in cfg.RESUME_LAST_SEARCH_RELEVANT_SLOTS:
+            if synced_data.get("data", {}).get(slot) is not None:
+                slots_to_retain.append(SlotSet(slot, synced_data.get("data", {}).get(slot) ))
+        
         return [Restarted()] + slots_to_retain
 
 
@@ -105,6 +111,13 @@ class ActionUtterGreet(Action):
             greet_param = "known"
         else:
             greet_param = "unknown"
+        
+        # decide if last search can be resumed or not.
+        if utils.is_resume_last_search_available(tracker):
+            result += [SlotSet("resume_last_search", None)]
+        else:
+            result += [SlotSet("resume_last_search", "ignore")]
+        
         dispatcher.utter_message(response="utter_greet", greet=greet_param)
         return result + result1
 

@@ -74,7 +74,8 @@ class ValidateJobScreeningForm(FormValidationAction):
         elif slot_value is False:
             synced_data = utils.get_synced_sender_data(tracker.sender_id)
             # set the slots from synced data
-            result_dict.update(synced_data["data"])
+            for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
+                result_dict[slot] = synced_data.get("data", {}).get(slot)
             result_dict["screening_question"] = "ignore"
             result_dict["view_edit_preferences"] = "ignore"
 
@@ -265,26 +266,40 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
     if is_success:
         applied_jobs += [selected_job]
     
+    current_timestamp = str(datetime.now())
     result = [
         SlotSet("job_screening_questions", None),
         SlotSet("job_screening_questions_count", None),
         SlotSet("select_job", None),
         SlotSet("applied_jobs", applied_jobs),
-        SlotSet("job_screening_questions_last_update_time", str(datetime.now())),
+        SlotSet("last_job_search_timestamp", current_timestamp),
+        # set resume_last_search to ignore so that
+        SlotSet("resume_last_search", "ignore")
     ]
+    
+    data = {}
+    for slot in cfg.RESUME_LAST_SEARCH_RELEVANT_SLOTS:
+        data[slot] = tracker.get_slot(slot)
+    
     if tracker.get_slot("is_default_screening_questions") is True:
         logger.info("saving default screening questions responses in DB.")
-        sync_sender_data_payload = {
-            "sender_id": tracker.sender_id,
-            "data": {
-                "job_screening_questions": tracker.get_slot("job_screening_questions"),
-                "job_screening_questions_count": tracker.get_slot("job_screening_questions_count"),
-                "screening_question_history": tracker.get_slot("screening_question_history"),
-                "job_screening_questions_last_update_time": str(datetime.now())
-            }
+        for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
+            data[slot] = tracker.get_slot(slot)
+        result += [
+            SlotSet("is_default_screening_questions", False),
+            SlotSet("job_screening_questions_last_update_time", current_timestamp),
+        ]
+    
+    # sync sender data
+    sync_sender_data_payload = {
+        "sender_id": tracker.sender_id,
+        "data": {
+            **data,
+            "job_screening_questions_last_update_time": current_timestamp,
         }
-        utils.sync_sender_data(sync_sender_data_payload)
-        result += [SlotSet("is_default_screening_questions", False)]
+    }
+    utils.sync_sender_data(sync_sender_data_payload)
+        
     
     dispatcher.utter_message(response="utter_greet", greet=greet_type)
     return result

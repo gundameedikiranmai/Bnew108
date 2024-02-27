@@ -71,6 +71,15 @@ responses:
   - text: "Let's find the perfect job for you based on your skills and preferences."
   utter_start_explore_jobs_without_asking:
   - text: "It looks like you are near {job_location}. Here are some jobs we have in that area and/or 100% Remote"
+  utter_ask_resume_last_search:
+  - buttons:
+    - payload: /affirm
+      title: 'Resume Last Search'
+    - payload: /deny
+      title: 'Start New Search'
+    text: "Great to see you're ready to explore more opportunities, Mahesh! Let's pick up where we left off or you can start a new search. What would you like to do?"
+  utter_start_resume_last_search:
+  - text: "Sure, Mahesh, let's continue with your last job search. I'm checking for any new listings that match your previous criteria."
   utter_ask_is_resume_upload:
   - buttons:
     - payload: /affirm
@@ -97,8 +106,12 @@ responses:
   - text: "There was an error in finding jobs, please try again later"
   utter_explore_jobs_no_jobs_found:
   - text: "Currently, there are no open positions matching your profile. Let's refine your job search to find the right opportunities."
+  utter_explore_jobs_no_jobs_found_resume_last_search:
+  - text: "It looks like there are no new listings since your last search. Would you like to revise your search criteria, or perhaps explore jobs in a different area or field?"
   utter_explore_jobs_jobs_found:
   - text: Great! Take a look at the positions I found for you
+  utter_explore_jobs_resume_last_search:
+  - text: Here are the latest job opportunities based on your previous search. Have a look and let me know if any of these interest you.
   utter_explore_jobs_apply_success:
   - text: "Thank you for expressing interest in the {select_job_title} position!"
   # screenign review

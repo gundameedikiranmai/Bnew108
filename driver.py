@@ -14,8 +14,8 @@ url = "http://localhost:8000"
 # https://chatbot1.curately.ai/
 # url = "http://52.13.235.156:8888"
 # url = "http://localhost:6005/webhooks/nlu"
-UUID = str(uuid.uuid1())
-# UUID = "6971537150"
+# UUID = str(uuid.uuid1())
+UUID = "cdded9e6-d554-11ee-bfc1-3bf75ff7af61"
 chatbot_type = "1"
 
 def send_to_rasa(usr_msg):
@@ -92,7 +92,7 @@ def answer_job_title():
     send_to_rasa('/input_job_title{"job_title": "Java Developer"}')
 
 def answer_job_location():
-    send_to_rasa('/input_job_location{"job_location": "CA"}')
+    send_to_rasa('/input_job_location{"job_location": "GA"}')
 
 def send_job():
     send_to_rasa('/input_select_job{"select_job": "227842"}')
@@ -105,24 +105,32 @@ def custom_msgs():
     send_to_rasa('freelancer')
     send_to_rasa('remote')
 
-def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None):
+def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, start_new="ignore"):
     send_to_rasa("/greet")
     send_to_rasa("/explore_jobs")
-    if chatbot_type == "1":
-        if is_upload_resume:
-            send_to_rasa("/affirm")
-            if cancel:
-                send_to_rasa("/deny")
-                # select answer questions path
+    if start_new in ["ignore", "true"]:
+        if start_new == "true":
+            # start new search
+            send_to_rasa("/deny")
+        # normal explore jobs, either first time or new search
+        if chatbot_type == "1":
+            if is_upload_resume:
+                send_to_rasa("/affirm")
+                if cancel:
+                    send_to_rasa("/deny")
+                    # select answer questions path
+                    send_to_rasa("/deny")
+                    answer_job_title()
+                else:
+                    send_resume_message()
+            else:
                 send_to_rasa("/deny")
                 answer_job_title()
-            else:
-                send_resume_message()
-        else:
-            send_to_rasa("/deny")
-            answer_job_title()
-    elif chatbot_type == "2":
-        pass
+        elif chatbot_type == "2":
+            pass
+    else:
+        # resume last search
+        send_to_rasa("/affirm")
     
     # jobs have been displayed, now send_job or refine.
     if refine_job_search is not None:
@@ -149,14 +157,19 @@ send_to_rasa("/restart")
 # send_to_rasa("/job_screening")
 # send_to_rasa("/greet")
 
-explore_jobs(is_upload_resume=True)
+# explore_jobs(is_upload_resume=True)
+# custom_msgs()
+
+explore_jobs(is_upload_resume=False, refine_job_search="location", start_new="true")
+
 # explore_jobs(is_upload_resume=True, cancel=True)
 # explore_jobs(is_upload_resume=False)
 # explore_jobs(is_upload_resume=False, refine_job_search="location")
 # explore_jobs(is_upload_resume=True, refine_job_search="location")
 
+
 # ask_a_question()
-custom_msgs()
+
 # send_to_rasa("/screening_review")
 
 while True:
