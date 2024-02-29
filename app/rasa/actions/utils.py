@@ -77,11 +77,7 @@ def is_default_screening_form_preference_valid(tracker):
 
 def is_resume_last_search_available(tracker):
     last_job_search_timestamp = tracker.get_slot("last_job_search_timestamp")
-    # if last_job_search_timestamp is not None and (datetime.now() - datetime.fromisoformat(last_job_search_timestamp)).days < cfg.RESUME_LAST_SEARCH_MIN_DAYS_THRESHOLD:
-    #     return True
-    
-    # TODO replace later, temp limit of 5 minutes
-    if last_job_search_timestamp is not None and (datetime.now() - datetime.fromisoformat(last_job_search_timestamp)).seconds > 5*60:
+    if last_job_search_timestamp is not None:
         return True
     return False
 

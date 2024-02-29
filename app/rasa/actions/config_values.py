@@ -2,7 +2,7 @@ import re
 
 SLOT_IGNORE_VALUES = [None, "", "ignore"]
 
-ACCUICK_SEARCH_JOBS_URL = "https://api.curately.ai/QADemoCurately/jobsearch"
+ACCUICK_SEARCH_JOBS_URL = "https://api.cxninja.com/DemoCurately/jobsearch"
 N_JOBS_TO_SHOW = 20
 ACCUICK_JOBS_FORM_BUILDER_URL = "https://www4.accuick.com/Accuick_API/Curately/Chatbot/getForm.jsp"
 ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL = "https://app.curately.ai/Accuick_API/Curately/Chatbot/getDefaultForm.jsp"
@@ -37,4 +37,3 @@ SCREENING_FORM_MANDATORY_QUESTIONS = ["resume_upload", "full_name", "email", "ph
 SLOTS_TO_KEEP_AFTER_RESTART = SCREENING_FORM_MANDATORY_QUESTIONS + ["first_name", "applied_jobs", "last_job_search_timestamp", "is_resume_upload", "job_title", "job_location", "job_screening_questions_last_update_time"]
 
 SCREENING_FORM_MIN_DAYS_THRESHOLD = 30
-RESUME_LAST_SEARCH_MIN_DAYS_THRESHOLD = 7

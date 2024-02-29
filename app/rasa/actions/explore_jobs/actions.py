@@ -234,18 +234,11 @@ class AskSelectJobAction(AskCustomBaseAction):
         #     "keyword": utils.get_default_slot_value(tracker.get_slot("job_title")),
         #     "location": utils.get_default_slot_value(tracker.get_slot("job_location")),
         # }
-        last_job_search_timestamp = tracker.get_slot("last_job_search_timestamp")
-        if last_job_search_timestamp is None or tracker.get_slot("resume_last_search") == "ignore":
-            last_job_search_timestamp = datetime.now() - timedelta(days=365*2)
-        else:
-            # TODO remove timestamp
-            last_job_search_timestamp = datetime.fromisoformat(last_job_search_timestamp) - timedelta(days=60)
         payload = {
             "jobquery": [
                 {
                     "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
                     "clientId": tracker.get_slot("client_id"),
-                    "timeRange": last_job_search_timestamp.isoformat(timespec="seconds") + "Z",
                     "jobType": "All Job Types",
                     "datePosted": "0",
                     "locationFilters": [
@@ -374,11 +367,15 @@ def get_screening_questions_for_job_id(tracker):
     # payload = {"action":"get","jobId": "1338", "recrId":"1893", "clientId": tracker.get_slot("client_id")}
     payload = {"action":"get","jobId": job_id, "recrId":"1893", "clientId": tracker.get_slot("client_id")}
 
-    resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_URL, json=payload)
-    resp_json = resp.json()
-    print(payload)
-    
-    questions_data_transformed, result = parse_form_bulder_json(resp_json, tracker)
+    try:
+        logger.info(f"payload sent: {payload}")
+        resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_URL, json=payload)
+        resp_json = resp.json()
+        questions_data_transformed, result = parse_form_bulder_json(resp_json, tracker)
+    except Exception as e:
+        logger.error(e)
+        logger.error("Could not get form builder questions")
+        questions_data_transformed, result = [], []
 
     if len(questions_data_transformed) == 0:
         if utils.is_default_screening_form_preference_valid(tracker):

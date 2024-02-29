@@ -273,8 +273,7 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
         SlotSet("select_job", None),
         SlotSet("applied_jobs", applied_jobs),
         SlotSet("last_job_search_timestamp", current_timestamp),
-        # set resume_last_search to ignore so that
-        SlotSet("resume_last_search", "ignore")
+        SlotSet("resume_last_search", None)
     ]
     
     data = {}
