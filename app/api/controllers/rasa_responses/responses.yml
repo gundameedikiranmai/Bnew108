@@ -77,9 +77,9 @@ responses:
       title: 'Resume Last Search'
     - payload: /deny
       title: 'Start New Search'
-    text: "Great to see you're ready to explore more opportunities, Mahesh! Let's pick up where we left off or you can start a new search. What would you like to do?"
+    text: "Great to see you're ready to explore more opportunities, {first_name}! Let's pick up where we left off or you can start a new search. What would you like to do?"
   utter_start_resume_last_search:
-  - text: "Sure, Mahesh, let's continue with your last job search. I'm checking for any new listings that match your previous criteria."
+  - text: "Sure, {first_name}, let's continue with your last job search. I'm checking for any new listings that match your previous criteria."
   utter_ask_is_resume_upload:
   - buttons:
     - payload: /affirm
@@ -97,7 +97,7 @@ responses:
       title: 'Yes, update my contact details'
     - payload: /deny
       title: 'No, keep the current details'
-    text: "Thanks for updating your resume, Mahesh! I noticed your email address and/or phone number seems to be different from what we have on file. Would you like to update your contact details in your profile with this new information?"
+    text: "Thanks for updating your resume, {first_name}! I noticed your email address and/or phone number seems to be different from what we have on file. Would you like to update your contact details in your profile with this new information?"
   utter_update_contact_details_affirm:
   - text: "Alright, your contact details have been updated successfully. Let's proceed with your job search."
   utter_update_contact_details_deny:
