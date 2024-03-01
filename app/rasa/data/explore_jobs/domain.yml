@@ -22,6 +22,7 @@ forms:
     - resume_last_search
     - is_resume_upload
     - resume_upload
+    - update_contact_details
     - job_title
     - job_location
     - select_job
@@ -80,6 +81,22 @@ slots:
         requested_slot: resume_upload
       - active_loop: job_screening_form
         requested_slot: resume_upload
+  update_contact_details:
+    type: bool
+    influence_conversation: false
+    mappings:
+    - type: from_intent
+      value: "true"
+      intent: affirm
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: update_contact_details
+    - type: from_intent
+      value: "false"
+      intent: deny
+      conditions:
+      - active_loop: explore_jobs_form
+        requested_slot: update_contact_details
   job_title:
     type: text
     influence_conversation: false
@@ -152,6 +169,16 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
+  contact_details_temp:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+  candidate_id:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
 actions:
 - validate_explore_jobs_form
 - explore_jobs_form_submit
@@ -164,3 +191,4 @@ actions:
 - action_ask_select_job
 - utter_ask_refine_job_search_field
 - utter_ask_resume_last_search
+- utter_ask_update_contact_details

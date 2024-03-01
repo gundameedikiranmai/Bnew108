@@ -93,6 +93,30 @@ class ValidateExploreJobsForm(FormValidationAction):
             result_dict["resume_upload"] = "false"
         return result_dict
 
+
+    def validate_update_contact_details(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `update_contact_details` value."""
+        result_dict = {
+            "update_contact_details": slot_value
+        }
+        if slot_value == "true":
+            dispatcher.utter_message(response="utter_update_contact_details_affirm")
+            try:
+                contact_details = json.loads(tracker.get_slot("contact_details_temp"))
+                result_dict.update(contact_details)
+            except Exception as e:
+                logger.error("Could not read contact_details_temp.")
+                logger.error(e)
+        elif slot_value == "false":
+            dispatcher.utter_message(response="utter_update_contact_details_deny")
+        return result_dict
+    
     def validate_resume_upload(
         self,
         slot_value: Any,
@@ -109,9 +133,15 @@ class ValidateExploreJobsForm(FormValidationAction):
             dispatcher.utter_message(response="utter_resume_upload_cancel")
             result_dict["resume_upload"] = None
             result_dict["is_resume_upload"] = None
+        else:
+            result_dict["candidate_id"] = slot_value
+        
         if tracker.get_slot("first_name") is not None:
             dispatcher.utter_message(response="utter_nice_to_meet_you")
+        if tracker.get_slot("update_contact_details") == "set_to_none":
+            result_dict["update_contact_details"] = None
         return result_dict
+
 
     def validate_refine_job_search_field(
         self,

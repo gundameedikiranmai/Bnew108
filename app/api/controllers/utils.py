@@ -75,3 +75,15 @@ def add_slot_set_events(sender_id, slots):
     if len(data) > 0:
         return add_events_to_rasa(sender_id, data)
     return None
+
+
+def get_tracker_from_rasa(sender_id):
+    params = {
+        "token": settings.RASA_WEBHOOK["TOKEN"],
+    }
+    headers = {"Content-Type": "application/json"}
+    rasa_x_url = settings.RASA_WEBHOOK["URL"] + f'/conversations/{sender_id}/tracker'
+    rasa_response = requests.get(rasa_x_url, headers=headers, params=params)
+    if rasa_response.status_code == 200:
+        return rasa_response.json()
+    return {}
