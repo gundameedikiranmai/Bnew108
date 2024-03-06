@@ -57,6 +57,22 @@ class ValidateJobScreeningForm(FormValidationAction):
         # else case
         dispatcher.utter_message(response="utter_phone_number_error")
         return {"phone_number": None}
+    
+    def validate_full_name(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `full_name` value."""
+        logger.info(f"validating input {slot_value}")
+        result_dict = {"full_name": slot_value}
+        if tracker.get_slot("first_name") is None:
+            result_dict["first_name"] = slot_value
+        
+        return result_dict
+
 
     def validate_input_edit_preferences(
         self,

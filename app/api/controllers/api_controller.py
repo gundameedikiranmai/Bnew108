@@ -100,7 +100,8 @@ def reupload_resume(form_data, tracker_slots):
         }
 
         # check if contact details have changed
-        if not tracker_slots.get("email") == resp.get("email", "").strip() or not tracker_slots.get("phone_number") == resp.get("phone-number", "").strip():
+        if (len(resp.get("email", "").strip())> 0 and not tracker_slots.get("email") == resp.get("email", "").strip()) or \
+            (len(resp.get("phone-number", "").strip()) > 0 and not tracker_slots.get("phone_number") == resp.get("phone-number", "").strip()):
             slots["contact_details_temp"] = json.dumps({"email": resp.get("email", "").strip(), "phone_number": resp.get("phone-number", "").strip()})
             slots["update_contact_details"] = "set_to_none"
         else:

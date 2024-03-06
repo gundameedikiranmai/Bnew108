@@ -68,7 +68,9 @@ class ValidateExploreJobsForm(FormValidationAction):
         result_dict = {
             "resume_last_search": slot_value
         }
-        if slot_value=="false":
+        if slot_value == "true":
+            dispatcher.utter_message(response="utter_start_resume_last_search")
+        elif slot_value=="false":
             # user wants to start new search
             # dispatcher.utter_message(response="utter_resume_last_search_cancel")
             
