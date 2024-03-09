@@ -14,8 +14,8 @@ url = "http://localhost:8000"
 # https://chatbot1.curately.ai/
 # url = "http://52.13.235.156:8888"
 # url = "http://localhost:6005/webhooks/nlu"
-UUID = str(uuid.uuid1())
-# UUID = "bde2192c-d6d0-11ee-a10e-2be33777c5fe"
+# UUID = str(uuid.uuid1())
+UUID = "b427d0d6-d7b9-11ee-a431-f1eadb86a44c"
 chatbot_type = "1"
 
 resume_1 = ("Dave Paterson.docx", 'Dave Paterson.docx')
@@ -108,9 +108,9 @@ def custom_msgs():
         'remote',
 
         # greet
-        "/explore_jobs",
-        "/deny",
-        "/affirm"
+        # "/explore_jobs",
+        # "/deny",
+        # "/affirm"
     ]
     for msg in msgs:
         send_to_rasa(msg)
@@ -164,10 +164,8 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, s
 send_to_rasa("/restart")
 send_to_rasa("/greet")
 
-# send_to_rasa("/job_screening")
-
-explore_jobs(is_upload_resume=True, resume=resume_1)
-custom_msgs()
+# explore_jobs(is_upload_resume=True, resume=resume_1)
+# custom_msgs()
 
 # explore_jobs(is_upload_resume=True, refine_job_search="location", start_new="true")
 

@@ -9,11 +9,18 @@ responses:
       title: 'Ask a question'
     text:
       unknown: Hello! How can I assist you today?
-      known: Welcome back, {first_name}! How can I assist you further today?
+      # known: Welcome back, {first_name}! How can I assist you further today?
       after_apply: "Thank you for providing your details. Your job application has been successfully submitted. We'll be in touch with the next steps soon. \n\nIs there anything else I can assist you with today?"
       after_apply_no_screening_questions: "Your application for {select_job_title} is now submitted. What would you like to do next?"
       after_apply_review_screening_questions: "Great! Your details are updated, and we'll use these preferences for your job application. Your application for {select_job_title} is now submitted. What would you like to do next?"
       after_apply_review_screening_questions_form_submit: "Thank you for confirming your details. We have updated your profile. Your application for {select_job_title} is now submitted. What would you like to do next?"
+  utter_greet_known:
+  - buttons:
+    - payload: /explore_jobs
+      title: 'Continue Job Exploration'
+    - payload: /ask_a_question
+      title: 'Ask a question'
+    text: Welcome back, {first_name}! How can I assist you further today?
   utter_perfect:
   - text: Perfect!
   utter_great:
@@ -128,5 +135,7 @@ responses:
   # screenign review
   utter_screening_review_start:
   - text: Certainly, {first_name}. Let's update your details. Which information would you like to edit?
-  utter_screening_review_prompt_edit:
-  - text: Got it. Do you want to update any other details?
+  utter_screening_review_prompt_edit_got_it:
+  - text: Got it. Your {review_question} status is now updated to {user_response}. Do you want to update any other details?
+  utter_screening_review_prompt_edit_understood:
+  - text: Understood, your {review_question} is updated to {user_response}. Would you like to edit any more details?

@@ -89,13 +89,23 @@ class AskScreeningQuestionOptionsAction(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
         result = []
+        variations = ["understood", "got_it"]
         screening_review_context = tracker.get_slot("screening_review_context")
         job_screening_questions = tracker.get_slot("job_screening_questions")
+        screening_question_history = tracker.get_slot("screening_question_history")
         if screening_review_context is None:
             dispatcher.utter_message(json_message={"screening_start": True})
             screening_review_context = []
         else:
-            dispatcher.utter_message(response="utter_screening_review_prompt_edit")
+            last_question = screening_review_context[-1]
+            last_answer = None
+            for i, q in enumerate(job_screening_questions):
+                # find the question that matches with the selected choice.
+                if q["data_key"] == last_question:
+                    # update the relevant value in screening_question_history slot.
+                    last_answer = screening_question_history[i]
+            selected_var = variations[len(screening_review_context) % len(variations)]
+            dispatcher.utter_message(response=f"utter_screening_review_prompt_edit_{selected_var}", slots={"review_question": last_question, "user_response": last_answer})
             
         buttons = []
         for q in job_screening_questions:

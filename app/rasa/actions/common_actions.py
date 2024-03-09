@@ -108,17 +108,15 @@ class ActionUtterGreet(Action):
         _, result = utils.get_metadata_field(tracker, "ip_address")
         _, result1 = utils.get_metadata_field(tracker, "client_id")
         if tracker.get_slot("first_name") is not None:
-            greet_param = "known"
+            dispatcher.utter_message(response="utter_greet_known")
         else:
-            greet_param = "unknown"
+            dispatcher.utter_message(response="utter_greet", greet="unknown")
         
         # decide if last search can be resumed or not.
         if utils.is_resume_last_search_available(tracker):
             result += [SlotSet("resume_last_search", None)]
         else:
             result += [SlotSet("resume_last_search", "ignore")]
-        
-        dispatcher.utter_message(response="utter_greet", greet=greet_param)
         return result + result1
 
 
