@@ -92,6 +92,7 @@ class ValidateExploreJobsForm(FormValidationAction):
         }
         # ignore resume_upload slot if user denied uploading resume.
         if not slot_value:
+            result_dict["update_contact_details"] = "ignore"
             result_dict["resume_upload"] = "false"
         return result_dict
 
@@ -135,6 +136,7 @@ class ValidateExploreJobsForm(FormValidationAction):
             dispatcher.utter_message(response="utter_resume_upload_cancel")
             result_dict["resume_upload"] = None
             result_dict["is_resume_upload"] = None
+            result_dict["update_contact_details"] = "ignore"
         else:
             result_dict["candidate_id"] = slot_value
         
@@ -219,7 +221,7 @@ class AskJobTitleAction(AskCustomBaseAction):
         titles = []
         responses = []
         if tracker.get_slot("refine_job_search_field") == "job_title":
-            result += [SlotSet("refine_job_search_field", None)]
+            # result += [SlotSet("refine_job_search_field", None)]
             logger.info("refined - job title: " + str(tracker.get_slot("previous_job_title")))
             if tracker.get_slot("previous_job_title") not in cfg.SLOT_IGNORE_VALUES:
                 titles += [tracker.get_slot("previous_job_title")]
@@ -246,8 +248,8 @@ class AskJobLocationAction(AskCustomBaseAction):
         result = []
         if not tracker.get_slot("refine_job_search_field") == "job_location":
             responses += ["utter_thank_you"]
-        else:
-            result += [SlotSet("refine_job_search_field", None)]
+        # else:
+            # result += [SlotSet("refine_job_search_field", None)]
         kwargs = {
             "responses": responses + ["utter_ask_" + self.entity_name],
             "data": {
@@ -309,6 +311,9 @@ class AskSelectJobAction(AskCustomBaseAction):
         result = []
         jobs = self.fetch_jobs(tracker)
         resume_last_search = tracker.get_slot("resume_last_search")
+        refine_job_search_field = tracker.get_slot("refine_job_search_field")
+        if refine_job_search_field in ["job_title", "job_location"]:
+            result += [SlotSet("refine_job_search_field", None)]
         
         if jobs is None:
             dispatcher.utter_message(response="utter_error_explore_jobs")
@@ -320,6 +325,8 @@ class AskSelectJobAction(AskCustomBaseAction):
         else:
             if resume_last_search=="true":
                 dispatcher.utter_message(response="utter_explore_jobs_resume_last_search")
+            elif refine_job_search_field in ["job_title", "job_location"]:
+                dispatcher.utter_message(response="utter_explore_jobs_refine_search", slots={"refine_value": tracker.get_slot(refine_job_search_field)})
             else:
                 dispatcher.utter_message(response="utter_explore_jobs_jobs_found")
             result += [SlotSet("search_jobs_list", jobs)]

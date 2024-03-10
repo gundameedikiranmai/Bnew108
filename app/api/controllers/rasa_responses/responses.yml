@@ -128,6 +128,8 @@ responses:
   - text: "It looks like there are no new listings since your last search. Would you like to revise your search criteria, or perhaps explore jobs in a different area or field?"
   utter_explore_jobs_jobs_found:
   - text: Great! Take a look at the positions I found for you
+  utter_explore_jobs_refine_search:
+  - text: Based on your preference for {refine_value}, here are some exciting job opportunities for you.
   utter_explore_jobs_resume_last_search:
   - text: Here are the latest job opportunities based on your previous search. Have a look and let me know if any of these interest you.
   utter_explore_jobs_apply_success:
