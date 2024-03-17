@@ -85,9 +85,9 @@ class ValidateJobScreeningForm(FormValidationAction):
         logger.info(f"validating input {slot_value}")
         result_dict = {"input_edit_preferences": slot_value}
 
-        if slot_value is True:
+        if slot_value == "true":
             dispatcher.utter_message(response="utter_edit_preferences")
-        elif slot_value is False:
+        elif slot_value == "false":
             synced_data = utils.get_synced_sender_data(tracker.sender_id)
             # set the slots from synced data
             for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
@@ -244,6 +244,7 @@ def utter_screening_question(dispatcher, questions_data, n_history):
     if questions_data[n_history].get("metadata"):
         dispatcher.utter_message(json_message=questions_data[n_history])
     else:
+        print("-------------------------", questions_data)
         dispatcher.utter_message(**questions_data[n_history])
     if input_type == "date":
         add_date_utterance(dispatcher)

@@ -179,6 +179,11 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
+  is_resume_parsing_done:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
 actions:
 - validate_explore_jobs_form
 - explore_jobs_form_submit

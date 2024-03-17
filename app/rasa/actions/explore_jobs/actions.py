@@ -29,7 +29,7 @@ class ActionStartExploreJobs(Action):
         chatbot_type, chatbot_type_slot = utils.get_metadata_field(tracker, "chatbot_type")
         job_location, job_location_slot = utils.get_metadata_field(tracker, "job_location")
         
-        if chatbot_type == "1":
+        if chatbot_type == "1" and tracker.get_slot("resume_last_search") is not None:
             dispatcher.utter_message(response="utter_start_explore_jobs")
         elif chatbot_type == "2":
             result += [
@@ -140,8 +140,11 @@ class ValidateExploreJobsForm(FormValidationAction):
         else:
             result_dict["candidate_id"] = slot_value
         
-        if tracker.get_slot("first_name") is not None:
+        if tracker.get_slot("first_name") is not None and tracker.get_slot("is_resume_parsing_done") is not None:
+            # the validate method is running after doing resume parsing
             dispatcher.utter_message(response="utter_nice_to_meet_you")
+            # reset slot so that a page reload does not force the above utterance to be displayed
+            result_dict["is_resume_parsing_done"] = None
         if tracker.get_slot("update_contact_details") == "set_to_none":
             result_dict["update_contact_details"] = None
         return result_dict

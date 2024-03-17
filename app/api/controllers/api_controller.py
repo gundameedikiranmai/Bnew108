@@ -55,7 +55,8 @@ def upload_new_resume(form_data):
             "first_name": resp.get("full-name", "").strip(),
             "email": resp.get("email", "").strip(),
             "job_title": job_title,
-            "update_contact_details": "ignore"
+            "update_contact_details": "ignore",
+            "is_resume_parsing_done": "true"
         }
 
         utils.add_slot_set_events(form_data["sender"], slots)
@@ -97,6 +98,7 @@ def reupload_resume(form_data, tracker_slots):
             "full_name": resp.get("full-name_1", "").strip(),
             "first_name": resp.get("full-name", "").strip(),
             "job_title": job_title,
+            "is_resume_parsing_done": "true"
         }
 
         # check if contact details have changed
