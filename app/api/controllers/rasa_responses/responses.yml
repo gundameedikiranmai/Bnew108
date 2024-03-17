@@ -138,6 +138,6 @@ responses:
   utter_screening_review_start:
   - text: Certainly, {first_name}. Let's update your details. Which information would you like to edit?
   utter_screening_review_prompt_edit_got_it:
-  - text: Got it. Your {review_question} status is now updated to {user_response}. Do you want to update any other details?
+  - text: Got it. Your {review_question} is now updated to {user_response}. Do you want to update any other details?
   utter_screening_review_prompt_edit_understood:
   - text: Understood, your {review_question} is updated to {user_response}. Would you like to edit any more details?

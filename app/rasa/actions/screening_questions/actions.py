@@ -180,7 +180,7 @@ class AskScreeningQuestionAction(Action):
             #     if history[n_history - 1] == validation_info["correct_answer"]:
             # logger.info(f"displaying question: {questions[n_history]}")
             logger.info(f"rendering: {questions_data[n_history]}")
-            utter_screening_question(dispatcher, questions_data, n_history)
+            utter_screening_question(dispatcher, tracker, questions_data, n_history)
             if n_history == 1 and (questions_data[n_history].get("buttons") is None or len(questions_data[n_history].get("buttons")) == 0):
                 # show back prompt on second question
                 dispatcher.utter_message(response="utter_screening_show_back_prompt")
@@ -238,14 +238,25 @@ class JobScreeningFormSubmit(Action):
 
 ############# utils #################
     
-def utter_screening_question(dispatcher, questions_data, n_history):
+def utter_screening_question(dispatcher, tracker, questions_data, n_history):
+    input_edit_preferences = tracker.get_slot("input_edit_preferences")
     input_type = questions_data[n_history].get("input_type")            
     # if a question has some metadata, send all of it as a json message to avoid sending multiple messages.
+    qdata = copy.copy(questions_data[n_history])
+    if input_edit_preferences == "true":
+        if n_history == 0:
+            selected_var = ""
+        elif n_history == len(questions_data) - 1:
+            selected_var = "Lastly, "
+        else:
+            variations = ["Understood. ", "Got it. "]
+            selected_var = variations[n_history % len(variations)]
+        qdata["text"] = selected_var + qdata["text"]
     if questions_data[n_history].get("metadata"):
-        dispatcher.utter_message(json_message=questions_data[n_history])
+        dispatcher.utter_message(json_message=qdata)
     else:
         print("-------------------------", questions_data)
-        dispatcher.utter_message(**questions_data[n_history])
+        dispatcher.utter_message(**qdata)
     if input_type == "date":
         add_date_utterance(dispatcher)
 

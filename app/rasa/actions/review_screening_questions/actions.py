@@ -132,7 +132,7 @@ class AskScreeningQuestionDisplayQAction(Action):
             # find the question that matches with the selected choice.
             if q["data_key"] == screening_question_options:
                 # display the question
-                utter_screening_question(dispatcher, job_screening_questions, i)
+                utter_screening_question(dispatcher, tracker, job_screening_questions, i)
         
         return result
 
