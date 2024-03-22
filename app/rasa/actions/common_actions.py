@@ -110,7 +110,7 @@ class ActionUtterGreet(Action):
         if tracker.get_slot("first_name") is not None:
             dispatcher.utter_message(response="utter_greet_known")
         else:
-            dispatcher.utter_message(response="utter_greet", greet="unknown")
+            dispatcher.utter_message(response="utter_greet_unknown")
         
         # decide if last search can be resumed or not.
         if utils.is_resume_last_search_available(tracker):

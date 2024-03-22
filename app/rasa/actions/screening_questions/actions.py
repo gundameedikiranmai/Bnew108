@@ -180,10 +180,11 @@ class AskScreeningQuestionAction(Action):
             #     if history[n_history - 1] == validation_info["correct_answer"]:
             # logger.info(f"displaying question: {questions[n_history]}")
             logger.info(f"rendering: {questions_data[n_history]}")
-            utter_screening_question(dispatcher, tracker, questions_data, n_history)
-            if n_history == 1 and (questions_data[n_history].get("buttons") is None or len(questions_data[n_history].get("buttons")) == 0):
+            if n_history == 1:
+                # and (questions_data[n_history].get("buttons") is None or len(questions_data[n_history].get("buttons")) == 0):
                 # show back prompt on second question
                 dispatcher.utter_message(response="utter_screening_show_back_prompt")
+            utter_screening_question(dispatcher, tracker, questions_data, n_history, go_back=True)
         else:
             dispatcher.utter_message(text="Error.... all questions have been answered...")
         return result
@@ -238,7 +239,7 @@ class JobScreeningFormSubmit(Action):
 
 ############# utils #################
     
-def utter_screening_question(dispatcher, tracker, questions_data, n_history):
+def utter_screening_question(dispatcher, tracker, questions_data, n_history, go_back=False):
     input_edit_preferences = tracker.get_slot("input_edit_preferences")
     input_type = questions_data[n_history].get("input_type")            
     # if a question has some metadata, send all of it as a json message to avoid sending multiple messages.
@@ -252,6 +253,11 @@ def utter_screening_question(dispatcher, tracker, questions_data, n_history):
             variations = ["Understood. ", "Got it. "]
             selected_var = variations[n_history % len(variations)]
         qdata["text"] = selected_var + qdata["text"]
+    
+    # add a back button for 2nd questions onward
+    if go_back and n_history > 0 and len(qdata.get("buttons", [])) > 0:
+        qdata["buttons"].append({"payload": "back", "title": "back"})
+    
     if questions_data[n_history].get("metadata"):
         dispatcher.utter_message(json_message=qdata)
     else:
