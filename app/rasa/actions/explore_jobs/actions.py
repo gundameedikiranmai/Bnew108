@@ -192,6 +192,19 @@ class ValidateExploreJobsForm(FormValidationAction):
         return result_dict
 
 
+class AskIsResumeUploadAction(Action):
+    def name(self) -> Text:
+        return "action_ask_is_resume_upload"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        if tracker.get_slot("resume_last_search") == "false":
+            dispatcher.utter_message(template="utter_ask_is_resume_upload_start_new_search")
+        else:
+            dispatcher.utter_message(template="utter_ask_is_resume_upload")
+
+
 class AskResumeUploadAction(AskCustomBaseAction):
     def __init__(self):
         self.set_params(entity_name="candidate_id", intent_name="input_resume_upload_data", ui_component="resume_upload", action_name="resume_upload")

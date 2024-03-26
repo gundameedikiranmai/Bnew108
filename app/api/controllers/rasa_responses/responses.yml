@@ -101,6 +101,13 @@ responses:
     - payload: /deny
       title: 'Answer Questions'
     text: Would you like to upload your resume for personalized recommendations, or should we start with a few quick questions?
+  utter_ask_is_resume_upload_start_new_search:
+  - buttons:
+    - payload: /affirm
+      title: 'Update Resume'
+    - payload: /deny
+      title: 'Answer Questions'
+    text: Let's get started with your new job search, {first_name}. Would you like to update your resume, or shall we proceed with a set of questions to fine-tune your job preferences?
   utter_ask_resume_upload:
   - text: "Please upload your resume here"
   utter_resume_upload_cancel:

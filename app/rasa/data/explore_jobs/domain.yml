@@ -189,7 +189,7 @@ actions:
 - explore_jobs_form_submit
 - action_start_explore_jobs
 # form slots
-- utter_ask_is_resume_upload
+- action_ask_is_resume_upload
 - action_ask_resume_upload
 - action_ask_job_title
 - action_ask_job_location
