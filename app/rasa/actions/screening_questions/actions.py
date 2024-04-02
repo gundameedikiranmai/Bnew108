@@ -283,6 +283,13 @@ def sync_screening_responses(tracker):
     logger.info("Sending sync response: " + str(payload))
     response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
     logger.info("received status code from sync response: " + str(response.status_code))
+
+    try:
+        submit_user_preferences(tracker)
+    except Exception as e:
+        logger.error("Could not submit user preferences")
+        logger.error(e)
+    
     #  no need to check for response body as it is empty, only printing the status code
     # try:
     #     print(response.status_code, response.text)
@@ -336,3 +343,27 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
     
     dispatcher.utter_message(response="utter_greet", greet=greet_type)
     return result
+
+
+def submit_user_preferences(tracker):
+    candidate_id = tracker.get_slot("candidate_id")
+    if candidate_id is None:
+        logger.error("Could not submit user preferences because candidate_id is null")
+        return
+    get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + candidate_id).json()
+    # print(get_response)
+    for item in get_response["json"]:
+        for i, q in enumerate(tracker.get_slot("job_screening_questions")):
+            if item["datakey"] == q["data_key"]:
+                user_response = tracker.get_slot("screening_question_history")[i]
+                for choice in item["Options"]:
+                    if choice["Name"] == user_response:
+                        # print(choice["LookupId"])
+                        item["Value"] = choice["LookupId"]
+                        break
+                break
+    
+    get_response["userId"] = candidate_id
+    logger.info("Sending set user preference payload: " + str(get_response))
+    response = requests.post(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_POST_URL, json=get_response)
+    logger.info("Set user preference API response: " + str(response.json()))

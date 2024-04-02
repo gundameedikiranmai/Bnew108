@@ -10,6 +10,10 @@ ACCUICK_JOB_APPLY_URL = "https://api.cxninja.com/DemoCurately/jobsapply"
 ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = "https://search.accuick.com/Twilio/webhook_chatbot.jsp"
 SCREENING_FORM_BACK_KEYWORD = "BACK"
 
+# user preferences
+ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL = "https://api.curately.ai/QADemoCurately/chatBotPref/"
+ACCUICK_CHATBOT_USER_PREFERENCE_POST_URL = "https://api.curately.ai/QADemoCurately/saveChatBotPref"
+
 #### Dynamic form behaviour
 # EXPLORE_JOBS_MATCHING_CRITERIA_SLOTS = [
 #     "is_resume_upload",
