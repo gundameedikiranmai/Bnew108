@@ -2,12 +2,17 @@ import re
 
 SLOT_IGNORE_VALUES = [None, "", "ignore"]
 
-ACCUICK_SEARCH_JOBS_URL = "https://sequence.accuick.com/CloudTalentApi/api/chatbotsearchjobs"
+ACCUICK_SEARCH_JOBS_URL = "https://api.cxninja.com/DemoCurately/jobsearch"
 N_JOBS_TO_SHOW = 20
-ACCUICK_JOBS_FORM_BUILDER_URL = "https://www4.accuick.com/Accuick/jobs_formbuilder_action.jsp"
-ACCUICK_JOB_APPLY_URL = "https://www4.accuick.com/ChatBot/jobApply.jsp"
+ACCUICK_JOBS_FORM_BUILDER_URL = "https://www4.accuick.com/Accuick_API/Curately/Chatbot/getForm.jsp"
+ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL = "https://app.curately.ai/Accuick_API/Curately/Chatbot/getDefaultForm.jsp"
+ACCUICK_JOB_APPLY_URL = "https://api.cxninja.com/DemoCurately/jobsapply"
 ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = "https://search.accuick.com/Twilio/webhook_chatbot.jsp"
 SCREENING_FORM_BACK_KEYWORD = "BACK"
+
+# user preferences
+ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL = "https://api.curately.ai/QADemoCurately/chatBotPref/"
+ACCUICK_CHATBOT_USER_PREFERENCE_POST_URL = "https://api.curately.ai/QADemoCurately/saveChatBotPref"
 
 #### Dynamic form behaviour
 # EXPLORE_JOBS_MATCHING_CRITERIA_SLOTS = [
@@ -30,4 +35,9 @@ phone_pattern = re.compile(PHONE_REGEX)
 DATE_FORMAT = "%m-%d-%Y"
 DATE_MIN_YEARS_DIFFERENCE = 19
 
-SLOTS_TO_KEEP_AFTER_RESTART = ["full_name", "first_name", "applied_jobs"]
+RESUME_LAST_SEARCH_RELEVANT_SLOTS = ["is_resume_upload", "resume_upload", "job_title"]
+USER_PREFERENCES_RELEVANT_SLOTS = ["job_screening_questions", "job_screening_questions_count", "screening_question_history"]
+SCREENING_FORM_MANDATORY_QUESTIONS = ["resume_upload", "full_name", "email", "phone_number"]
+SLOTS_TO_KEEP_AFTER_RESTART = SCREENING_FORM_MANDATORY_QUESTIONS + ["first_name", "applied_jobs", "last_job_search_timestamp", "is_resume_upload", "job_title", "job_location", "job_screening_questions_last_update_time", "update_contact_details"]
+
+SCREENING_FORM_MIN_DAYS_THRESHOLD = 30

@@ -1,0 +1,45 @@
+version: '3.1'
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
+intents:
+- screening_review
+entities:
+- screening_response
+forms:
+  review_screening_questions_form:
+    required_slots:
+    - screening_question_options
+    - screening_question_display_q
+slots:
+  screening_question_options:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_screening_response
+      entity: screening_response
+      conditions:
+      - active_loop: review_screening_questions_form
+        requested_slot: screening_question_options
+  screening_question_display_q:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      intent: input_screening_response
+      entity: screening_response
+      conditions:
+      - active_loop: review_screening_questions_form
+        requested_slot: screening_question_display_q
+  screening_review_context:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+actions:
+- utter_screening_review_start
+- action_ask_screening_question_options
+- action_ask_screening_question_display_q
+- validate_review_screening_questions_form
+- action_dummy_test

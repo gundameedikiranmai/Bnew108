@@ -12,7 +12,9 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import actions.utils as utils
 from actions.common_actions import AskCustomBaseAction
+from actions.screening_questions.actions import job_screening_submit_integration
 import actions.config_values as cfg
+from datetime import datetime, timedelta
 
 logger = getLogger(__name__)
 
@@ -27,7 +29,7 @@ class ActionStartExploreJobs(Action):
         chatbot_type, chatbot_type_slot = utils.get_metadata_field(tracker, "chatbot_type")
         job_location, job_location_slot = utils.get_metadata_field(tracker, "job_location")
         
-        if chatbot_type == "1":
+        if chatbot_type == "1" and tracker.get_slot("resume_last_search") is not None:
             dispatcher.utter_message(response="utter_start_explore_jobs")
         elif chatbot_type == "2":
             result += [
@@ -55,6 +57,28 @@ class ValidateExploreJobsForm(FormValidationAction):
     #         return cfg.EXPLORE_JOBS_MATCHING_CRITERIA_SLOTS + domain_slots
     #     return domain_slots
     
+    def validate_resume_last_search(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `resume_last_search` value."""
+        result_dict = {
+            "resume_last_search": slot_value
+        }
+        if slot_value == "true":
+            dispatcher.utter_message(response="utter_start_resume_last_search")
+        elif slot_value=="false":
+            # user wants to start new search
+            # dispatcher.utter_message(response="utter_resume_last_search_cancel")
+            
+            # reset all params.
+            for slot in cfg.RESUME_LAST_SEARCH_RELEVANT_SLOTS:
+                result_dict[slot] = None
+        return result_dict
+    
     def validate_is_resume_upload(
         self,
         slot_value: Any,
@@ -68,9 +92,34 @@ class ValidateExploreJobsForm(FormValidationAction):
         }
         # ignore resume_upload slot if user denied uploading resume.
         if not slot_value:
+            result_dict["update_contact_details"] = "ignore"
             result_dict["resume_upload"] = "false"
         return result_dict
 
+
+    def validate_update_contact_details(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `update_contact_details` value."""
+        result_dict = {
+            "update_contact_details": slot_value
+        }
+        if slot_value == "true":
+            dispatcher.utter_message(response="utter_update_contact_details_affirm")
+            try:
+                contact_details = json.loads(tracker.get_slot("contact_details_temp"))
+                result_dict.update(contact_details)
+            except Exception as e:
+                logger.error("Could not read contact_details_temp.")
+                logger.error(e)
+        elif slot_value == "false":
+            dispatcher.utter_message(response="utter_update_contact_details_deny")
+        return result_dict
+    
     def validate_resume_upload(
         self,
         slot_value: Any,
@@ -87,9 +136,19 @@ class ValidateExploreJobsForm(FormValidationAction):
             dispatcher.utter_message(response="utter_resume_upload_cancel")
             result_dict["resume_upload"] = None
             result_dict["is_resume_upload"] = None
-        if tracker.get_slot("first_name") is not None:
+            result_dict["update_contact_details"] = "ignore"
+        else:
+            result_dict["candidate_id"] = slot_value
+        
+        if tracker.get_slot("first_name") is not None and tracker.get_slot("is_resume_parsing_done") is not None:
+            # the validate method is running after doing resume parsing
             dispatcher.utter_message(response="utter_nice_to_meet_you")
+            # reset slot so that a page reload does not force the above utterance to be displayed
+            result_dict["is_resume_parsing_done"] = None
+        if tracker.get_slot("update_contact_details") == "set_to_none":
+            result_dict["update_contact_details"] = None
         return result_dict
+
 
     def validate_refine_job_search_field(
         self,
@@ -133,6 +192,19 @@ class ValidateExploreJobsForm(FormValidationAction):
         return result_dict
 
 
+class AskIsResumeUploadAction(Action):
+    def name(self) -> Text:
+        return "action_ask_is_resume_upload"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        if tracker.get_slot("resume_last_search") == "false":
+            dispatcher.utter_message(template="utter_ask_is_resume_upload_start_new_search")
+        else:
+            dispatcher.utter_message(template="utter_ask_is_resume_upload")
+
+
 class AskResumeUploadAction(AskCustomBaseAction):
     def __init__(self):
         self.set_params(entity_name="candidate_id", intent_name="input_resume_upload_data", ui_component="resume_upload", action_name="resume_upload")
@@ -165,7 +237,7 @@ class AskJobTitleAction(AskCustomBaseAction):
         titles = []
         responses = []
         if tracker.get_slot("refine_job_search_field") == "job_title":
-            result += [SlotSet("refine_job_search_field", None)]
+            # result += [SlotSet("refine_job_search_field", None)]
             logger.info("refined - job title: " + str(tracker.get_slot("previous_job_title")))
             if tracker.get_slot("previous_job_title") not in cfg.SLOT_IGNORE_VALUES:
                 titles += [tracker.get_slot("previous_job_title")]
@@ -192,8 +264,8 @@ class AskJobLocationAction(AskCustomBaseAction):
         result = []
         if not tracker.get_slot("refine_job_search_field") == "job_location":
             responses += ["utter_thank_you"]
-        else:
-            result += [SlotSet("refine_job_search_field", None)]
+        # else:
+            # result += [SlotSet("refine_job_search_field", None)]
         kwargs = {
             "responses": responses + ["utter_ask_" + self.entity_name],
             "data": {
@@ -208,9 +280,27 @@ class AskSelectJobAction(AskCustomBaseAction):
         self.set_params("select_job")
     
     def fetch_jobs(self, tracker):
+        # payload = {
+        #     "keyword": utils.get_default_slot_value(tracker.get_slot("job_title")),
+        #     "location": utils.get_default_slot_value(tracker.get_slot("job_location")),
+        # }
         payload = {
-            "keyword": utils.get_default_slot_value(tracker.get_slot("job_title")),
-            "location": utils.get_default_slot_value(tracker.get_slot("job_location")),
+            "jobquery": [
+                {
+                    "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
+                    "clientId": tracker.get_slot("client_id"),
+                    "jobType": "All Job Types",
+                    "datePosted": "0",
+                    "locationFilters": [
+                        {"address": utils.get_default_slot_value(tracker.get_slot("job_location")), "regionCode": "", "distanceInMiles": 0}
+                    ],
+                }
+            ],
+            "searchMode": "JOB_SEARCH",
+            "disableKeywordMatch": False,
+            "enableBroadening": True,
+            "keywordMatchMode": "KEYWORD_MATCH_ALL",
+            "offset": 0,
         }
         try:
             logger.info("job search params: " + str(payload))
@@ -220,7 +310,7 @@ class AskSelectJobAction(AskCustomBaseAction):
                 jobs = job_resp.json().get("jobList", [])
                 logger.info(f"total job count: {len(jobs)}")
                 applied_jobs = tracker.get_slot("applied_jobs")
-                jobs_filtered = [j for j in jobs if j["requisitionId_"] not in applied_jobs]
+                jobs_filtered = [j["job_"] for j in jobs if j["job_"]["requisitionId_"] not in applied_jobs]
                 logger.info(f"filtered job count: {len(jobs_filtered)}")
                 jobs_to_show = jobs_filtered[:cfg.N_JOBS_TO_SHOW]
                 log_subset =  [{key: value for key, value in j.items() if key in ["requisitionId_", "title_"]} for j in jobs_to_show[:3]]
@@ -236,13 +326,25 @@ class AskSelectJobAction(AskCustomBaseAction):
     ) -> List[EventType]:
         result = []
         jobs = self.fetch_jobs(tracker)
+        resume_last_search = tracker.get_slot("resume_last_search")
+        refine_job_search_field = tracker.get_slot("refine_job_search_field")
+        if refine_job_search_field in ["job_title", "job_location"]:
+            result += [SlotSet("refine_job_search_field", None)]
         
         if jobs is None:
             dispatcher.utter_message(response="utter_error_explore_jobs")
         elif len(jobs) == 0:
-            dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found")
+            if resume_last_search=="true":
+                dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found_resume_last_search")
+            else:
+                dispatcher.utter_message(response="utter_explore_jobs_no_jobs_found")
         else:
-            dispatcher.utter_message(response="utter_explore_jobs_jobs_found")
+            if resume_last_search=="true":
+                dispatcher.utter_message(response="utter_explore_jobs_resume_last_search")
+            elif refine_job_search_field in ["job_title", "job_location"]:
+                dispatcher.utter_message(response="utter_explore_jobs_refine_search", slots={"refine_value": tracker.get_slot(refine_job_search_field)})
+            else:
+                dispatcher.utter_message(response="utter_explore_jobs_jobs_found")
             result += [SlotSet("search_jobs_list", jobs)]
         
         # jobs = tracker.get_slot("search_jobs_list")
@@ -264,43 +366,110 @@ class ExploreJobsFormSubmit(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
         """Define what the form has to do after all required slots are filled"""
         result = []
-        dispatcher.utter_message(response="utter_explore_jobs_apply_success")
-        dispatcher.utter_message(response="utter_screening_start")
+        
         questions_data, slots = get_screening_questions_for_job_id(tracker)
         result += slots
         logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
-        dispatcher.utter_message(json_message={"screening_start": True})
         result += [
-            # set questions to be asked after the selecting a job
-            SlotSet("job_screening_questions", questions_data),
-            SlotSet("job_screening_questions_count", len(questions_data)),
             # reset explore jobs form
             SlotSet("refine_job_search_field", None),
             # reset job_screening_form
             SlotSet("screening_question", None),
             SlotSet("screening_question_history", None),
-            FollowupAction("job_screening_form")
         ]
+        if len(questions_data) > 0:
+            dispatcher.utter_message(json_message={"screening_start": True})
+            result += [
+                # set questions to be asked after the selecting a job
+                SlotSet("job_screening_questions", questions_data),
+                SlotSet("job_screening_questions_count", len(questions_data)),
+                FollowupAction("job_screening_form")
+            ]
+            dispatcher.utter_message(response="utter_explore_jobs_apply_success")
+            dispatcher.utter_message(response="utter_screening_start")
+        else:
+            # check if any mandatory question has to be asked.
+            is_ask_mandatory_question = False
+            for s in cfg.SCREENING_FORM_MANDATORY_QUESTIONS:
+                if tracker.get_slot(s) is None:
+                    is_ask_mandatory_question = True
+                    break
+            if is_ask_mandatory_question:
+                # there is no screening question but one or more of the mandatory questions have been left unanswered.
+                dispatcher.utter_message(json_message={"screening_start": True})
+                result += [
+                    SlotSet("screening_question", "ignore"),
+                    FollowupAction("job_screening_form")
+                ]
+                dispatcher.utter_message(response="utter_explore_jobs_apply_success")
+                dispatcher.utter_message(response="utter_screening_start")
+            else:
+                # no screening question has to be asked.
+                result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher, greet_type="after_apply_no_screening_questions")
         return result
 
 
 ######## utils ########
 def get_screening_questions_for_job_id(tracker):
     job_id = tracker.get_slot("select_job")
-    result = []
+    
     # read from sample file for now.
     # sample_questions_path = os.path.join("chatbot_data", "screening_questions", "sample_questions_after_job_apply.json")
     # questions_data = json.load(open(sample_questions_path, 'r'))["components"]
     
     # use hardcoded job id
-    payload = {"action":"get","jobId":"228679","recrId":"1893"}
+    # test job id which has screening questions configured.
+    # payload = {"action":"get","jobId": "1338", "recrId":"1893", "clientId": tracker.get_slot("client_id")}
+    payload = {"action":"get","jobId": job_id, "recrId":"1893", "clientId": tracker.get_slot("client_id")}
 
-    resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_URL, json=payload)
-    questions_data = json.loads(resp.json()["json"])["components"]
+    try:
+        logger.info(f"payload sent: {payload}")
+        resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_URL, json=payload)
+        resp_json = resp.json()
+        questions_data_transformed, result = parse_form_bulder_json(resp_json, tracker)
+    except Exception as e:
+        logger.error(e)
+        logger.error("Could not get form builder questions")
+        questions_data_transformed, result = [], []
+
+    if len(questions_data_transformed) == 0:
+        if utils.is_default_screening_form_preference_valid(tracker):
+            return [], [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
+        logger.info("using default form builder questions")
+        resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL, json={"clientId":"2", "action":"get"})
+        resp_json1 = resp.json()
+        questions_data_transformed, result = parse_form_bulder_json(resp_json1, tracker)
+        result += [SlotSet("is_default_screening_questions", True)]
+
+        synced_data = utils.get_synced_sender_data(tracker.sender_id)
+        if synced_data.get("data", {}).get("screening_question_history") is not None:
+            # this user has already provided preferences that need to be updated.
+            result += [SlotSet("input_edit_preferences", None), SlotSet("view_edit_preferences", None)]
+        else:
+            # this user is entering preferences for first time.
+            result += [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
+
+    else:
+        result += [
+            SlotSet("is_default_screening_questions", False),
+            # don't ask if user want's to edit their preferences.
+            SlotSet("input_edit_preferences", "ignore"),
+            SlotSet("view_edit_preferences", "ignore")
+        ]
+    
+    return questions_data_transformed, result
+
+
+def parse_form_bulder_json(resp_json, tracker):
+    questions_data = []
+    result = []
+    if len(resp_json["json"].strip()) > 0:
+        # json object is not empty
+        questions_data = json.loads(resp_json["json"])["components"]
 
     questions_data_transformed = []
     for q in questions_data:
-        if q["inputType"] == "attachment":
+        if q["inputType"] in ["attachment", "fileupload"]:
             # if resume was cancelled, set it to None so that it can be asked later again....
             if tracker.get_slot("resume_upload") == "false":
                 result += [SlotSet("resume_upload", None)]
@@ -308,16 +477,21 @@ def get_screening_questions_for_job_id(tracker):
             continue
 
         # TODO text put here as adhoc for full_name
-        elif q["inputType"] in ["ssn", "email", "phone-number"]:
+        elif q["fieldType"] in ["ssn", "email", "phone"]:
             # ignore these input types as they are mandatory.
             continue
         
-        q_transformed = {"id": q.get("id"), "input_type": q["inputType"]}
+        q_transformed = {"id": q.get("id"), "input_type": q["inputType"], "data_key": q["datakey"]}
         if q.get("labelName") is not None:
             q_transformed["text"] = q.get("labelName")
         inputType = q.get("inputType")
         if inputType == "radio":
-            q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
+            if q.get("fieldType") == "yes/no":
+                q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
+            elif q.get("fieldType") == "multiplechoice":
+                q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("value")} for val in q.get("choices", [])]
+            else:
+                q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
         elif inputType == "text":
             pass
         questions_data_transformed.append(q_transformed)

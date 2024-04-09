@@ -7,6 +7,7 @@ app/rasa/actions/fallback/__pycache__/
 app/rasa/actions/explore_jobs/__pycache__/
 app/rasa/actions/ask_a_question/__pycache__/
 app/rasa/actions/screening_questions/__pycache__/
+app/rasa/actions/review_screening_questions/__pycache__/
 bin/
 mongodb_data/
 app/api/__pycache__
@@ -15,6 +16,7 @@ app/api/controllers/__pycache__/
 app/rasa/custom_rasa/__pycache__/
 
 x.py
+accuick_api_testing.py
 
 
 app/rasa/graph.html

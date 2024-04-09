@@ -4,13 +4,30 @@ responses:
   utter_greet:
   - buttons:
     - payload: /explore_jobs
-      title: 'Explore Jobs'
+      title: 'Explore More Jobs'
     - payload: /ask_a_question
       title: 'Ask a question'
     text:
-      unknown: Hi there How can I help you today?
-      known: Welcome back {first_name}, How can I help you?
-      after_apply: What would you like to do next?
+      # unknown: Hello! How can I assist you today?
+      # known: Welcome back, {first_name}! How can I assist you further today?
+      after_apply: "Thank you for providing your details. Your job application has been successfully submitted. We'll be in touch with the next steps soon. \n\nIs there anything else I can assist you with today?"
+      after_apply_no_screening_questions: "Your application for {select_job_title} is now submitted. What would you like to do next?"
+      after_apply_review_screening_questions: "Great! Your details are updated, and we'll use these preferences for your job application. Your application for {select_job_title} is now submitted. What would you like to do next?"
+      after_apply_review_screening_questions_form_submit: "Thank you for confirming your details. We have updated your profile. Your application for {select_job_title} is now submitted. What would you like to do next?"
+  utter_greet_unknown:
+  - buttons:
+    - payload: /explore_jobs
+      title: 'Explore Jobs'
+    - payload: /ask_a_question
+      title: 'Ask a question'
+    text: Hello! How can I assist you today?
+  utter_greet_known:
+  - buttons:
+    - payload: /explore_jobs
+      title: 'Continue Job Exploration'
+    - payload: /ask_a_question
+      title: 'Ask a question'
+    text: Welcome back, {first_name}! How can I assist you further today?
   utter_perfect:
   - text: Perfect!
   utter_great:
@@ -18,65 +35,123 @@ responses:
   utter_thank_you:
   - text: Thank you!
   utter_nice_to_meet_you:
-  - text: Nice to meet you, {first_name}
+  - text: It's a pleasure to meet you, {first_name}
   # job screening
   utter_screening_start:
-  - text: Great! To assist you in applying for this position, I'll need to collect some additional information from you.
+  - text: To proceed with your application for the {select_job_title} role, I'll need a few more details from you.
   utter_screening_go_back:
-  - text: Ok we can go back to the previous question.
+  - text: Let's revisit the previous question.
   utter_screening_show_back_prompt:
-  - text: You can always go back to previous question by typing back
+  - text: "Remember, you can return to the previous question anytime by typing 'back'"
   utter_ask_email:
-  - text: What is your email address? We promise to not send you spam emails
+  - text: May I have your email address for further communication?
   utter_email_invalid :
   - text: You have entered an invalid email
   utter_ask_phone_number:
-  - text: What's your preferred phone number?
+  - text: Could you please provide your preferred contact number?
   utter_phone_number_error:
   - text: You have entered an invalid phone number
   utter_ask_full_name:
   - text: Please tell us your full name.
-  utter_submit:
-  - text: Your responses have been submitted.
+  utter_ask_input_edit_preferences:
+  - buttons:
+    - payload: /affirm
+      title: 'Yes, review details'
+    - payload: /deny
+      title: 'No, submit with current details'
+    text: Great choice, {first_name}! Before submitting your application, would you like to quickly review and update your employment details to ensure everything is current?
+  utter_edit_preferences:
+  - text: Let's quickly review your job preferences, {first_name}. Please update any details as needed. 
+  utter_ask_view_edit_preferences_text:
+  - text: "Thank you, {first_name}! Here's a summary of your updated preferences:"
+  utter_ask_view_edit_preferences_buttons:
+  - buttons:
+    - payload: /affirm
+      title: 'Confirm'
+    - payload: /deny
+      title: 'Edit Details'
+    text: Is this correct?
   utter_date_error:
   - text: You have entered an invalid date
   # ask_a_question
   utter_start_ask_a_question:
-  - text: OK! Here are a few popular questions to help you get started.
+  - text: "Great! I've compiled a list of frequently asked questions to assist you. Please choose one:"
   utter_suggest_more_questions:
-  - text: Here are a few questions that might be relevant for you
+  - text: "If you have any more questions, feel free to choose from the list below. Or, if you're all set, just let me know!"
+  utter_no_more_questions_response:
+  - text: "Alright, I'm glad I could assist you today. If you have any more questions in the future or need further assistance, don't hesitate to reach out. Have a great day and best of luck with your job search or application!"
   # explore jobs
   utter_start_explore_jobs:
-  - text: "Let's tailor job recommendations to match your unique background and interests."
+  - text: "Let's find the perfect job for you based on your skills and preferences."
   utter_start_explore_jobs_without_asking:
   - text: "It looks like you are near {job_location}. Here are some jobs we have in that area and/or 100% Remote"
+  utter_ask_resume_last_search:
+  - buttons:
+    - payload: /affirm
+      title: 'Resume Last Search'
+    - payload: /deny
+      title: 'Start New Search'
+    text: "Great to see you're ready to explore more opportunities, {first_name}! Let's pick up where we left off or you can start a new search. What would you like to do?"
+  utter_start_resume_last_search:
+  - text: "Sure, {first_name}, let's continue with your last job search. I'm checking for any new listings that match your previous criteria."
   utter_ask_is_resume_upload:
   - buttons:
     - payload: /affirm
       title: 'Upload Resume'
     - payload: /deny
       title: 'Answer Questions'
-    text: Prefer to share your resume or answer a few questions to refine job suggestions for you?
+    text: Would you like to upload your resume for personalized recommendations, or should we start with a few quick questions?
+  utter_ask_is_resume_upload_start_new_search:
+  - buttons:
+    - payload: /affirm
+      title: 'Update Resume'
+    - payload: /deny
+      title: 'Answer Questions'
+    text: Let's get started with your new job search, {first_name}. Would you like to update your resume, or shall we proceed with a set of questions to fine-tune your job preferences?
   utter_ask_resume_upload:
-  - text: "Please upload your resume"
+  - text: "Please upload your resume here"
   utter_resume_upload_cancel:
   - text: "Your resume upload was cancelled."
+  utter_ask_update_contact_details:
+  - buttons:
+    - payload: /affirm
+      title: 'Yes, update my contact details'
+    - payload: /deny
+      title: 'No, keep the current details'
+    text: "Thanks for updating your resume, {first_name}! I noticed your email address and/or phone number seems to be different from what we have on file. Would you like to update your contact details in your profile with this new information?"
+  utter_update_contact_details_affirm:
+  - text: "Alright, your contact details have been updated successfully. Let's proceed with your job search."
+  utter_update_contact_details_deny:
+  - text: "Understood, we'll keep your existing contact details. Now, let's move forward with your job search."
   utter_ask_job_title:
   - text: "What job title do you prefer? We'll use this to find related positions for you."
   utter_ask_job_location:
-  - text: "Where do you want to work? This can be your current location or a different preferred locations."
+  - text: "Which location are you considering for your next role? Feel free to mention any specific city or region"
   utter_ask_refine_job_search_field:
   - buttons:
     - payload: '/input_refine_job_search_field{"refine_job_search_field": "job_location"}'
       title: 'Preferred Location'
     - payload: '/input_refine_job_search_field{"refine_job_search_field": "job_title"}'
       title: 'Recent Job Title'
-    text: Which field would you like to update?
+    text: "Let's narrow down your job search.\n\nWhat aspect of your job search would you like to modify?"
   utter_error_explore_jobs:
   - text: "There was an error in finding jobs, please try again later"
   utter_explore_jobs_no_jobs_found:
-  - text: "Unfortunately, I couldn't locate any positions that match your search criteria at the moment."
+  - text: "Currently, there are no open positions matching your profile. Let's refine your job search to find the right opportunities."
+  utter_explore_jobs_no_jobs_found_resume_last_search:
+  - text: "It looks like there are no new listings since your last search. Would you like to revise your search criteria, or perhaps explore jobs in a different area or field?"
   utter_explore_jobs_jobs_found:
   - text: Great! Take a look at the positions I found for you
+  utter_explore_jobs_refine_search:
+  - text: Based on your preference for {refine_value}, here are some exciting job opportunities for you.
+  utter_explore_jobs_resume_last_search:
+  - text: Here are the latest job opportunities based on your previous search. Have a look and let me know if any of these interest you.
   utter_explore_jobs_apply_success:
-  - text: "Thanks for applying to the job: {select_job_title}"
+  - text: "Thank you for expressing interest in the {select_job_title} position!"
+  # screenign review
+  utter_screening_review_start:
+  - text: Certainly, {first_name}. Let's update your details. Which information would you like to edit?
+  utter_screening_review_prompt_edit_got_it:
+  - text: Got it. Your {review_question} is now updated to {user_response}. Do you want to update any other details?
+  utter_screening_review_prompt_edit_understood:
+  - text: Understood, your {review_question} is updated to {user_response}. Would you like to edit any more details?

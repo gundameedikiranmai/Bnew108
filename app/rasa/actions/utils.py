@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 from datetime import datetime
@@ -27,12 +28,13 @@ def get_metadata_field(tracker, field):
             return None, []
 
 
-def accuick_job_apply(candidate_id, job_id):
+def accuick_job_apply(candidate_id, job_id, client_id):
     is_success = False
     payload = {
-        "accuickid": get_default_slot_value(candidate_id),
-        "jobid": job_id,
-        "source": "ChatBot"
+        "userId": get_default_slot_value(candidate_id),
+        "accuickJobId": job_id,
+        "source": "ChatBot",
+        "clientId": client_id
     }
 
     logger.info("Job Apply API payload: " + str(payload))
@@ -61,3 +63,31 @@ def validate_date(date_str):
         return given_date < last_valid_date
     except ValueError:
         return False
+
+def is_default_screening_form_preference_valid(tracker):
+    job_screening_questions_last_update_time = tracker.get_slot("job_screening_questions_last_update_time")
+    # if job_screening_questions_last_update_time is not None and (datetime.now() - datetime.fromisoformat(job_screening_questions_last_update_time)).days < cfg.SCREENING_FORM_MIN_DAYS_THRESHOLD:
+    #     return True
+    
+    # TODO replace later, temp limit of 5 minutes
+    if job_screening_questions_last_update_time is not None and (datetime.now() - datetime.fromisoformat(job_screening_questions_last_update_time)).seconds < 5*60:
+        return True
+    return False
+
+
+def is_resume_last_search_available(tracker):
+    last_job_search_timestamp = tracker.get_slot("last_job_search_timestamp")
+    if last_job_search_timestamp is not None:
+        return True
+    return False
+
+
+def sync_sender_data(payload):
+    url = os.getenv("API_SERVER_URL")
+    resp = requests.post(url + "/api/sync_sender_data/", json=payload)
+
+
+def get_synced_sender_data(sender_id):
+    url = os.getenv("API_SERVER_URL")
+    resp = requests.get(url + "/api/get_synced_sender_data/", params={"sender_id": sender_id}).json()
+    return resp

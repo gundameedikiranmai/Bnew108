@@ -6,3 +6,4 @@ aiofiles
 requests
 tomlkit
 pymongo
+pydantic-settings==2.1.0

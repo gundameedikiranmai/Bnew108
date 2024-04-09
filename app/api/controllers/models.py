@@ -2,6 +2,7 @@
 """
 import json
 import base64
+from logging import getLogger
 from config.conf import settings
 from datetime import timedelta
 import copy
@@ -9,6 +10,8 @@ import copy
 import random
 import socket
 import struct
+
+logger = getLogger(__name__)
 
 class ChatSession(object):
 
@@ -23,6 +26,7 @@ class ChatSession(object):
         """
         self.collection_name = "chat_session"
         self.conversations_collection_name = "conversations"
+        self.screening_responses_collection_name = "default_screening_question_responses"
 
     def get_search_value(self, user_data, search_key):
         if search_key == "email":
@@ -68,6 +72,7 @@ class ChatSession(object):
             return True
         return False
 
+    
     def set_last_message(self, user_data, message, search_key="email", user_email_input=None):
         """Summary
 
@@ -78,8 +83,8 @@ class ChatSession(object):
         Returns:
             is_success (bool): whether set session was successful or not.
         """
-        settings.logger.info("lastmessage = " + str(message)[:settings.MAX_LOGGING_LENGTH])
-        settings.logger.info(f'{user_data}')
+        logger.info("lastmessage = " + str(message)[:settings.MAX_LOGGING_LENGTH])
+        logger.info(f'{user_data}')
 
         search_value = self.get_search_value(user_data, search_key)
 
@@ -101,6 +106,7 @@ class ChatSession(object):
                 if saved_message_encoded == message_encoded:
                     return True
         return False
+    
     
     def get_tracker_object(self, sender_id):
         settings.logger.info("fetching conversation for sender_id = " + sender_id)
@@ -130,7 +136,26 @@ class ChatSession(object):
                     print("update status", status.modified_count)
             
         
+    ######## screening responses ########
+    def set_screening_respones(self, sender_id, data):
+        responses = settings.db[self.screening_responses_collection_name].find_one({"sender_id": sender_id})
+        if responses is not None:
+            status = settings.db[self.screening_responses_collection_name].update_one({"sender_id": sender_id}, {"$set": {"data": data}})
+            if status.modified_count > 0:
+                return True
+        else:
+            settings.db[self.screening_responses_collection_name].insert_one({"sender_id": sender_id, "data": data})
+            return True
+        return False
     
+
+    def get_synced_sender_data(self, sender_id):
+        responses = settings.db[self.screening_responses_collection_name].find_one({"sender_id": sender_id})
+        if responses is not None:
+            responses.pop("_id")
+            return responses
+        return {}
+
 
     ######## analytics #########
     def get_events_unwind_query_group_by_user(self, event, name, group_by_user=False, is_only_count=False, is_email_slot=True):

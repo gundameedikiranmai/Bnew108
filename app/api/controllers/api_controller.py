@@ -3,6 +3,7 @@ api_controller.py
 """
 import json
 import requests
+from logging import getLogger
 from fastapi import APIRouter, Request
 from config.conf import settings
 import controllers.utils as utils
@@ -11,26 +12,28 @@ from controllers.schema import RasaWebhook
 from controllers.rasa_controller import rasa_webhook
 from datetime import date, datetime, timedelta
 
+logger = getLogger(__name__)
+
 # intents to ignore
 router = APIRouter()
 
-@router.post("/upload_resume")
-async def upload_resume(request: Request):
-    form_data = await request.form()
-    settings.logger.info(form_data)
-    settings.logger.info("dict: " + str(dict(form_data)))
+# tr = utils.get_tracker_from_rasa("585c82d2-d7ba-11ee-a528-475e0d709371")
+# print(tr.get("slots", {}).get("resume_upload"))
+
+# helper methods
+def upload_new_resume(form_data):
     resume_file = form_data["resume"]
     try:
-        url = "https://www4.accuick.com/ChatBot/resumeUpload.jsp"
+        url = "https://app.curately.ai/Accuick_API/Curately/Chatbot/resumeUpload.jsp"
         
         files=[
-            ('filename',(resume_file.filename, resume_file.file, resume_file.content_type))
+            ('resume',(resume_file.filename, resume_file.file, resume_file.content_type))
         ]
-        settings.logger.info(resume_file.content_type + ", " + resume_file.filename)
-        response = requests.request("POST", url, files=files)
+        logger.info(resume_file.content_type + ", " + resume_file.filename)
+        response = requests.request("POST", url, files=files, data={"clientId": "2"})
         # response = requests.request("POST", url, data=payload)
         resp = response.json()
-        settings.logger.info("Resume Upload API response:" + json.dumps(resp, indent=4))
+        logger.info("Resume Upload API response:" + json.dumps(resp, indent=4))
 
         # TODO add integration with resume upload api
         # metadata = json.loads(form_data["metadata"]) if "metadata" in form_data else None
@@ -52,27 +55,93 @@ async def upload_resume(request: Request):
             "first_name": resp.get("full-name", "").strip(),
             "email": resp.get("email", "").strip(),
             "job_title": job_title,
-            # "job_location": job_location,
-            # "phone_number": "9998887776",
-            # "full_name": "John doe",
-            # "email": "abc@gmail.com",
+            "update_contact_details": "ignore",
+            "is_resume_parsing_done": "true"
         }
 
         utils.add_slot_set_events(form_data["sender"], slots)
 
         # return rasa_webhook(rasa_payload)
-        return utils.JsonResponse({"message": resp["message"], "success": True, "candidate_id": resp["candidateId"]}, 200)
+        return utils.JsonResponse({"message": resp["message"], "success": True, "candidate_id": resp["UserId"]}, 200)
     except Exception as e:
-        settings.logger.error("Could not upload resume.")
-        settings.logger.error(e)
+        logger.error("Could not upload resume.")
+        logger.error(e)
         return utils.JsonResponse({"message": "could not upload resume.", "success": False, "candidate_id": None}, 200)
+
+
+# helper methods
+def reupload_resume(form_data, tracker_slots):   
+    resume_file = form_data["resume"]
+    try:
+        url = "https://api.curately.ai/QADemoCurately/reUploadResume"
+        
+        files=[
+            ('resume',(resume_file.filename, resume_file.file, resume_file.content_type))
+        ]
+        logger.info(resume_file.content_type + ", " + resume_file.filename)
+        print(tracker_slots.get("candidate_id"))
+        response = requests.request("POST", url, files=files, data={"clientId": "2", "userId": tracker_slots.get("candidate_id") })
+        # response = requests.request("POST", url, data=payload)
+        resp = response.json()
+        logger.info("Resume RE-Upload API response:" + json.dumps(resp, indent=4))
+
+        past_job_titles = resp.get("jobTitles", [])
+        job_title = past_job_titles[0] if len(past_job_titles) > 0 else None
+        job_location = resp.get("location", "").strip()
+
+        if job_title is None and job_location == "":
+            job_title = "ignore"
+        if job_title is not None and job_location == "":
+            job_location = "ignore"
+
+        slots = {
+            "full_name": resp.get("full-name_1", "").strip(),
+            "first_name": resp.get("full-name", "").strip(),
+            "job_title": job_title,
+            "is_resume_parsing_done": "true"
+        }
+
+        # check if contact details have changed
+        if (len(resp.get("email", "").strip())> 0 and not tracker_slots.get("email") == resp.get("email", "").strip()) or \
+            (len(resp.get("phone-number", "").strip()) > 0 and not tracker_slots.get("phone_number") == resp.get("phone-number", "").strip()):
+            slots["contact_details_temp"] = json.dumps({"email": resp.get("email", "").strip(), "phone_number": resp.get("phone-number", "").strip()})
+            slots["update_contact_details"] = "set_to_none"
+        else:
+            slots["update_contact_details"] = "ignore"
+
+        utils.add_slot_set_events(form_data["sender"], slots)
+
+        # return rasa_webhook(rasa_payload)
+        return utils.JsonResponse({"message": resp["message"], "success": True, "candidate_id": str(resp["UserId"])}, 200)
+    except Exception as e:
+        logger.error("Could not re-upload resume.")
+        logger.error(e)
+        return utils.JsonResponse({"message": "could not upload resume.", "success": False, "candidate_id": None}, 200)
+
+
+@router.post("/upload_resume")
+async def upload_resume(request: Request):
+    form_data = await request.form()
+    logger.info(form_data)
+    logger.info("dict: " + str(dict(form_data)))
+    # TODO remove hard code
+    tracker = utils.get_tracker_from_rasa(form_data["sender"])
+    # tracker = utils.get_tracker_from_rasa("bde2192c-d6d0-11ee-a10e-2be33777c5fe")
+
+    logger.info(f'candidate id: {tracker.get("slots", {}).get("candidate_id")}')
+
+    if tracker.get("slots", {}).get("candidate_id") is not None:
+        return reupload_resume(form_data=form_data, tracker_slots=tracker.get("slots", {}))
+    else:
+        return upload_new_resume(form_data)
+    
 
 
 @router.get("/get_responses/")
 def get_conversation_responses(sender_id: str):
     """
     """
-    settings.logger.info("this is a log " + sender_id)
+    logger.info("this is a log " + sender_id)
     tracker_obj = session.get_tracker_object(sender_id)
     if tracker_obj is not None:
         data = {
@@ -99,8 +168,8 @@ def get_analytics(
     ):
     """
     """
-    settings.logger.info(f"finding analytics from {from_date} to {to_date}")
-    settings.logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
+    logger.info(f"finding analytics from {from_date} to {to_date}")
+    logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
     data = session.get_conversation_count(from_date, to_date, chatbot_type)
     return data
 
@@ -125,8 +194,8 @@ def get_session_list(
     ):
     """
     """
-    settings.logger.info(f"finding analytics from {from_date} to {to_date}")
-    settings.logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
+    logger.info(f"finding analytics from {from_date} to {to_date}")
+    logger.info(f"finding analytics from {from_date.timestamp()} to {to_date.timestamp()}")
     extra_params = {"job_title": job_title}
     data = session.get_session_list(from_date, to_date, query_type, extra_params)
     return data
@@ -138,3 +207,21 @@ def get_session_list(
 #     """
 #     data = session.add_ip(dry_run)
 #     return data
+
+@router.post("/sync_sender_data/")
+async def sync_sender_data(request: Request):
+    """
+    """
+    json_data = await request.json()
+    is_success = session.set_screening_respones(sender_id=json_data["sender_id"], data=json_data["data"])
+    logger.info(f"Sync sender data status: {is_success}")
+    return is_success
+
+
+@router.get("/get_synced_sender_data/")
+def get_synced_sender_data(
+        sender_id: str,
+    ):
+    logger.info(f"Fetching synced_sender_data for sender_id={sender_id}")
+    data = session.get_synced_sender_data(sender_id)
+    return data

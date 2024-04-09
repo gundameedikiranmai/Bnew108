@@ -50,6 +50,6 @@ def get_app_settings():
     mongo = MongoClient(uri)
     db = mongo[config_data.get("MONGO_APP_DATABASE")]
 
-    return config(logger=logger,origins=origins,db=db, **config_data)
+    return config(logger=logger, origins=origins, db=db, **config_data)
 
 settings = get_app_settings()

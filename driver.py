@@ -8,11 +8,18 @@ url = "http://localhost:8000"
 # Localhost docker
 # url = "http://localhost:8888"
 # SERVER
+# https://chatbot.curately.ai
 # url = "http://52.40.250.118:8888"
+
+# https://chatbot1.curately.ai/
+# url = "http://52.13.235.156:8888"
 # url = "http://localhost:6005/webhooks/nlu"
-UUID = str(uuid.uuid1())
-# UUID = "6971537150"
-chatbot_type = "2"
+# UUID = str(uuid.uuid1())
+UUID = "b427d0d6-d7b9-11ee-a431-f1eadb86a44c"
+chatbot_type = "1"
+
+resume_1 = ("Dave Paterson.docx", 'Dave Paterson.docx')
+resume_2 = ("Resume Samples/IT Specialist_Resume.docx", 'IT Specialist_Resume.docx')
 
 def send_to_rasa(usr_msg):
     payload = {
@@ -21,8 +28,9 @@ def send_to_rasa(usr_msg):
         "metadata": {
             "job_id": "1",
             "chatbot_type": chatbot_type,
-            "job_location": 'TX',
-            "ip_address": "1.1.1.2"
+            "job_location": 'GA',
+            "ip_address": "1.1.1.2",
+            "client_id": "2"
         },
     }
 
@@ -44,10 +52,11 @@ def send_to_rasa(usr_msg):
     return resp
 
 
-def upload_resume():
+def upload_resume(resume):
     api_url = url + "/api/upload_resume"
+    resume_path = "/home/dhruv/Downloads/" + resume[0]
     files=[
-        ('resume',('IT Specialist_Resume.docx',open('/home/dhruv/Downloads/Resume Samples/IT Specialist_Resume.docx','rb'),'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))
+        ('resume',(resume[1], open(resume_path,'rb'),'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))
     ]
     payload = {
         "sender": UUID,
@@ -62,8 +71,14 @@ def upload_resume():
     return resp["candidate_id"]
 
 
-def send_resume_message():
-    candidate_id = upload_resume()
+def ask_a_question():
+    send_to_rasa("/ask_a_question")
+    for qid in range(1, 6):
+        msg = '/input_user_question{"user_question": "' + str(qid) + '"}'
+        send_to_rasa(msg)
+
+def send_resume_message(resume):
+    candidate_id = upload_resume(resume)
     # candidate_id = "1234"
     send_to_rasa('/input_resume_upload_data{"candidate_id": "' + candidate_id + '"}')
 
@@ -78,29 +93,53 @@ def answer_job_title():
     send_to_rasa('/input_job_title{"job_title": "Java Developer"}')
 
 def answer_job_location():
-    send_to_rasa('/input_job_location{"job_location": "CA"}')
+    send_to_rasa('/input_job_location{"job_location": "GA"}')
 
 def send_job():
     send_to_rasa('/input_select_job{"select_job": "227842"}')
 
-def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None):
-    send_to_rasa("/greet")
+def custom_msgs():
+    msgs = [
+        '/input_select_job{"select_job": "788865"}',
+        '1234567890',
+        'working freelance',
+        'available soon',
+        'freelancer',
+        'remote',
+
+        # greet
+        # "/explore_jobs",
+        # "/deny",
+        # "/affirm"
+    ]
+    for msg in msgs:
+        send_to_rasa(msg)
+
+def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, start_new="ignore", resume=resume_1):
     send_to_rasa("/explore_jobs")
-    if chatbot_type == "1":
-        if is_upload_resume:
-            send_to_rasa("/affirm")
-            if cancel:
-                send_to_rasa("/deny")
-                # select answer questions path
+    if start_new in ["ignore", "true"]:
+        if start_new == "true":
+            # start new search
+            send_to_rasa("/deny")
+        # normal explore jobs, either first time or new search
+        if chatbot_type == "1":
+            if is_upload_resume:
+                send_to_rasa("/affirm")
+                if cancel:
+                    send_to_rasa("/deny")
+                    # select answer questions path
+                    send_to_rasa("/deny")
+                    answer_job_title()
+                else:
+                    send_resume_message(resume)
+            else:
                 send_to_rasa("/deny")
                 answer_job_title()
-            else:
-                send_resume_message()
-        else:
-            send_to_rasa("/deny")
-            answer_job_title()
-    elif chatbot_type == "2":
-        pass
+        elif chatbot_type == "2":
+            pass
+    else:
+        # resume last search
+        send_to_rasa("/affirm")
     
     # jobs have been displayed, now send_job or refine.
     if refine_job_search is not None:
@@ -123,15 +162,22 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None):
     # screening_questions()
     
 send_to_rasa("/restart")
+send_to_rasa("/greet")
 
-# send_to_rasa("/job_screening")
-# send_to_rasa("/greet")
+# explore_jobs(is_upload_resume=True, resume=resume_1)
+# custom_msgs()
 
-explore_jobs(is_upload_resume=True)
+# explore_jobs(is_upload_resume=True, refine_job_search="location", start_new="true")
+
 # explore_jobs(is_upload_resume=True, cancel=True)
 # explore_jobs(is_upload_resume=False)
 # explore_jobs(is_upload_resume=False, refine_job_search="location")
 # explore_jobs(is_upload_resume=True, refine_job_search="location")
+
+
+# ask_a_question()
+
+# send_to_rasa("/screening_review")
 
 while True:
     print("\nplease enter your message:")
@@ -142,4 +188,14 @@ while True:
     print()
     if "job:" in msg:
         msg = '/input_select_job{"select_job": "' + msg.split(":")[1].strip() + '"}'
+    
+    if "q:" in msg:
+        msg = '/input_user_question{"user_question": "' + msg.split(":")[1].strip() + '"}'
+    
+    if "r:" in msg:
+        if msg == "r:1":
+            send_resume_message(resume_1)
+        if msg == "r:2":
+            send_resume_message(resume_2)
+        continue
     send_to_rasa(msg)

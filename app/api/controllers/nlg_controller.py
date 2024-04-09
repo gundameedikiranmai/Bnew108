@@ -41,7 +41,7 @@ async def get_responses(request: Request):
         slots = re.findall(r'\{(.*?)\}', resp['text'])
         print("to replace....", slots)
         for slot in slots:
-            slot_val = nlg_data["tracker"]["slots"].get(slot,params.get('slots'))
+            slot_val = nlg_data["tracker"]["slots"].get(slot, params.get('slots'))
             if params.get('slots'):
                 resp['text'] = resp['text'].replace("{" + slot + "}", str(params.get('slots').get(slot)))
             else:

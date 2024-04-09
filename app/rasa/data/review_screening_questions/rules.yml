@@ -1,0 +1,21 @@
+version: "3.1"
+
+rules:
+
+- rule: Activate review_screening_questions
+  steps:
+  - intent: screening_review
+  - action: utter_screening_review_start
+  - action: action_dummy_test
+  - action: review_screening_questions_form
+  - active_loop: review_screening_questions_form
+
+- rule: Submit review_screening_questions
+  condition:
+  - active_loop: review_screening_questions_form
+  steps:
+  - action: review_screening_questions_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: job_screening_form_submit

@@ -7,30 +7,16 @@ from logging import getLogger
 from typing import Text, List, Any, Dict
 
 from rasa_sdk import Tracker, FormValidationAction, Action
-from rasa_sdk.events import EventType, SlotSet
+from rasa_sdk.events import EventType, SlotSet, FollowupAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import yaml
 import actions.utils as utils
 from actions.common_actions import AskUtteranceWithPlaceholderAction, add_date_utterance
 import actions.config_values as cfg
+from datetime import datetime
 
 logger = getLogger(__name__)
-
-def load_screening_questions():
-    dir_path = os.path.join("chatbot_data", "screening_questions")
-    question_dict = {}
-    n_questions = {}
-    for file in os.listdir(dir_path):
-        name, ext = os.path.splitext(file)
-        if ext in [".yml", ".yaml"]:
-            file_data = yaml.load(open(os.path.join(dir_path, file)), Loader=yaml.FullLoader)
-            question_dict[name.lower()] = file_data["job_questions"] + file_data["common_questions"]
-            n_questions[name.lower()] = len(question_dict[name.lower()])
-    return question_dict, n_questions
-
-question_dict, n_questions = load_screening_questions()
-
 
 class ValidateJobScreeningForm(FormValidationAction):
     def name(self) -> Text:
@@ -71,6 +57,45 @@ class ValidateJobScreeningForm(FormValidationAction):
         # else case
         dispatcher.utter_message(response="utter_phone_number_error")
         return {"phone_number": None}
+    
+    def validate_full_name(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `full_name` value."""
+        logger.info(f"validating input {slot_value}")
+        result_dict = {"full_name": slot_value}
+        if tracker.get_slot("first_name") is None:
+            result_dict["first_name"] = slot_value
+        
+        return result_dict
+
+
+    def validate_input_edit_preferences(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `input_edit_preferences` value."""
+        logger.info(f"validating input {slot_value}")
+        result_dict = {"input_edit_preferences": slot_value}
+
+        if slot_value == "true":
+            dispatcher.utter_message(response="utter_edit_preferences")
+        elif slot_value == "false":
+            synced_data = utils.get_synced_sender_data(tracker.sender_id)
+            # set the slots from synced data
+            for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
+                result_dict[slot] = synced_data.get("data", {}).get(slot)
+            result_dict["screening_question"] = "ignore"
+            result_dict["view_edit_preferences"] = "ignore"
+
+        return result_dict
 
 
     def validate_screening_question(
@@ -82,15 +107,11 @@ class ValidateJobScreeningForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         """Validate `screening_question` value."""
         logger.info(f"validating input {slot_value}")
-        if slot_value is None:
-            return {"screening_question": None}
+        if slot_value in [None, "ignore"]:
+            return {"screening_question": slot_value}
         
         job_screening_questions = tracker.get_slot("job_screening_questions")
-        if job_screening_questions is None:
-            job_id, _ = utils.get_metadata_field(tracker, "job_id")
-            job_screening_questions_count = n_questions.get(job_id)
-        else:
-            job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
+        job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
         
         
         history = tracker.get_slot("screening_question_history")
@@ -115,6 +136,7 @@ class ValidateJobScreeningForm(FormValidationAction):
             result_dict["screening_question"] = None
         else:
             result_dict["screening_question"] = slot_value
+            dispatcher.utter_message(json_message={"screening_start": False})
             print(history)
         return result_dict
 
@@ -143,13 +165,7 @@ class AskScreeningQuestionAction(Action):
         result = []
         questions_data = tracker.get_slot("job_screening_questions")
         input_type = None
-        if questions_data is None:
-            job_id, job_id_slot = utils.get_metadata_field(tracker, "job_id")
-            job_screening_questions_count = n_questions.get(job_id)
-            questions_data = copy.copy(question_dict.get(job_id))
-            result += job_id_slot
-        else:
-            job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
+        job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
         
         history = tracker.get_slot("screening_question_history")
         if history is None:
@@ -164,25 +180,34 @@ class AskScreeningQuestionAction(Action):
             #     if history[n_history - 1] == validation_info["correct_answer"]:
             # logger.info(f"displaying question: {questions[n_history]}")
             logger.info(f"rendering: {questions_data[n_history]}")
-            input_type = questions_data[n_history].get("input_type")
-            
-            # if a question has some metadata, send all of it as a json message to avoid sending multiple messages.
-            if questions_data[n_history].get("metadata"):
-                dispatcher.utter_message(json_message=questions_data[n_history])
-            else:
-                dispatcher.utter_message(**questions_data[n_history])
-            # if "buttons" not in questions_data:
-                # if there are no buttons
-            # dispatcher.utter_message(text=questions_data[n_history].get("text"), buttons=questions_data[n_history].get("buttons"), json_message=questions_data[n_history].get("custom"))
-            if input_type == "date":
-                add_date_utterance(dispatcher)
-            
             if n_history == 1:
+                # and (questions_data[n_history].get("buttons") is None or len(questions_data[n_history].get("buttons")) == 0):
                 # show back prompt on second question
                 dispatcher.utter_message(response="utter_screening_show_back_prompt")
+            utter_screening_question(dispatcher, tracker, questions_data, n_history, go_back=True)
         else:
             dispatcher.utter_message(text="Error.... all questions have been answered...")
         return result
+
+
+class ViewEditPreferencesAction(Action):
+    def name(self) -> Text:
+        return "action_ask_view_edit_preferences"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        # either load from slot or look for job id value from metadata.
+        result = []
+        questions_data = tracker.get_slot("job_screening_questions")
+        # job_screening_questions_count = tracker.get_slot("job_screening_questions_count")
+        screening_question_history = tracker.get_slot("screening_question_history")
+        dispatcher.utter_message(template="utter_ask_view_edit_preferences_text")
+        screening_response_txt = ""
+        for q, a in zip(questions_data, screening_question_history):
+            screening_response_txt += f"{q['data_key']}: {a}\n"
+        dispatcher.utter_message(text=screening_response_txt.strip())
+        dispatcher.utter_message(template="utter_ask_view_edit_preferences_buttons")
 
 
 class JobScreeningFormSubmit(Action):
@@ -191,31 +216,56 @@ class JobScreeningFormSubmit(Action):
         return "job_screening_form_submit"
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[EventType]:
-        """Define what the form has to do after all required slots are filled"""
-        result = []
-        dispatcher.utter_message(json_message={"screening_start": False})
-        dispatcher.utter_message(response="utter_submit")
-        # dispatcher.utter_message(text="Your responses are:" + ", ".join(tracker.get_slot("screening_question_history")))
+        """Define what the form has to do after all required slots are filled"""   
+        view_edit_preferences = tracker.get_slot("view_edit_preferences")
         selected_job = tracker.get_slot("select_job")
-        
-        sync_screening_responses(tracker)
-        is_success = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job)
-        applied_jobs = tracker.get_slot("applied_jobs")
-        if is_success:
-            applied_jobs += [selected_job]
-        
-        result += [
-            SlotSet("job_screening_questions", None),
-            SlotSet("job_screening_questions_count", None),
-            SlotSet("select_job", None),
-            SlotSet("applied_jobs", applied_jobs)
-        ]
-        dispatcher.utter_message(response="utter_greet", greet="after_apply")
-
+        if view_edit_preferences == "ignore":
+            result = job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type="after_apply")
+        elif view_edit_preferences == "confirm":
+            result = job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type="after_apply_review_screening_questions")
+        elif view_edit_preferences == "edit_details":
+            dispatcher.utter_message(response="utter_screening_review_start")
+            result = [FollowupAction("review_screening_questions_form")]
+        elif view_edit_preferences == "review_form_completed":
+            result = job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type="after_apply_review_screening_questions_form_submit")
+            # reset form slots
+            result += [
+                SlotSet("screening_question_options", None),
+                SlotSet("screening_question_display_q", None),
+                SlotSet("screening_review_context", None),
+            ]
         return result
 
 
 ############# utils #################
+    
+def utter_screening_question(dispatcher, tracker, questions_data, n_history, go_back=False):
+    input_edit_preferences = tracker.get_slot("input_edit_preferences")
+    input_type = questions_data[n_history].get("input_type")            
+    # if a question has some metadata, send all of it as a json message to avoid sending multiple messages.
+    qdata = copy.copy(questions_data[n_history])
+    if input_edit_preferences == "true":
+        if n_history == 0:
+            selected_var = ""
+        elif n_history == len(questions_data) - 1:
+            selected_var = "Lastly, "
+        else:
+            variations = ["Understood. ", "Got it. "]
+            selected_var = variations[n_history % len(variations)]
+        qdata["text"] = selected_var + qdata["text"]
+    
+    # add a back button for 2nd questions onward
+    if go_back and n_history > 0 and len(qdata.get("buttons", [])) > 0:
+        qdata["buttons"].append({"payload": "back", "title": "back"})
+    
+    if questions_data[n_history].get("metadata"):
+        dispatcher.utter_message(json_message=qdata)
+    else:
+        print("-------------------------", questions_data)
+        dispatcher.utter_message(**qdata)
+    if input_type == "date":
+        add_date_utterance(dispatcher)
+
 
 def sync_screening_responses(tracker):
     payload = {
@@ -224,11 +274,22 @@ def sync_screening_responses(tracker):
         "fullName": tracker.get_slot("full_name"),
         "phoneNumber": tracker.get_slot("phone_number"),
         "jobId": tracker.get_slot("select_job"),
-        "candidateResponses": [{"id": q["id"], "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
+        "candidateResponses": [],
+        "clientId": tracker.get_slot("client_id")
     }
-    logger.debug("Sending sync response: " + str(payload))
+    if tracker.get_slot("job_screening_questions") is not None and tracker.get_slot("screening_question_history") is not None:
+        payload["candidateResponses"] = [{"id": q["id"], "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
+    
+    logger.info("Sending sync response: " + str(payload))
     response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
     logger.info("received status code from sync response: " + str(response.status_code))
+
+    try:
+        submit_user_preferences(tracker)
+    except Exception as e:
+        logger.error("Could not submit user preferences")
+        logger.error(e)
+    
     #  no need to check for response body as it is empty, only printing the status code
     # try:
     #     print(response.status_code, response.text)
@@ -237,3 +298,72 @@ def sync_screening_responses(tracker):
     # except Exception as e:
     #     logger.error("Could not submit screening responses to webhook")
     #     logger.error(e)
+
+
+def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type):
+    sync_screening_responses(tracker)
+    is_success = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job, tracker.get_slot("client_id"))
+    applied_jobs = tracker.get_slot("applied_jobs")
+    if is_success:
+        applied_jobs += [selected_job]
+    
+    current_timestamp = str(datetime.now())
+    result = [
+        SlotSet("job_screening_questions", None),
+        SlotSet("job_screening_questions_count", None),
+        SlotSet("select_job", None),
+        SlotSet("applied_jobs", applied_jobs),
+        SlotSet("last_job_search_timestamp", current_timestamp),
+        SlotSet("resume_last_search", None)
+    ]
+    
+    data = {}
+    for slot in cfg.RESUME_LAST_SEARCH_RELEVANT_SLOTS:
+        data[slot] = tracker.get_slot(slot)
+    
+    if tracker.get_slot("is_default_screening_questions") is True:
+        logger.info("saving default screening questions responses in DB.")
+        for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
+            data[slot] = tracker.get_slot(slot)
+        result += [
+            SlotSet("is_default_screening_questions", False),
+            SlotSet("job_screening_questions_last_update_time", current_timestamp),
+        ]
+    
+    # sync sender data
+    sync_sender_data_payload = {
+        "sender_id": tracker.sender_id,
+        "data": {
+            **data,
+            "job_screening_questions_last_update_time": current_timestamp,
+        }
+    }
+    utils.sync_sender_data(sync_sender_data_payload)
+        
+    
+    dispatcher.utter_message(response="utter_greet", greet=greet_type)
+    return result
+
+
+def submit_user_preferences(tracker):
+    candidate_id = tracker.get_slot("candidate_id")
+    if candidate_id is None:
+        logger.error("Could not submit user preferences because candidate_id is null")
+        return
+    get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + candidate_id).json()
+    # print(get_response)
+    for item in get_response["json"]:
+        for i, q in enumerate(tracker.get_slot("job_screening_questions")):
+            if item["datakey"] == q["data_key"]:
+                user_response = tracker.get_slot("screening_question_history")[i]
+                for choice in item["Options"]:
+                    if choice["Name"] == user_response:
+                        # print(choice["LookupId"])
+                        item["Value"] = choice["LookupId"]
+                        break
+                break
+    
+    get_response["userId"] = candidate_id
+    logger.info("Sending set user preference payload: " + str(get_response))
+    response = requests.post(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_POST_URL, json=get_response)
+    logger.info("Set user preference API response: " + str(response.json()))

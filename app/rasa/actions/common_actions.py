@@ -85,9 +85,15 @@ class ActionRestart(Action):
     ) -> List[EventType]:
         slots_to_retain = []
         for slot in cfg.SLOTS_TO_KEEP_AFTER_RESTART:
-        # for slots in ["full_name", "email", "phone_number"]
             if tracker.get_slot(slot) is not None:
                 slots_to_retain.append(SlotSet(slot, tracker.get_slot(slot)))
+        # 
+        synced_data = utils.get_synced_sender_data(tracker.sender_id)
+        # set the slots from synced data
+        for slot in cfg.RESUME_LAST_SEARCH_RELEVANT_SLOTS:
+            if synced_data.get("data", {}).get(slot) is not None:
+                slots_to_retain.append(SlotSet(slot, synced_data.get("data", {}).get(slot) ))
+        
         return [Restarted()] + slots_to_retain
 
 
@@ -100,12 +106,18 @@ class ActionUtterGreet(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
     ) -> List[EventType]:
         _, result = utils.get_metadata_field(tracker, "ip_address")
+        _, result1 = utils.get_metadata_field(tracker, "client_id")
         if tracker.get_slot("first_name") is not None:
-            greet_param = "known"
+            dispatcher.utter_message(response="utter_greet_known")
         else:
-            greet_param = "unknown"
-        dispatcher.utter_message(response="utter_greet", greet=greet_param)
-        return result
+            dispatcher.utter_message(response="utter_greet_unknown")
+        
+        # decide if last search can be resumed or not.
+        if utils.is_resume_last_search_available(tracker):
+            result += [SlotSet("resume_last_search", None)]
+        else:
+            result += [SlotSet("resume_last_search", "ignore")]
+        return result + result1
 
 
 def add_placeholder_utterance(dispatcher, placeholder_text):

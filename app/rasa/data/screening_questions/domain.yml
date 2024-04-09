@@ -14,7 +14,9 @@ forms:
     - full_name
     - email
     - phone_number
+    - input_edit_preferences
     - screening_question
+    - view_edit_preferences
 slots:
   screening_question:
     type: text
@@ -56,6 +58,38 @@ slots:
       conditions:
       - active_loop: job_screening_form
         requested_slot: full_name
+  input_edit_preferences:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_intent
+      value: "true"
+      intent: affirm
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: input_edit_preferences
+    - type: from_intent
+      value: "false"
+      intent: deny
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: input_edit_preferences
+  view_edit_preferences:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_intent
+      value: "confirm"
+      intent: affirm
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: view_edit_preferences
+    - type: from_intent
+      value: "edit_details"
+      intent: deny
+      conditions:
+      - active_loop: job_screening_form
+        requested_slot: view_edit_preferences
   first_name:
     type: any
     influence_conversation: false
@@ -77,6 +111,16 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
+  job_screening_questions_last_update_time:
+    type: any
+    influence_conversation: false
+    mappings:
+    - type: custom
+  is_default_screening_questions:
+    type: any
+    influence_conversation: false
+    mappings:
+    - type: custom
 actions:
 - utter_screening_start
 - action_ask_email
@@ -85,3 +129,5 @@ actions:
 - action_ask_screening_question
 - validate_job_screening_form
 - job_screening_form_submit
+- utter_ask_input_edit_preferences
+- action_ask_view_edit_preferences
