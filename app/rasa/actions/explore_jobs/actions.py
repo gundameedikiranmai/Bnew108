@@ -186,8 +186,8 @@ class ValidateExploreJobsForm(FormValidationAction):
             # set select_job_title
             jobs = tracker.get_slot("search_jobs_list")
             for job in jobs:
-                if job["requisitionId_"] == slot_value:
-                    result_dict["select_job_title"] = job["title_"]
+                if job["jobId"] == slot_value:
+                    result_dict["select_job_title"] = job["jobTitle"]
                     break
         return result_dict
 
@@ -280,40 +280,61 @@ class AskSelectJobAction(AskCustomBaseAction):
         self.set_params("select_job")
     
     def fetch_jobs(self, tracker):
-        # payload = {
-        #     "keyword": utils.get_default_slot_value(tracker.get_slot("job_title")),
-        #     "location": utils.get_default_slot_value(tracker.get_slot("job_location")),
-        # }
+        location = utils.get_default_slot_value(tracker.get_slot("job_location")).strip()
+        city, state, zipcode = "", "", ""
+        if len(location) == 5:
+            zipcode = location
+        elif not (" " in location or "," in location) or len(location) == 2:
+            state = location
+        elif "," in location:
+            locs = location.split(",")
+            city = locs[0].strip()
+            state = locs[1].strip()
+            if len(locs) > 2:
+                zipcode = locs[2].strip()
         payload = {
-            "jobquery": [
-                {
-                    "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
-                    "clientId": tracker.get_slot("client_id"),
-                    "jobType": "All Job Types",
-                    "datePosted": "0",
-                    "locationFilters": [
-                        {"address": utils.get_default_slot_value(tracker.get_slot("job_location")), "regionCode": "", "distanceInMiles": 0}
-                    ],
-                }
-            ],
-            "searchMode": "JOB_SEARCH",
-            "disableKeywordMatch": False,
-            "enableBroadening": True,
-            "keywordMatchMode": "KEYWORD_MATCH_ALL",
-            "offset": 0,
+            "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
+            "city": city,
+            "state": state,
+            "zipcode": zipcode,
+            "radius": "50",
+            "daysback": "",
+            "isRemote": "",
+            "jobType": "",
+            "clientids": tracker.get_slot("client_id"),
+            "next": 0,
+            "type": "",
         }
+        # payload = {
+        #     "jobquery": [
+        #         {
+        #             "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
+        #             "clientId": tracker.get_slot("client_id"),
+        #             "jobType": "All Job Types",
+        #             "datePosted": "0",
+        #             "locationFilters": [
+        #                 {"address": utils.get_default_slot_value(tracker.get_slot("job_location")), "regionCode": "", "distanceInMiles": 0}
+        #             ],
+        #         }
+        #     ],
+        #     "searchMode": "JOB_SEARCH",
+        #     "disableKeywordMatch": False,
+        #     "enableBroadening": True,
+        #     "keywordMatchMode": "KEYWORD_MATCH_ALL",
+        #     "offset": 0,
+        # }
         try:
             logger.info("job search params: " + str(payload))
             job_resp = requests.post(cfg.ACCUICK_SEARCH_JOBS_URL, json=payload)
             logger.info("job_resp status: {}".format(job_resp.status_code))
             if job_resp.status_code == 200:
-                jobs = job_resp.json().get("jobList", [])
+                jobs = job_resp.json().get("List", [])
                 logger.info(f"total job count: {len(jobs)}")
                 applied_jobs = tracker.get_slot("applied_jobs")
-                jobs_filtered = [j["job_"] for j in jobs if j["job_"]["requisitionId_"] not in applied_jobs]
+                jobs_filtered = [j for j in jobs if j["jobId"] not in applied_jobs]
                 logger.info(f"filtered job count: {len(jobs_filtered)}")
                 jobs_to_show = jobs_filtered[:cfg.N_JOBS_TO_SHOW]
-                log_subset =  [{key: value for key, value in j.items() if key in ["requisitionId_", "title_"]} for j in jobs_to_show[:3]]
+                log_subset =  [{key: value for key, value in j.items() if key in ["jobId", "jobTitle"]} for j in jobs_to_show[:3]]
                 logger.info("found jobs: " + json.dumps(log_subset, indent=4))
                 return jobs_to_show
         except Exception as e:
