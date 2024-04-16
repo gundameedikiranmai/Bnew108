@@ -186,7 +186,7 @@ class ValidateExploreJobsForm(FormValidationAction):
             # set select_job_title
             jobs = tracker.get_slot("search_jobs_list")
             for job in jobs:
-                if job["jobId"] == slot_value:
+                if str(job["jobId"]) == slot_value:
                     result_dict["select_job_title"] = job["jobTitle"]
                     break
         return result_dict
