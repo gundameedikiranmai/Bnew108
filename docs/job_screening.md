@@ -59,3 +59,34 @@ The job screening flow is initiated by sending the following first message.
 ```
 
 The chatbot will then start asking the questions related to the given job_id in the metadata. If no job_id is given, a value of "1" is assumed as default.
+
+### Multi-Select UI component
+The chatbot message to display the multi-select UI component will be as follows:
+```
+[
+    {
+        "recipient_id": "9917edbe-2641-11ee-8f08-f5235bd2ce38",
+        "custom": {
+            "ui_component": "multi-select",
+            "options": [
+                {
+                    "key": "Remote",
+                    "Value": "1"
+                },
+                {
+                    "key": "Hybrid",
+                    "Value": "2"
+                },
+                {
+                    "key": "On-Site",
+                    "Value": "3"
+                }
+            ]
+        }
+    }
+]
+```
+
+The UI should render the items present in the options array. The key should displayed on the UI whereas the value should be used for sending to chatbot. All the selected values should be sent as a comma separated string.
+
+For eg, if user selects Remote and Hybrid, UI should send "1,2" as the user message.
