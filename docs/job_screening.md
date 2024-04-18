@@ -68,7 +68,7 @@ The chatbot message to display the multi-select UI component will be as follows:
         "recipient_id": "9917edbe-2641-11ee-8f08-f5235bd2ce38",
         "custom": {
             "ui_component": "multi-select",
-            "options": [
+            "checkbox_options": [
                 {
                     "key": "Remote",
                     "Value": "1"
@@ -81,7 +81,13 @@ The chatbot message to display the multi-select UI component will be as follows:
                     "key": "On-Site",
                     "Value": "3"
                 }
-            ]
+            ],
+            "any_radio_button": {
+                "Name": "Any",
+                "Type": "RadioButton",
+                "LookupId": 10013004
+            },
+
         }
     }
 ]
@@ -90,3 +96,5 @@ The chatbot message to display the multi-select UI component will be as follows:
 The UI should render the items present in the options array. The key should displayed on the UI whereas the value should be used for sending to chatbot. All the selected values should be sent as a comma separated string.
 
 For eg, if user selects Remote and Hybrid, UI should send "1,2" as the user message.
+
+any_radio_button will be optional and will either be null or have a dictionary value. It will be used on the UI to select/deselect the checkboxes.
