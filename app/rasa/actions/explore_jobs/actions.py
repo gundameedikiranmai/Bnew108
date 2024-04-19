@@ -457,9 +457,15 @@ def get_screening_questions_for_job_id(tracker):
         if utils.is_default_screening_form_preference_valid(tracker):
             return [], [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
         logger.info("using default form builder questions")
-        resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL, json={"clientId":"2", "action":"get"})
-        resp_json1 = resp.json()
-        questions_data_transformed, result = parse_form_bulder_json(resp_json1, tracker)
+        #
+        candidate_id = tracker.get_slot("candidate_id")
+        get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + candidate_id).json()
+        questions_data_transformed, result = parse_user_preference_json(get_response)
+        # 
+
+        # resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL, json={"clientId":"2", "action":"get"})
+        # resp_json1 = resp.json()
+        # questions_data_transformed, result = parse_form_bulder_json(resp_json1, tracker)
         result += [SlotSet("is_default_screening_questions", True)]
 
         synced_data = utils.get_synced_sender_data(tracker.sender_id)
@@ -518,3 +524,16 @@ def parse_form_bulder_json(resp_json, tracker):
         questions_data_transformed.append(q_transformed)
 
     return questions_data_transformed, result
+
+
+def parse_user_preference_json(resp_json):
+    questions_data_transformed = []
+    for q in resp_json.get("json", []):
+        
+        if len(q.get("Options", [])) > 0 and q.get("Options", [])[0].get("Type") == "CheckBox":
+            # add multi-select
+            options = [{"key": o["Name"], "value": str(o["LookupId"])} for o in q["Options"]]
+            q_transformed = {"text": q["Label"], "input_type": "multi-select", "data_key": q["datakey"], "options": options}
+            questions_data_transformed.append(q_transformed)
+    return questions_data_transformed, []
+            

@@ -12,7 +12,7 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 import yaml
 import actions.utils as utils
-from actions.common_actions import AskUtteranceWithPlaceholderAction, add_date_utterance
+from actions.common_actions import AskUtteranceWithPlaceholderAction, add_date_utterance, add_multiselect_utterance
 import actions.config_values as cfg
 from datetime import datetime
 
@@ -179,7 +179,7 @@ class AskScreeningQuestionAction(Action):
             #     validation_info = questions[n_history - 1].get("validations")
             #     if history[n_history - 1] == validation_info["correct_answer"]:
             # logger.info(f"displaying question: {questions[n_history]}")
-            logger.info(f"rendering: {questions_data[n_history]}")
+            logger.debug(f"rendering: {questions_data[n_history]}")
             if n_history == 1:
                 # and (questions_data[n_history].get("buttons") is None or len(questions_data[n_history].get("buttons")) == 0):
                 # show back prompt on second question
@@ -261,10 +261,12 @@ def utter_screening_question(dispatcher, tracker, questions_data, n_history, go_
     if questions_data[n_history].get("metadata"):
         dispatcher.utter_message(json_message=qdata)
     else:
-        print("-------------------------", questions_data)
+        # print("-------------------------", questions_data)
         dispatcher.utter_message(**qdata)
     if input_type == "date":
         add_date_utterance(dispatcher)
+    elif input_type == "multi-select":
+        add_multiselect_utterance(dispatcher, qdata["options"])
 
 
 def sync_screening_responses(tracker):
@@ -278,7 +280,7 @@ def sync_screening_responses(tracker):
         "clientId": tracker.get_slot("client_id")
     }
     if tracker.get_slot("job_screening_questions") is not None and tracker.get_slot("screening_question_history") is not None:
-        payload["candidateResponses"] = [{"id": q["id"], "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
+        payload["candidateResponses"] = [{"id": q.get("id", 0), "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
     
     logger.info("Sending sync response: " + str(payload))
     response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
@@ -288,7 +290,7 @@ def sync_screening_responses(tracker):
         submit_user_preferences(tracker)
     except Exception as e:
         logger.error("Could not submit user preferences")
-        logger.error(e)
+        logger.exception(e)
     
     #  no need to check for response body as it is empty, only printing the status code
     # try:
@@ -351,19 +353,28 @@ def submit_user_preferences(tracker):
         logger.error("Could not submit user preferences because candidate_id is null")
         return
     get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + candidate_id).json()
+    is_edit = False
     # print(get_response)
     for item in get_response["json"]:
         for i, q in enumerate(tracker.get_slot("job_screening_questions")):
             if item["datakey"] == q["data_key"]:
                 user_response = tracker.get_slot("screening_question_history")[i]
-                for choice in item["Options"]:
-                    if choice["Name"] == user_response:
-                        # print(choice["LookupId"])
-                        item["Value"] = choice["LookupId"]
-                        break
-                break
+                if tracker.get_slot("is_default_screening_questions") is True:
+                    item["Value"] = user_response
+                    is_edit = True
+                else:
+                    for choice in item["Options"]:
+                        if choice["Name"].lower() == user_response.lower():
+                            # print(choice["LookupId"])
+                            item["Value"] = choice["LookupId"]
+                            is_edit = True
+                            break
+                    break
     
-    get_response["userId"] = candidate_id
-    logger.info("Sending set user preference payload: " + str(get_response))
-    response = requests.post(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_POST_URL, json=get_response)
-    logger.info("Set user preference API response: " + str(response.json()))
+    if is_edit:
+        get_response["userId"] = candidate_id
+        logger.info("Sending set user preference payload: " + str(get_response))
+        response = requests.post(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_POST_URL, json=get_response)
+        logger.info("Set user preference API response: " + str(response.json()))
+    else:
+        logger.info("No edit required for set user preference")

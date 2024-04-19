@@ -134,3 +134,11 @@ def add_date_utterance(dispatcher):
         "placeholder_text": "Please enter a date (mm-dd-yyyy)"
     }
     dispatcher.utter_message(json_message=utt)
+
+
+def add_multiselect_utterance(dispatcher, options):
+    utt = {
+        "ui_component": "multi-select",
+        "options": options
+    }
+    dispatcher.utter_message(json_message=utt)
