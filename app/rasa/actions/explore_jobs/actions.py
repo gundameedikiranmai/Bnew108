@@ -331,7 +331,7 @@ class AskSelectJobAction(AskCustomBaseAction):
                 jobs = job_resp.json().get("List", [])
                 logger.info(f"total job count: {len(jobs)}")
                 applied_jobs = tracker.get_slot("applied_jobs")
-                jobs_filtered = [j for j in jobs if j["jobId"] not in applied_jobs]
+                jobs_filtered = [j for j in jobs if str(j["jobId"]) not in applied_jobs]
                 logger.info(f"filtered job count: {len(jobs_filtered)}")
                 jobs_to_show = jobs_filtered[:cfg.N_JOBS_TO_SHOW]
                 log_subset =  [{key: value for key, value in j.items() if key in ["jobId", "jobTitle"]} for j in jobs_to_show[:3]]
@@ -529,11 +529,15 @@ def parse_form_bulder_json(resp_json, tracker):
 def parse_user_preference_json(resp_json):
     questions_data_transformed = []
     for q in resp_json.get("json", []):
-        
-        if len(q.get("Options", [])) > 0 and q.get("Options", [])[0].get("Type") == "CheckBox":
+        q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"]}
+        if q.get("selection") == "multiple":
             # add multi-select
             options = [{"key": o["Name"], "value": str(o["LookupId"])} for o in q["Options"]]
-            q_transformed = {"text": q["Label"], "input_type": "multi-select", "data_key": q["datakey"], "options": options}
-            questions_data_transformed.append(q_transformed)
+            q_transformed.update({"input_type": "multi-select", "options": options, "anyRadioButton": q.get("anyRadioButton")})
+        elif q.get("selection") == "single":
+            q_transformed["buttons"] = [{"payload": str(val.get("LookupId")), "title": val.get("Name")} for val in q.get("Options", [])]
+        else:
+            continue
+        questions_data_transformed.append(q_transformed)
     return questions_data_transformed, []
             

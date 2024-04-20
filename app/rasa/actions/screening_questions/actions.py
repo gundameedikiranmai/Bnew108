@@ -266,7 +266,7 @@ def utter_screening_question(dispatcher, tracker, questions_data, n_history, go_
     if input_type == "date":
         add_date_utterance(dispatcher)
     elif input_type == "multi-select":
-        add_multiselect_utterance(dispatcher, qdata["options"])
+        add_multiselect_utterance(dispatcher, qdata["options"], qdata["anyRadioButton"])
 
 
 def sync_screening_responses(tracker):

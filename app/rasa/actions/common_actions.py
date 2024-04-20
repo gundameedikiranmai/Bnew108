@@ -136,9 +136,10 @@ def add_date_utterance(dispatcher):
     dispatcher.utter_message(json_message=utt)
 
 
-def add_multiselect_utterance(dispatcher, options):
+def add_multiselect_utterance(dispatcher, options, radio_buttons):
     utt = {
         "ui_component": "multi-select",
-        "options": options
+        "options": options,
+        "anyRadioButton": radio_buttons
     }
     dispatcher.utter_message(json_message=utt)
