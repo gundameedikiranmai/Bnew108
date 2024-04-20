@@ -12,13 +12,13 @@ url = "http://localhost:8000"
 # url = "http://52.40.250.118:8888"
 
 # https://chatbot1.curately.ai/
-# url = "http://52.13.235.156:8888"
+# url = "http://54.190.26.156:8888"
 # url = "http://localhost:6005/webhooks/nlu"
-# UUID = str(uuid.uuid1())
-UUID = "b427d0d6-d7b9-11ee-a431-f1eadb86a44c"
+UUID = str(uuid.uuid1())
+# UUID = "a5f0f40e-e432-11ee-ac7b-efd575c2545b"
 chatbot_type = "1"
 
-resume_1 = ("Dave Paterson.docx", 'Dave Paterson.docx')
+resume_1 = ("Resume Samples/Dave Paterson.docx", 'Dave Paterson.docx')
 resume_2 = ("Resume Samples/IT Specialist_Resume.docx", 'IT Specialist_Resume.docx')
 
 def send_to_rasa(usr_msg):
@@ -45,7 +45,7 @@ def send_to_rasa(usr_msg):
         if msg.get("custom", {}).get("ui_component") == "select_job":
             log_jobs = []
             for j in msg.get("custom", {}).get("jobs"):
-                log_jobs.append({key: value for key, value in j.items() if key in ["requisitionId_", "title_"]})
+                log_jobs.append({key: value for key, value in j.items() if key in ["jobId", "jobTitle"]})
             msg["custom"]["jobs"] = log_jobs
         print("Bot:\n", msg, "\n")
 
