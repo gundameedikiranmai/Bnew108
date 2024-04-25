@@ -87,6 +87,7 @@ The chatbot message to display the multi-select UI component will be as follows:
                 "Type": "RadioButton",
                 "LookupId": 10013004
             },
+            "is_back_button_enabled": true
 
         }
     }
