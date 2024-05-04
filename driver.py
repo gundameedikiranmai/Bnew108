@@ -90,22 +90,30 @@ def screening_questions():
     send_to_rasa("01/01/1960")
 
 def answer_job_title():
-    send_to_rasa('/input_job_title{"job_title": "Java Developer"}')
+    send_to_rasa('/input_job_title{"job_title": "Python Developer"}')
 
 def answer_job_location():
     send_to_rasa('/input_job_location{"job_location": "GA"}')
 
 def send_job():
-    send_to_rasa('/input_select_job{"select_job": "227842"}')
+    send_to_rasa('/input_select_job{"select_job": "1495"}')
 
 def custom_msgs():
     msgs = [
-        '/input_select_job{"select_job": "788865"}',
+        '/input_select_job{"select_job": "149577777"}',
         '1234567890',
-        'working freelance',
-        'available soon',
-        'freelancer',
-        'remote',
+        # 'working freelance',
+        # 'available soon',
+        # 'freelancer',
+        # 'remote',
+
+        "10010001,10010002",
+        "10011001",
+        "10019005",
+        "10013001,10013003",
+        "10019001",
+        "1",
+        "2",
 
         # greet
         # "/explore_jobs",
@@ -164,8 +172,8 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, s
 send_to_rasa("/restart")
 send_to_rasa("/greet")
 
-# explore_jobs(is_upload_resume=True, resume=resume_1)
-# custom_msgs()
+explore_jobs(is_upload_resume=True, resume=resume_1)
+custom_msgs()
 
 # explore_jobs(is_upload_resume=True, refine_job_search="location", start_new="true")
 

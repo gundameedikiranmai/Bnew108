@@ -205,7 +205,26 @@ class ViewEditPreferencesAction(Action):
         dispatcher.utter_message(template="utter_ask_view_edit_preferences_text")
         screening_response_txt = ""
         for q, a in zip(questions_data, screening_question_history):
-            screening_response_txt += f"{q['data_key']}: {a}\n"
+            if len(q.get("buttons", [])) > 0:
+                for button in q.get("buttons"):
+                    if a == button["payload"]:
+                        screening_response_txt += f"{q['data_key']}: {button['title']}\n"
+                        break
+            elif len(q.get("options", [])) > 0:
+                options = q.get("options")
+                if q.get("anyRadioButton") is not None:
+                    options.append({"key": q.get("anyRadioButton").get("Name"), "value": str(q.get("anyRadioButton").get("LookupId"))})
+                choice_keys = []
+                for choice in a.split(","):
+                    choice = choice.strip()
+                    for option in options:
+                        # print(option, choice)
+                        if choice == option["value"]:
+                            choice_keys.append(option["key"])
+                            break
+                screening_response_txt += f"{q['data_key']}: {', '.join(choice_keys)}\n"
+            else:
+                screening_response_txt += f"{q['data_key']}: {a}\n"
         dispatcher.utter_message(text=screening_response_txt.strip())
         dispatcher.utter_message(template="utter_ask_view_edit_preferences_buttons")
 
