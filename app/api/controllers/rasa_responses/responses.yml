@@ -42,7 +42,7 @@ responses:
   utter_screening_go_back:
   - text: Let's revisit the previous question.
   utter_screening_show_back_prompt:
-  - text: "Remember, you can return to the previous question anytime by typing 'back'"
+  - text: "Remember, you can return to the previous question anytime by typing 'back' or selecting the 'Back' option"
   utter_ask_email:
   - text: May I have your email address for further communication?
   utter_email_invalid :
