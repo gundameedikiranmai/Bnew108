@@ -7,7 +7,7 @@ from rasa_sdk import Tracker, FormValidationAction, Action
 from rasa_sdk.events import EventType, SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
-from actions.screening_questions.actions import utter_screening_question
+from actions.screening_questions.actions import utter_screening_question, get_label_from_lookupid
 import actions.utils as utils
 import actions.config_values as cfg
 
@@ -99,18 +99,21 @@ class AskScreeningQuestionOptionsAction(Action):
         else:
             last_question = screening_review_context[-1]
             last_answer = None
+            data_key_label = None
             for i, q in enumerate(job_screening_questions):
                 # find the question that matches with the selected choice.
                 if q["data_key"] == last_question:
                     # update the relevant value in screening_question_history slot.
-                    last_answer = screening_question_history[i]
+                    last_answer = get_label_from_lookupid(q, screening_question_history[i])
+                    data_key_label = q.get("data_key_label") if q.get("data_key_label") is not None else q['data_key']
             selected_var = variations[len(screening_review_context) % len(variations)]
-            dispatcher.utter_message(response=f"utter_screening_review_prompt_edit_{selected_var}", slots={"review_question": last_question, "user_response": last_answer})
+            dispatcher.utter_message(response=f"utter_screening_review_prompt_edit_{selected_var}", slots={"review_question": data_key_label, "user_response": last_answer})
             
         buttons = []
         for q in job_screening_questions:
             if q["data_key"] not in screening_review_context:
-                buttons.append({"title": q["data_key"], "payload": q["data_key"]})
+                data_key_label = q.get("data_key_label") if q.get("data_key_label") is not None else q['data_key']
+                buttons.append({"title": data_key_label, "payload": q["data_key"]})
         buttons.append({"title": "No, all good", "payload": "no_all_good"})
         dispatcher.utter_message(buttons=buttons)
         

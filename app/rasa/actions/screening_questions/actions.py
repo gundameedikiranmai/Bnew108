@@ -205,26 +205,10 @@ class ViewEditPreferencesAction(Action):
         dispatcher.utter_message(template="utter_ask_view_edit_preferences_text")
         screening_response_txt = ""
         for q, a in zip(questions_data, screening_question_history):
-            if len(q.get("buttons", [])) > 0:
-                for button in q.get("buttons"):
-                    if a == button["payload"]:
-                        screening_response_txt += f"{q['data_key']}: {button['title']}\n"
-                        break
-            elif len(q.get("options", [])) > 0:
-                options = q.get("options")
-                if q.get("anyRadioButton") is not None:
-                    options.append({"key": q.get("anyRadioButton").get("Name"), "value": str(q.get("anyRadioButton").get("LookupId"))})
-                choice_keys = []
-                for choice in a.split(","):
-                    choice = choice.strip()
-                    for option in options:
-                        # print(option, choice)
-                        if choice == option["value"]:
-                            choice_keys.append(option["key"])
-                            break
-                screening_response_txt += f"{q['data_key']}: {', '.join(choice_keys)}\n"
-            else:
-                screening_response_txt += f"{q['data_key']}: {a}\n"
+            data_key_label = q.get("data_key_label") if q.get("data_key_label") is not None else q['data_key']
+            answer_label = get_label_from_lookupid(q, a)
+            screening_response_txt += f"{data_key_label}: {answer_label}\n"
+        
         dispatcher.utter_message(text=screening_response_txt.strip())
         dispatcher.utter_message(template="utter_ask_view_edit_preferences_buttons")
 
@@ -397,3 +381,25 @@ def submit_user_preferences(tracker):
         logger.info("Set user preference API response: " + str(response.json()))
     else:
         logger.info("No edit required for set user preference")
+
+
+def get_label_from_lookupid(question, answer):
+    if len(question.get("buttons", [])) > 0:
+        for button in question.get("buttons"):
+            if answer == button["payload"]:
+                return button["title"]
+    elif len(question.get("options", [])) > 0:
+        options = question.get("options")
+        if question.get("anyRadioButton") is not None:
+            options.append({"key": question.get("anyRadioButton").get("Name"), "value": str(question.get("anyRadioButton").get("LookupId"))})
+        choice_keys = []
+        for choice in answer.split(","):
+            choice = choice.strip()
+            for option in options:
+                # print(option, choice)
+                if choice == option["value"]:
+                    choice_keys.append(option["key"])
+                    break
+        return ", ".join(choice_keys)
+    else:
+        return answer

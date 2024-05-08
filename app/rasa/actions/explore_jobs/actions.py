@@ -529,7 +529,7 @@ def parse_form_bulder_json(resp_json, tracker):
 def parse_user_preference_json(resp_json):
     questions_data_transformed = []
     for q in resp_json.get("json", []):
-        q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"]}
+        q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"], "data_key_label": q.get("datakeyLabel")}
         if q.get("selection") == "multiple":
             # add multi-select
             options = [{"key": o["Name"], "value": str(o["LookupId"])} for o in q["Options"]]
