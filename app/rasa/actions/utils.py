@@ -28,10 +28,10 @@ def get_metadata_field(tracker, field):
             return None, []
 
 
-def accuick_job_apply(candidate_id, job_id, client_id):
+def accuick_job_apply(user_id, job_id, client_id):
     is_success = False
     payload = {
-        "userId": get_default_slot_value(candidate_id),
+        "userId": get_default_slot_value(user_id),
         "accuickJobId": job_id,
         "source": "ChatBot",
         "clientId": client_id

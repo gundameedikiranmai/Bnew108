@@ -61,14 +61,18 @@ def upload_resume(resume):
     payload = {
         "sender": UUID,
         "metadata": json.dumps({
-            "job_id": "2"
+            "job_id": "1",
+            "chatbot_type": chatbot_type,
+            "job_location": 'GA',
+            "ip_address": "1.1.1.2",
+            "client_id": "2"
         }),
     }
     response = requests.request("POST", api_url, data=payload, files=files)
     print(response.status_code, response.text)
     resp = response.json()
     print(json.dumps(resp, indent=4))
-    return resp["candidate_id"]
+    return str(resp["userId"])
 
 
 def ask_a_question():
@@ -78,9 +82,9 @@ def ask_a_question():
         send_to_rasa(msg)
 
 def send_resume_message(resume):
-    candidate_id = upload_resume(resume)
-    # candidate_id = "1234"
-    send_to_rasa('/input_resume_upload_data{"candidate_id": "' + candidate_id + '"}')
+    user_id = upload_resume(resume)
+    # user_id = "1234"
+    send_to_rasa('/input_resume_upload_data{"user_id": "' + user_id + '"}')
 
 
 def screening_questions():

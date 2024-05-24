@@ -145,11 +145,11 @@ class AskEmailAction(AskUtteranceWithPlaceholderAction):
     def __init__(self):
         self.set_params("email", cfg.PLACEHOLDER_EMAIL)
 
-class AskEmailAction(AskUtteranceWithPlaceholderAction):
+class AskPhoneNumberAction(AskUtteranceWithPlaceholderAction):
     def __init__(self):
         self.set_params("phone_number", cfg.PLACEHOLDER_PHONE_NUMBER)
 
-class AskEmailAction(AskUtteranceWithPlaceholderAction):
+class AskFullNameAction(AskUtteranceWithPlaceholderAction):
     def __init__(self):
         self.set_params("full_name", cfg.PLACEHOLDER_FULL_NAME)
 
@@ -351,11 +351,11 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
 
 
 def submit_user_preferences(tracker):
-    candidate_id = tracker.get_slot("candidate_id")
-    if candidate_id is None:
-        logger.error("Could not submit user preferences because candidate_id is null")
+    user_id = tracker.get_slot("user_id")
+    if user_id is None:
+        logger.error("Could not submit user preferences because user_id is null")
         return
-    get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + candidate_id).json()
+    get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
     is_edit = False
     # print(get_response)
     for item in get_response["json"]:
@@ -375,7 +375,7 @@ def submit_user_preferences(tracker):
                     break
     
     if is_edit:
-        get_response["userId"] = candidate_id
+        get_response["userId"] = user_id
         logger.info("Sending set user preference payload: " + str(get_response))
         response = requests.post(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_POST_URL, json=get_response)
         logger.info("Set user preference API response: " + str(response.json()))

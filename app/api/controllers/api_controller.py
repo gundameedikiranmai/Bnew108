@@ -23,21 +23,22 @@ router = APIRouter()
 # helper methods
 def upload_new_resume(form_data):
     resume_file = form_data["resume"]
+    metadata = json.loads(form_data["metadata"])
     try:
-        url = "https://app.curately.ai/Accuick_API/Curately/Chatbot/resumeUpload.jsp"
+        url = "https://api.curately.ai/QADemoCurately/resumeMe"
         
         files=[
             ('resume',(resume_file.filename, resume_file.file, resume_file.content_type))
         ]
         logger.info(resume_file.content_type + ", " + resume_file.filename)
-        response = requests.request("POST", url, files=files, data={"clientId": "2"})
+        response = requests.request("POST", url, files=files, data={"clientId": metadata.get("client_id")})
         # response = requests.request("POST", url, data=payload)
         resp = response.json()
         logger.info("Resume Upload API response:" + json.dumps(resp, indent=4))
 
         # TODO add integration with resume upload api
         # metadata = json.loads(form_data["metadata"]) if "metadata" in form_data else None
-        # message = '/input_resume_upload_data{"candidate_id": "1234"}'
+        # message = '/input_resume_upload_data{"user_id": "1234"}'
         # rasa_payload = RasaWebhook(sender=form_data["sender"], message=message, metadata=metadata)
 
         past_job_titles = resp.get("jobTitles", [])
@@ -50,9 +51,9 @@ def upload_new_resume(form_data):
             job_location = "ignore"
 
         slots = {
-            "phone_number": resp.get("phone-number", "").strip(),
-            "full_name": resp.get("full-name_1", "").strip(),
-            "first_name": resp.get("full-name", "").strip(),
+            "phone_number": resp.get("phoneNo", "").strip(),
+            "full_name": resp.get("firstName", "").strip() + resp.get("lastName", "").strip(),
+            "first_name": resp.get("firstName", "").strip(),
             "email": resp.get("email", "").strip(),
             "job_title": job_title,
             "update_contact_details": "ignore",
@@ -62,11 +63,11 @@ def upload_new_resume(form_data):
         utils.add_slot_set_events(form_data["sender"], slots)
 
         # return rasa_webhook(rasa_payload)
-        return utils.JsonResponse({"message": resp["message"], "success": True, "candidate_id": resp["UserId"]}, 200)
+        return utils.JsonResponse(resp, 200)
     except Exception as e:
         logger.error("Could not upload resume.")
         logger.error(e)
-        return utils.JsonResponse({"message": "could not upload resume.", "success": False, "candidate_id": None}, 200)
+        return utils.JsonResponse({"message": "could not upload resume.", "success": False, "user_id": None}, 200)
 
 
 # helper methods
@@ -79,8 +80,8 @@ def reupload_resume(form_data, tracker_slots):
             ('resume',(resume_file.filename, resume_file.file, resume_file.content_type))
         ]
         logger.info(resume_file.content_type + ", " + resume_file.filename)
-        print(tracker_slots.get("candidate_id"))
-        response = requests.request("POST", url, files=files, data={"clientId": "2", "userId": tracker_slots.get("candidate_id") })
+        print(tracker_slots.get("user_id"))
+        response = requests.request("POST", url, files=files, data={"clientId": "2", "userId": tracker_slots.get("user_id") })
         # response = requests.request("POST", url, data=payload)
         resp = response.json()
         logger.info("Resume RE-Upload API response:" + json.dumps(resp, indent=4))
@@ -112,11 +113,11 @@ def reupload_resume(form_data, tracker_slots):
         utils.add_slot_set_events(form_data["sender"], slots)
 
         # return rasa_webhook(rasa_payload)
-        return utils.JsonResponse({"message": resp["message"], "success": True, "candidate_id": str(resp["UserId"])}, 200)
+        return utils.JsonResponse({"message": resp["message"], "success": True, "user_id": str(resp["UserId"])}, 200)
     except Exception as e:
         logger.error("Could not re-upload resume.")
         logger.error(e)
-        return utils.JsonResponse({"message": "could not upload resume.", "success": False, "candidate_id": None}, 200)
+        return utils.JsonResponse({"message": "could not upload resume.", "success": False, "user_id": None}, 200)
 
 
 @router.post("/upload_resume")
@@ -128,9 +129,9 @@ async def upload_resume(request: Request):
     tracker = utils.get_tracker_from_rasa(form_data["sender"])
     # tracker = utils.get_tracker_from_rasa("bde2192c-d6d0-11ee-a10e-2be33777c5fe")
 
-    logger.info(f'candidate id: {tracker.get("slots", {}).get("candidate_id")}')
+    logger.info(f'candidate id: {tracker.get("slots", {}).get("user_id")}')
 
-    if tracker.get("slots", {}).get("candidate_id") is not None:
+    if tracker.get("slots", {}).get("user_id") is not None:
         return reupload_resume(form_data=form_data, tracker_slots=tracker.get("slots", {}))
     else:
         return upload_new_resume(form_data)

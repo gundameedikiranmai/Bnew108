@@ -14,7 +14,7 @@ entities:
 - job_title
 - job_location
 - select_job
-- candidate_id
+- user_id
 - refine_job_search_field
 forms:
   explore_jobs_form:
@@ -67,7 +67,7 @@ slots:
     mappings:
     - type: from_entity
       intent: input_resume_upload_data
-      entity: candidate_id
+      entity: user_id
       conditions:
       - active_loop: explore_jobs_form
         requested_slot: resume_upload
@@ -174,7 +174,7 @@ slots:
     influence_conversation: false
     mappings:
     - type: custom
-  candidate_id:
+  user_id:
     type: text
     influence_conversation: false
     mappings:

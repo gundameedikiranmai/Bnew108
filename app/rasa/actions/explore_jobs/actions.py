@@ -138,7 +138,7 @@ class ValidateExploreJobsForm(FormValidationAction):
             result_dict["is_resume_upload"] = None
             result_dict["update_contact_details"] = "ignore"
         else:
-            result_dict["candidate_id"] = slot_value
+            result_dict["user_id"] = slot_value
         
         if tracker.get_slot("first_name") is not None and tracker.get_slot("is_resume_parsing_done") is not None:
             # the validate method is running after doing resume parsing
@@ -207,7 +207,7 @@ class AskIsResumeUploadAction(Action):
 
 class AskResumeUploadAction(AskCustomBaseAction):
     def __init__(self):
-        self.set_params(entity_name="candidate_id", intent_name="input_resume_upload_data", ui_component="resume_upload", action_name="resume_upload")
+        self.set_params(entity_name="user_id", intent_name="input_resume_upload_data", ui_component="resume_upload", action_name="resume_upload")
 
     def run(
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
@@ -458,8 +458,8 @@ def get_screening_questions_for_job_id(tracker):
             return [], [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
         logger.info("using default form builder questions")
         #
-        candidate_id = tracker.get_slot("candidate_id")
-        get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + candidate_id).json()
+        user_id = tracker.get_slot("user_id")
+        get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
         questions_data_transformed, result = parse_user_preference_json(get_response)
         # 
 
