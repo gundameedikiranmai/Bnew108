@@ -13,7 +13,9 @@ The bot request format is:
     "metadata": {
         "chatbot_type": "1", // "1" or "2"
         "job_location": "TX" // job location from cookie,
-        "ip_address": "0.0.0.0"
+        "ip_address": "0.0.0.0",
+        "client_id": "2",
+        "user_id": None or "1234" //data type is string.
     }
 }
 ```
@@ -43,3 +45,8 @@ If buttons array is provided, then the text input box should not be shown.
 
 ### Identifying existing session
 The UI should store the UUID in local storage and use it for sending chatbot messages. If local storage is empty, initialize new UUID and store it.
+
+
+### Synchronising with Career Page
+Whenever the user uploads the resume in Career Page, the UI container should set the value of "user_id" in metadata and refresh the session, i.e. clear existing messages in Chatbot window and send "/restart" and "/greet". The chatbot will pick up the user_id value and fetch the user details using the backend api and present the option of continue job exploration.
+

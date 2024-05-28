@@ -149,7 +149,7 @@ Selecting upload resume will return a message to invoke the file upload custom c
         "custom": {
             "ui_component": "resume_upload",
             "intent": "input_resume_upload_data",
-            "entity": "candidate_id",
+            "entity": "user_id",
             "placeholder_text": "Upload your resume",
             "is_cancel_allowed": true,
             "cancel_message": "/deny"
@@ -173,15 +173,15 @@ headers: { "Content-Type": "multipart/form-data" },
 
 This api will return the following data upon success:
 ```
-{"message": "uploaded", "success": true, "candidate_id": "1234"}
+{"message": "uploaded", "success": true, "user_id": "1234"}
 ```
 
-The ui should then take the `candidate_id` and send it to the webhook as the next message based using the intent and entity names provided in the previous chatbot message.
+The ui should then take the `user_id` and send it to the webhook as the next message based using the intent and entity names provided in the previous chatbot message.
 
 ```
 {
     "sender": "67da43a0-233f-11ee-ac10-c93ce56524ba",
-    "message": "/input_resume_upload_data{\"candidate_id\": \"1234\"}",
+    "message": "/input_resume_upload_data{\"user_id\": \"1234\"}",
     "metadata": {}
 }
 
@@ -194,16 +194,23 @@ The upload resume on the api returns the following parsed data:
 
 ```
 {
-    "phone-number": "",
-    "jobTitles": [
-        "Senior IT Specialist",
-        ...
-    ],
-    "location": "",
-    "message": "Resume uploaded successfully.",
-    "candidateId": "9517024",
-    "full-name": "Jannet Morgan",
-    "email": "jannet.j.morgan@me.com"
+    "Success": true,
+    "Status": 200,
+    "Message": "Upload resume successful",
+    "firstName": "Dave",
+    "lastName": "Paterson",
+    "userId": 39638,
+    "email": "accuicktest2@gmail.com",
+    "phoneNo": "",
+    "cityName": "",
+    "stateName": "",
+    "zipcode": "",
+    "countryName": "",
+    "weburl": "",
+    "address": "",
+    "apt": "",
+    "jobTitle": "Java Full Stack Developer",
+    "firsttimeUpload": false
 }
 ```
 
