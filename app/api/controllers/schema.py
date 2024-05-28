@@ -10,6 +10,7 @@ class Metadata(BaseModel):
     job_location: Optional[str] = None
     ip_address: str = None
     client_id: str = "1"
+    user_id: Optional[str] = None
     # channel : str
 
 class RasaWebhook(BaseModel):

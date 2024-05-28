@@ -41,8 +41,7 @@ def upload_new_resume(form_data):
         # message = '/input_resume_upload_data{"user_id": "1234"}'
         # rasa_payload = RasaWebhook(sender=form_data["sender"], message=message, metadata=metadata)
 
-        past_job_titles = resp.get("jobTitles", [])
-        job_title = past_job_titles[0] if len(past_job_titles) > 0 else None
+        job_title = resp.get("jobTitle", "").strip()
         job_location = resp.get("location", "").strip()
 
         if job_title is None and job_location == "":

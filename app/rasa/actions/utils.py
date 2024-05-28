@@ -91,3 +91,36 @@ def get_synced_sender_data(sender_id):
     url = os.getenv("API_SERVER_URL")
     resp = requests.get(url + "/api/get_synced_sender_data/", params={"sender_id": sender_id}).json()
     return resp
+
+
+def get_user_details(client_id, user_id):
+    slots = []
+    first_name = None
+    try:
+        resp = requests.get(cfg.GET_USER_DETAILS_API.format(client_id=client_id, user_id=user_id)).json()
+        logger.info(f"get user details user_id={user_id}\n" + json.dumps(resp, indent=4))
+        slot_mapping = {
+            "resume_upload": user_id,
+            "phone_number": resp.get("phoneNo", "").strip(),
+            "full_name": resp.get("firstName", "").strip() + resp.get("lastName", "").strip(),
+            "first_name": resp.get("firstName", "").strip(),
+            "email": resp.get("email", "").strip(),
+            "job_title": resp.get("jobTitle", "").strip(),
+            "update_contact_details": "ignore",
+            # "is_resume_parsing_done": "true"
+        }
+        for key, value in slot_mapping.items():
+            if value is not None and len(value) > 0:
+                slots.append( SlotSet(key, value) )
+        
+        slots += [SlotSet("is_resume_upload", True)]
+        
+        if len(slot_mapping.get("first_name").strip()) > 0:
+            first_name = slot_mapping.get("first_name").strip()
+
+        logger.info(slots)
+
+    except Exception as e:
+        logger.error(e)
+        logger.error("Could not fetch user details")
+    return slots, first_name

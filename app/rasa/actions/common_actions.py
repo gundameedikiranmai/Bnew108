@@ -106,8 +106,17 @@ class ActionUtterGreet(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict, **kwargs
     ) -> List[EventType]:
         _, result = utils.get_metadata_field(tracker, "ip_address")
-        _, result1 = utils.get_metadata_field(tracker, "client_id")
-        if tracker.get_slot("first_name") is not None:
+        client_id, result1 = utils.get_metadata_field(tracker, "client_id")
+        user_id_in_session = tracker.get_slot("resume_upload")
+        user_id, _ = utils.get_metadata_field(tracker, "user_id")
+        first_name = tracker.get_slot("first_name")
+        user_slots = []
+
+        if user_id is not None and user_id_in_session is None:
+            # only fetch new user details if user_id_in_session is not present and user_id value is present.
+            user_slots, first_name = utils.get_user_details(client_id, user_id)
+
+        if first_name is not None:
             dispatcher.utter_message(response="utter_greet_known")
         else:
             dispatcher.utter_message(response="utter_greet_unknown")
@@ -117,7 +126,7 @@ class ActionUtterGreet(Action):
             result += [SlotSet("resume_last_search", None)]
         else:
             result += [SlotSet("resume_last_search", "ignore")]
-        return result + result1
+        return result + result1 + user_slots
 
 
 def add_placeholder_utterance(dispatcher, placeholder_text):
