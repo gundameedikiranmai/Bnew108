@@ -17,6 +17,8 @@ url = "http://localhost:8000"
 UUID = str(uuid.uuid1())
 # UUID = "a5f0f40e-e432-11ee-ac7b-efd575c2545b"
 chatbot_type = "1"
+user_id = "39638"
+# user_id = None
 
 resume_1 = ("Resume Samples/Dave Paterson.docx", 'Dave Paterson.docx')
 resume_2 = ("Resume Samples/IT Specialist_Resume.docx", 'IT Specialist_Resume.docx')
@@ -30,7 +32,8 @@ def send_to_rasa(usr_msg):
             "chatbot_type": chatbot_type,
             "job_location": 'GA',
             "ip_address": "1.1.1.2",
-            "client_id": "2"
+            "client_id": "2",
+            "user_id": user_id
         },
     }
 
@@ -65,7 +68,8 @@ def upload_resume(resume):
             "chatbot_type": chatbot_type,
             "job_location": 'GA',
             "ip_address": "1.1.1.2",
-            "client_id": "2"
+            "client_id": "2",
+            "user_id": user_id
         }),
     }
     response = requests.request("POST", api_url, data=payload, files=files)
@@ -176,8 +180,8 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, s
 send_to_rasa("/restart")
 send_to_rasa("/greet")
 
-explore_jobs(is_upload_resume=True, resume=resume_1)
-custom_msgs()
+# explore_jobs(is_upload_resume=True, resume=resume_1)
+# custom_msgs()
 
 # explore_jobs(is_upload_resume=True, refine_job_search="location", start_new="true")
 
