@@ -279,50 +279,52 @@ class AskSelectJobAction(AskCustomBaseAction):
     def __init__(self):
         self.set_params("select_job")
     
-    def fetch_jobs(self, tracker):
-        location = utils.get_default_slot_value(tracker.get_slot("job_location")).strip()
-        city, state, zipcode = "", "", ""
-        if len(location) == 5:
-            zipcode = location
-        elif not (" " in location or "," in location) or len(location) == 2:
-            state = location
-        elif "," in location:
-            locs = location.split(",")
-            city = locs[0].strip()
-            state = locs[1].strip()
-            if len(locs) > 2:
-                zipcode = locs[2].strip()
-        payload = {
-            "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
-            "city": city,
-            "state": state,
-            "zipcode": zipcode,
-            "radius": "50",
-            "daysback": "",
-            "isRemote": "",
-            "jobType": "",
-            "clientids": tracker.get_slot("client_id"),
-            "next": 0,
-            "type": "",
-        }
-        # payload = {
-        #     "jobquery": [
-        #         {
-        #             "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
-        #             "clientId": tracker.get_slot("client_id"),
-        #             "jobType": "All Job Types",
-        #             "datePosted": "0",
-        #             "locationFilters": [
-        #                 {"address": utils.get_default_slot_value(tracker.get_slot("job_location")), "regionCode": "", "distanceInMiles": 0}
-        #             ],
-        #         }
-        #     ],
-        #     "searchMode": "JOB_SEARCH",
-        #     "disableKeywordMatch": False,
-        #     "enableBroadening": True,
-        #     "keywordMatchMode": "KEYWORD_MATCH_ALL",
-        #     "offset": 0,
-        # }
+    def fetch_jobs(self, tracker, is_refine_jobs):
+        user_id = tracker.get_slot("user_id")
+
+        if not is_refine_jobs and user_id is not None:
+            # is_refine_jobs is False and user_id is available, send only userId in payload.
+            payload = {
+                "query": "",
+                "city": "",
+                "state": "",
+                "zipcode": "",
+                "radius": "50",
+                "daysback": "",
+                "isRemote": "",
+                "jobType": "",
+                "clientids": tracker.get_slot("client_id"),
+                "next": 0,
+                "userId": user_id,
+                "type": "",
+            }
+        else:
+            # send explicit search parameters
+            location = utils.get_default_slot_value(tracker.get_slot("job_location")).strip()
+            city, state, zipcode = "", "", ""
+            if len(location) == 5:
+                zipcode = location
+            elif not (" " in location or "," in location) or len(location) == 2:
+                state = location
+            elif "," in location:
+                locs = location.split(",")
+                city = locs[0].strip()
+                state = locs[1].strip()
+                if len(locs) > 2:
+                    zipcode = locs[2].strip()
+            payload = {
+                "query": utils.get_default_slot_value(tracker.get_slot("job_title")),
+                "city": city,
+                "state": state,
+                "zipcode": zipcode,
+                "radius": "50",
+                "daysback": "",
+                "isRemote": "",
+                "jobType": "",
+                "clientids": tracker.get_slot("client_id"),
+                "next": 0,
+                "type": "",
+            }
         try:
             logger.info("job search params: " + str(payload))
             job_resp = requests.post(cfg.ACCUICK_SEARCH_JOBS_URL, json=payload)
@@ -346,11 +348,14 @@ class AskSelectJobAction(AskCustomBaseAction):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
         result = []
-        jobs = self.fetch_jobs(tracker)
+        is_refine_jobs = False
         resume_last_search = tracker.get_slot("resume_last_search")
         refine_job_search_field = tracker.get_slot("refine_job_search_field")
         if refine_job_search_field in ["job_title", "job_location"]:
             result += [SlotSet("refine_job_search_field", None)]
+            is_refine_jobs = True
+        
+        jobs = self.fetch_jobs(tracker, is_refine_jobs)
         
         if jobs is None:
             dispatcher.utter_message(response="utter_error_explore_jobs")
