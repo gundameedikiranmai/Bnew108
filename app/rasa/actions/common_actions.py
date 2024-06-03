@@ -117,7 +117,7 @@ class ActionUtterGreet(Action):
             user_slots, first_name = utils.get_user_details(client_id, user_id)
 
         if first_name is not None:
-            dispatcher.utter_message(response="utter_greet_known")
+            dispatcher.utter_message(response="utter_greet_known", slots={"first_name": first_name})
         else:
             dispatcher.utter_message(response="utter_greet_unknown")
         
