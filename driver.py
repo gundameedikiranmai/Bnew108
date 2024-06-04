@@ -8,8 +8,8 @@ url = "http://localhost:8000"
 # Localhost docker
 # url = "http://localhost:8888"
 # SERVER
-# https://chatbot.curately.ai
-# url = "http://52.40.250.118:8888"
+# UAT
+url = "http://44.230.177.187:8888"
 
 # https://chatbot1.curately.ai/
 # url = "http://54.190.26.156:8888"
@@ -17,8 +17,8 @@ url = "http://localhost:8000"
 UUID = str(uuid.uuid1())
 # UUID = "a5f0f40e-e432-11ee-ac7b-efd575c2545b"
 chatbot_type = "1"
-user_id = "39638"
-# user_id = None
+# user_id = "39638"
+user_id = None
 
 resume_1 = ("Resume Samples/Dave Paterson.docx", 'Dave Paterson.docx')
 resume_2 = ("Resume Samples/IT Specialist_Resume.docx", 'IT Specialist_Resume.docx')
@@ -148,6 +148,7 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, s
                     answer_job_title()
                 else:
                     send_resume_message(resume)
+                    # answer_job_title()
             else:
                 send_to_rasa("/deny")
                 answer_job_title()
@@ -180,15 +181,15 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, s
 send_to_rasa("/restart")
 send_to_rasa("/greet")
 
-# explore_jobs(is_upload_resume=True, resume=resume_1)
-# custom_msgs()
+explore_jobs(is_upload_resume=True, resume=resume_1)
+custom_msgs()
 
 # explore_jobs(is_upload_resume=True, refine_job_search="location", start_new="true")
 
 # explore_jobs(is_upload_resume=True, cancel=True)
 # explore_jobs(is_upload_resume=False)
 # explore_jobs(is_upload_resume=False, refine_job_search="location")
-# explore_jobs(is_upload_resume=True, refine_job_search="location")
+# explore_jobs(is_upload_resume=True, resume=resume_1, refine_job_search="location")
 
 
 # ask_a_question()
