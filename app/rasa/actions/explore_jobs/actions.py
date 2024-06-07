@@ -332,7 +332,7 @@ class AskSelectJobAction(AskCustomBaseAction):
             if job_resp.status_code == 200:
                 jobs = job_resp.json().get("List", [])
                 logger.info(f"total job count: {len(jobs)}")
-                applied_jobs = tracker.get_slot("applied_jobs")
+                applied_jobs = set(tracker.get_slot("applied_jobs") + utils.get_applied_jobs_in_portal(user_id))
                 jobs_filtered = [j for j in jobs if str(j["jobId"]) not in applied_jobs]
                 logger.info(f"filtered job count: {len(jobs_filtered)}")
                 jobs_to_show = jobs_filtered[:cfg.N_JOBS_TO_SHOW]

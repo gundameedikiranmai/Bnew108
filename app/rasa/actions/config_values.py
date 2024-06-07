@@ -6,11 +6,13 @@ ACCUICK_SEARCH_JOBS_URL = "https://api.curately.ai/QADemoCurately/sovrenjobsearc
 N_JOBS_TO_SHOW = 20
 ACCUICK_JOBS_FORM_BUILDER_URL = "https://www4.accuick.com/Accuick_API/Curately/Chatbot/getForm.jsp"
 ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL = "https://app.curately.ai/Accuick_API/Curately/Chatbot/getDefaultForm.jsp"
-ACCUICK_JOB_APPLY_URL = "https://api.cxninja.com/DemoCurately/jobsapply"
+ACCUICK_JOB_APPLY_URL = "https://api.curately.ai/QADemoCurately/jobsapply"
 ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = "https://search.accuick.com/Twilio/webhook_chatbot.jsp"
 SCREENING_FORM_BACK_KEYWORD = "BACK"
 
 GET_USER_DETAILS_API = "https://api.curately.ai/QADemoCurately/getUserDetails/{user_id}/{client_id}"
+
+GET_APPLIED_JOBS_URL = "https://api.curately.ai/QADemoCurately/getjobs/{user_id}"
 
 # user preferences
 ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL = "https://api.curately.ai/QADemoCurately/CandidatePreferenceJson/"

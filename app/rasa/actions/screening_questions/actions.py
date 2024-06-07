@@ -307,7 +307,7 @@ def sync_screening_responses(tracker):
 
 def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type):
     sync_screening_responses(tracker)
-    is_success = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job, tracker.get_slot("client_id"))
+    is_success, workflow_url = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job, tracker.get_slot("client_id"))
     applied_jobs = tracker.get_slot("applied_jobs")
     if is_success:
         applied_jobs += [selected_job]
@@ -347,6 +347,14 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
         
     
     dispatcher.utter_message(response="utter_greet", greet=greet_type)
+    
+    # add workflow message
+    if workflow_url is not None and len(workflow_url.strip()) > 0:
+        utt = {
+            "ui_component": "workflow",
+            "workflow_url": workflow_url
+        }
+        dispatcher.utter_message(json_message=utt)
     return result
 
 

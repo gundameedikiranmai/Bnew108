@@ -30,6 +30,7 @@ def get_metadata_field(tracker, field):
 
 def accuick_job_apply(user_id, job_id, client_id):
     is_success = False
+    workflow_url = ""
     payload = {
         "userId": get_default_slot_value(user_id),
         "accuickJobId": job_id,
@@ -41,12 +42,14 @@ def accuick_job_apply(user_id, job_id, client_id):
 
     resp = requests.post(cfg.ACCUICK_JOB_APPLY_URL, json=payload)
     try:
-        logger.info("Job Apply API response: " + str(resp.json()))
+        job_apply_resp = resp.json()
+        logger.info("Job Apply API response: " + str(job_apply_resp))
         is_success = True
+        workflow_url = job_apply_resp.get("workflowURL", "")
     except Exception as e:
         logger.error(e)
         logger.error("Could not submit job application")
-    return is_success
+    return is_success, workflow_url
 
 
 def get_default_slot_value(val, default_val=""):
@@ -124,3 +127,16 @@ def get_user_details(client_id, user_id):
         logger.error(e)
         logger.error("Could not fetch user details")
     return slots, first_name
+
+
+def get_applied_jobs_in_portal(user_id):
+    applied_jobs = []
+    try:
+        if user_id is not None:
+            resp = requests.get(cfg.GET_APPLIED_JOBS_URL.format(user_id=user_id)).json()
+            applied_jobs = [str(job["jobId"]) for job in resp["Jobs"]]
+            logger.info(f"jobs applied in portal={applied_jobs}")
+    except Exception as e:
+        logger.error(e)
+        logger.error(f"Could not applied job details for user_id={user_id}")
+    return applied_jobs
