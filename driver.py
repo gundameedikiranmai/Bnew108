@@ -9,7 +9,7 @@ url = "http://localhost:8000"
 # url = "http://localhost:8888"
 # SERVER
 # UAT
-url = "http://44.230.177.187:8888"
+# url = "http://44.230.177.187:8888"
 
 # https://chatbot1.curately.ai/
 # url = "http://54.190.26.156:8888"
@@ -106,15 +106,8 @@ def answer_job_location():
 def send_job():
     send_to_rasa('/input_select_job{"select_job": "1495"}')
 
-def custom_msgs():
+def answer_preferences():
     msgs = [
-        '/input_select_job{"select_job": "149577777"}',
-        '1234567890',
-        # 'working freelance',
-        # 'available soon',
-        # 'freelancer',
-        # 'remote',
-
         "10010001,10010002",
         "10011001",
         "10019005",
@@ -122,7 +115,15 @@ def custom_msgs():
         "10019001",
         "1",
         "2",
+    ]
+    for msg in msgs:
+        send_to_rasa(msg)
 
+
+def custom_msgs():
+    msgs = [
+        '/input_select_job{"select_job": "143"}',
+        '1234567890',
         # greet
         # "/explore_jobs",
         # "/deny",
@@ -130,6 +131,9 @@ def custom_msgs():
     ]
     for msg in msgs:
         send_to_rasa(msg)
+
+    answer_preferences()
+
 
 def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, start_new="ignore", resume=resume_1):
     send_to_rasa("/explore_jobs")
@@ -214,5 +218,8 @@ while True:
             send_resume_message(resume_1)
         if msg == "r:2":
             send_resume_message(resume_2)
+        continue
+    if "pref:" in msg:
+        answer_preferences()
         continue
     send_to_rasa(msg)
