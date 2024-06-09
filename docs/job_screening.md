@@ -99,3 +99,19 @@ The UI should render the items present in the options array. The key should disp
 For eg, if user selects Remote and Hybrid, UI should send "1,2" as the user message.
 
 any_radio_button will be optional and will either be null or have a dictionary value. It will be used on the UI to select/deselect the checkboxes.
+
+### Workflow URL
+After a job is applied at the end of the preference submission, the job apply url returns a workflowURL in the response. This url value may or may not be present. If it is available, the chatbot will emit a custom utterance which the UI should pick as a trigger for redirecting the user to the provided workflowURL. The bot message will be:
+
+```
+[
+    {
+        "recipient_id": "9917edbe-2641-11ee-8f08-f5235bd2ce38",
+        "custom": {
+            "ui_component": "workflow",
+            "workflow_url": "https://app.curately.ai/workflow/#/stages/uick113-uick13h-uick1vs-uick1ef-cuickzl"
+
+        }
+    }
+]
+```
