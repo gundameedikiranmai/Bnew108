@@ -133,7 +133,9 @@ class ValidateExploreJobsForm(FormValidationAction):
         }
         # resume upload cancel
         if slot_value == "false":
-            dispatcher.utter_message(response="utter_resume_upload_cancel")
+            if tracker.get_slot("requested_slot") == "resume_upload":
+                # utter this message if the resume was cancelled by clicking on the cancel button.
+                dispatcher.utter_message(response="utter_resume_upload_cancel")
             result_dict["resume_upload"] = None
             result_dict["is_resume_upload"] = None
             result_dict["update_contact_details"] = "ignore"
