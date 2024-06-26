@@ -22,6 +22,7 @@ user_id = None
 
 resume_1 = ("Resume Samples/Dave Paterson.docx", 'Dave Paterson.docx')
 resume_2 = ("Resume Samples/IT Specialist_Resume.docx", 'IT Specialist_Resume.docx')
+resume_3 = ("Resume Samples/no_emailid.docx", 'no_emailid.docx')
 
 def send_to_rasa(usr_msg):
     payload = {
@@ -57,7 +58,7 @@ def send_to_rasa(usr_msg):
 
 def upload_resume(resume):
     api_url = url + "/api/upload_resume"
-    resume_path = "/home/dhruv/Downloads/" + resume[0]
+    resume_path = "/Users/dhruv/code/ac/" + resume[0]
     files=[
         ('resume',(resume[1], open(resume_path,'rb'),'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))
     ]
@@ -185,8 +186,8 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, s
 send_to_rasa("/restart")
 send_to_rasa("/greet")
 
-explore_jobs(is_upload_resume=True, resume=resume_1)
-custom_msgs()
+explore_jobs(is_upload_resume=True, resume=resume_3)
+# custom_msgs()
 
 # explore_jobs(is_upload_resume=True, refine_job_search="location", start_new="true")
 
@@ -216,8 +217,10 @@ while True:
     if "r:" in msg:
         if msg == "r:1":
             send_resume_message(resume_1)
-        if msg == "r:2":
+        elif msg == "r:2":
             send_resume_message(resume_2)
+        elif msg == "r:3":
+            send_resume_message(resume_3)
         continue
     if "pref:" in msg:
         answer_preferences()

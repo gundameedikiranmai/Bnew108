@@ -140,3 +140,14 @@ def get_applied_jobs_in_portal(user_id):
         logger.error(e)
         logger.error(f"Could not applied job details for user_id={user_id}")
     return applied_jobs
+
+def sync_email_data(payload):
+    # returns if email exists
+    try:
+        resp = requests.post(cfg.CURATELY_EMAIL_SYNC_API, json=payload).json()
+        logger.info(f"Email sync response: {resp}")
+        return resp.get("Error", False)
+    except Exception as e:
+        logger.error(e)
+        logger.error(f"Could not sync email data")
+    return True

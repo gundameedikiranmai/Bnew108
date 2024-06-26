@@ -47,6 +47,8 @@ responses:
   - text: May I have your email address for further communication?
   utter_email_invalid :
   - text: You have entered an invalid email
+  utter_email_already_exist :
+  - text: This email already exists, please provide a different email.
   utter_ask_phone_number:
   - text: Could you please provide your preferred contact number?
   utter_phone_number_error:

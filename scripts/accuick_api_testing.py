@@ -263,6 +263,16 @@ def get_default_form_builder():
     for x in json.loads(resp["json"])["components"]:
         print(json.dumps(x, indent=4))
 
+def sync_email_data():
+    payload = {
+        "userId": "58507",
+        # "firstName":"Manasa",
+        # "lastName":"Reddy",
+        "clientId": "2",
+        "email": "accuicktest2@gmail.com"
+    }
+    url = "https://api.curately.ai/QADemoCurately/savechatbotinformation"
+    make_request(url, payload)
 # print(get_screening_questions_for_job_id(1))
 # upload_resume()
 
@@ -271,8 +281,9 @@ def get_default_form_builder():
 # job_search()
 # job_search2()
 # job_search3()
-get_form_builder()
+# get_form_builder()
 # get_default_form_builder()
 # upload_resume2()
 # upload_resume3()
 # get_tracker_from_rasa("bde2192c-d6d0-11ee-a10e-2be33777c5fe")
+sync_email_data()

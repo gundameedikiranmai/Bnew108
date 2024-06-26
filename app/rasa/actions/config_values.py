@@ -9,6 +9,7 @@ ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL = "https://app.curately.ai/Accuick_AP
 ACCUICK_JOB_APPLY_URL = "https://api.curately.ai/QADemoCurately/jobsapply"
 ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = "https://search.accuick.com/Twilio/webhook_chatbot.jsp"
 SCREENING_FORM_BACK_KEYWORD = "BACK"
+CURATELY_EMAIL_SYNC_API = "https://api.curately.ai/QADemoCurately/savechatbotinformation"
 
 GET_USER_DETAILS_API = "https://api.curately.ai/QADemoCurately/getUserDetails/{user_id}/{client_id}"
 

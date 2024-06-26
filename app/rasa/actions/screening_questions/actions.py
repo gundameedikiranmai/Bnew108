@@ -33,6 +33,16 @@ class ValidateJobScreeningForm(FormValidationAction):
         logger.info(f"validating input {slot_value}")
         if slot_value is not None and cfg.email_pattern.match(slot_value):
             print("valid email from slot:", slot_value.lower())
+            payload = {
+                "userId": tracker.get_slot("user_id"),
+                "clientId": tracker.get_slot("client_id"),
+                "email": slot_value.lower()
+            }
+            is_email_exist = utils.sync_email_data(payload)
+            if is_email_exist:
+                dispatcher.utter_message(response="utter_email_already_exist")
+                return {"email": None}
+            # email does not exist, accept it and move forward
             return {"email": slot_value.lower()}
         else:
             dispatcher.utter_message(response="utter_email_invalid")
