@@ -38,10 +38,12 @@ class ValidateJobScreeningForm(FormValidationAction):
                 "clientId": tracker.get_slot("client_id"),
                 "email": slot_value.lower()
             }
-            is_email_exist = utils.sync_email_data(payload)
-            if is_email_exist:
-                dispatcher.utter_message(response="utter_email_already_exist")
-                return {"email": None}
+            if slot_value in tracker.latest_message.get("text"):
+                # the email has been entered by user.
+                is_email_exist = utils.sync_email_data(payload)
+                if is_email_exist:
+                    dispatcher.utter_message(response="utter_email_already_exist")
+                    return {"email": None}
             # email does not exist, accept it and move forward
             return {"email": slot_value.lower()}
         else:

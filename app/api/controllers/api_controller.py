@@ -65,13 +65,14 @@ def upload_new_resume(form_data):
         return utils.JsonResponse(resp, 200)
     except Exception as e:
         logger.error("Could not upload resume.")
-        logger.error(e)
+        logger.exception(e)
         return utils.JsonResponse({"message": "could not upload resume.", "success": False, "user_id": None}, 200)
 
 
 # helper methods
 def reupload_resume(form_data, tracker_slots):   
     resume_file = form_data["resume"]
+    metadata = json.loads(form_data["metadata"])
     try:
         url = "https://api.curately.ai/QADemoCurately/reUploadResume"
         
@@ -80,13 +81,11 @@ def reupload_resume(form_data, tracker_slots):
         ]
         logger.info(resume_file.content_type + ", " + resume_file.filename)
         print(tracker_slots.get("user_id"))
-        response = requests.request("POST", url, files=files, data={"clientId": "2", "userId": tracker_slots.get("user_id") })
-        # response = requests.request("POST", url, data=payload)
+        response = requests.request("POST", url, files=files, data={"clientId": metadata.get("client_id"), "userId": tracker_slots.get("user_id") })
         resp = response.json()
         logger.info("Resume RE-Upload API response:" + json.dumps(resp, indent=4))
 
-        past_job_titles = resp.get("jobTitles", [])
-        job_title = past_job_titles[0] if len(past_job_titles) > 0 else None
+        job_title = resp.get("jobTitle", "").strip()
         job_location = resp.get("location", "").strip()
 
         if job_title is None and job_location == "":
@@ -95,8 +94,8 @@ def reupload_resume(form_data, tracker_slots):
             job_location = "ignore"
 
         slots = {
-            "full_name": resp.get("full-name_1", "").strip(),
-            "first_name": resp.get("full-name", "").strip(),
+            "full_name": resp.get("firstName", "").strip() + resp.get("lastName", "").strip(),
+            "first_name": resp.get("firstName", "").strip(),
             "job_title": job_title,
             "is_resume_parsing_done": "true"
         }
@@ -112,10 +111,10 @@ def reupload_resume(form_data, tracker_slots):
         utils.add_slot_set_events(form_data["sender"], slots)
 
         # return rasa_webhook(rasa_payload)
-        return utils.JsonResponse({"message": resp["message"], "success": True, "user_id": str(resp["UserId"])}, 200)
+        return utils.JsonResponse(resp, 200)
     except Exception as e:
         logger.error("Could not re-upload resume.")
-        logger.error(e)
+        logger.exception(e)
         return utils.JsonResponse({"message": "could not upload resume.", "success": False, "user_id": None}, 200)
 
 

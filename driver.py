@@ -15,8 +15,9 @@ url = "http://localhost:8000"
 # url = "http://54.190.26.156:8888"
 # url = "http://localhost:6005/webhooks/nlu"
 UUID = str(uuid.uuid1())
-# UUID = "a5f0f40e-e432-11ee-ac7b-efd575c2545b"
+# UUID = "fb2d98dc-39f0-11ef-ad33-f45c89a10c23"
 chatbot_type = "1"
+client_id = "3"
 # user_id = "39638"
 user_id = None
 
@@ -33,7 +34,7 @@ def send_to_rasa(usr_msg):
             "chatbot_type": chatbot_type,
             "job_location": 'GA',
             "ip_address": "1.1.1.2",
-            "client_id": "2",
+            "client_id": client_id,
             "user_id": user_id
         },
     }
@@ -55,6 +56,9 @@ def send_to_rasa(usr_msg):
 
     return resp
 
+def send_to_rasa_list(msgs):
+    for msg in msgs:
+        send_to_rasa(msg)
 
 def upload_resume(resume):
     api_url = url + "/api/upload_resume"
@@ -69,7 +73,7 @@ def upload_resume(resume):
             "chatbot_type": chatbot_type,
             "job_location": 'GA',
             "ip_address": "1.1.1.2",
-            "client_id": "2",
+            "client_id": client_id,
             "user_id": user_id
         }),
     }
@@ -117,23 +121,29 @@ def answer_preferences():
         "1",
         "2",
     ]
-    for msg in msgs:
-        send_to_rasa(msg)
-
+    send_to_rasa_list(msgs)
 
 def custom_msgs():
     msgs = [
-        '/input_select_job{"select_job": "143"}',
+        '/input_select_job{"select_job": "143444"}',
         '1234567890',
         # greet
         # "/explore_jobs",
         # "/deny",
         # "/affirm"
     ]
-    for msg in msgs:
-        send_to_rasa(msg)
+    send_to_rasa_list(msgs)
 
     answer_preferences()
+
+    # reupload resume
+    msgs = [
+        "/explore_jobs",
+        "/deny",
+        "affirm"
+    ]
+    send_to_rasa_list(msgs)
+    send_resume_message(resume_2)
 
 
 def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, start_new="ignore", resume=resume_1):
@@ -186,8 +196,8 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, s
 send_to_rasa("/restart")
 send_to_rasa("/greet")
 
-explore_jobs(is_upload_resume=True, resume=resume_3)
-# custom_msgs()
+explore_jobs(is_upload_resume=True, resume=resume_1)
+custom_msgs()
 
 # explore_jobs(is_upload_resume=True, refine_job_search="location", start_new="true")
 

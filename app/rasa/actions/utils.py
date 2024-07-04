@@ -47,7 +47,7 @@ def accuick_job_apply(user_id, job_id, client_id):
         is_success = True
         workflow_url = job_apply_resp.get("workflowURL", "")
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         logger.error("Could not submit job application")
     return is_success, workflow_url
 
@@ -124,7 +124,7 @@ def get_user_details(client_id, user_id):
         logger.info(slots)
 
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         logger.error("Could not fetch user details")
     return slots, first_name
 
@@ -137,7 +137,7 @@ def get_applied_jobs_in_portal(user_id):
             applied_jobs = [str(job["jobId"]) for job in resp["Jobs"]]
             logger.info(f"jobs applied in portal={applied_jobs}")
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         logger.error(f"Could not applied job details for user_id={user_id}")
     return applied_jobs
 
@@ -148,6 +148,6 @@ def sync_email_data(payload):
         logger.info(f"Email sync response: {resp}")
         return resp.get("Error", False)
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
         logger.error(f"Could not sync email data")
     return True
