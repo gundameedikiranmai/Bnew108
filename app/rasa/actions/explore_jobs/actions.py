@@ -439,97 +439,25 @@ class ExploreJobsFormSubmit(Action):
 
 ######## utils ########
 def get_screening_questions_for_job_id(tracker):
-    job_id = tracker.get_slot("select_job")
+    if utils.is_default_screening_form_preference_valid(tracker):
+        return [], [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
+    logger.info("using default form builder questions")
+    #
+    user_id = tracker.get_slot("user_id")
+    get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
+    questions_data_transformed, result = parse_user_preference_json(get_response)
+    #
     
-    # read from sample file for now.
-    # sample_questions_path = os.path.join("chatbot_data", "screening_questions", "sample_questions_after_job_apply.json")
-    # questions_data = json.load(open(sample_questions_path, 'r'))["components"]
-    
-    # use hardcoded job id
-    # test job id which has screening questions configured.
-    # payload = {"action":"get","jobId": "1338", "recrId":"1893", "clientId": tracker.get_slot("client_id")}
-    payload = {"action":"get","jobId": job_id, "recrId":"1893", "clientId": tracker.get_slot("client_id")}
+    result += [SlotSet("is_default_screening_questions", True)]
 
-    try:
-        logger.info(f"payload sent: {payload}")
-        resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_URL, json=payload)
-        resp_json = resp.json()
-        questions_data_transformed, result = parse_form_bulder_json(resp_json, tracker)
-    except Exception as e:
-        logger.error(e)
-        logger.error("Could not get form builder questions")
-        questions_data_transformed, result = [], []
-
-    if len(questions_data_transformed) == 0:
-        if utils.is_default_screening_form_preference_valid(tracker):
-            return [], [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
-        logger.info("using default form builder questions")
-        #
-        user_id = tracker.get_slot("user_id")
-        get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
-        questions_data_transformed, result = parse_user_preference_json(get_response)
-        # 
-
-        # resp = requests.post(cfg.ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL, json={"clientId":"2", "action":"get"})
-        # resp_json1 = resp.json()
-        # questions_data_transformed, result = parse_form_bulder_json(resp_json1, tracker)
-        result += [SlotSet("is_default_screening_questions", True)]
-
-        synced_data = utils.get_synced_sender_data(tracker.sender_id)
-        if synced_data.get("data", {}).get("screening_question_history") is not None:
-            # this user has already provided preferences that need to be updated.
-            result += [SlotSet("input_edit_preferences", None), SlotSet("view_edit_preferences", None)]
-        else:
-            # this user is entering preferences for first time.
-            result += [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
-
+    synced_data = utils.get_synced_sender_data(tracker.sender_id)
+    if synced_data.get("data", {}).get("screening_question_history") is not None:
+        # this user has already provided preferences that need to be updated.
+        result += [SlotSet("input_edit_preferences", None), SlotSet("view_edit_preferences", None)]
     else:
-        result += [
-            SlotSet("is_default_screening_questions", False),
-            # don't ask if user want's to edit their preferences.
-            SlotSet("input_edit_preferences", "ignore"),
-            SlotSet("view_edit_preferences", "ignore")
-        ]
+        # this user is entering preferences for first time.
+        result += [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
     
-    return questions_data_transformed, result
-
-
-def parse_form_bulder_json(resp_json, tracker):
-    questions_data = []
-    result = []
-    if len(resp_json["json"].strip()) > 0:
-        # json object is not empty
-        questions_data = json.loads(resp_json["json"])["components"]
-
-    questions_data_transformed = []
-    for q in questions_data:
-        if q["inputType"] in ["attachment", "fileupload"]:
-            # if resume was cancelled, set it to None so that it can be asked later again....
-            if tracker.get_slot("resume_upload") == "false":
-                result += [SlotSet("resume_upload", None)]
-            # resume has a separate slot, don't add in screening questions list
-            continue
-
-        # TODO text put here as adhoc for full_name
-        elif q["fieldType"] in ["ssn", "email", "phone"]:
-            # ignore these input types as they are mandatory.
-            continue
-        
-        q_transformed = {"id": q.get("id"), "input_type": q["inputType"], "data_key": q["datakey"]}
-        if q.get("labelName") is not None:
-            q_transformed["text"] = q.get("labelName")
-        inputType = q.get("inputType")
-        if inputType == "radio":
-            if q.get("fieldType") == "yes/no":
-                q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
-            elif q.get("fieldType") == "multiplechoice":
-                q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("value")} for val in q.get("choices", [])]
-            else:
-                q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
-        elif inputType == "text":
-            pass
-        questions_data_transformed.append(q_transformed)
-
     return questions_data_transformed, result
 
 
