@@ -10,8 +10,8 @@ services:
       context: ./app/api
     restart: always
     container_name: chat_api
-    # env_file:
-    #   - .env
+    env_file:
+      - .env
     environment:
     - APP_CONFIG=config/config.toml
     ports:
@@ -34,8 +34,8 @@ services:
   rasa-core:
     image: rasa/rasa:3.4.0
     container_name: chat_rasa_core
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     volumes:
       - ./app/rasa:/app
 
