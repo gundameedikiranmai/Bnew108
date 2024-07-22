@@ -19,6 +19,7 @@ logger = getLogger(__name__)
 router = APIRouter()
 
 HOST = os.getenv("HOST")
+logger.info(f"Using host: {HOST}")
 
 # tr = utils.get_tracker_from_rasa("585c82d2-d7ba-11ee-a528-475e0d709371")
 # print(tr.get("slots", {}).get("resume_upload"))

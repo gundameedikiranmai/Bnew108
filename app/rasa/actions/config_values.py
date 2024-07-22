@@ -3,6 +3,7 @@ import os, re
 SLOT_IGNORE_VALUES = [None, "", "ignore"]
 
 HOST = os.getenv("HOST")
+print(f"Using host: {HOST}")
 
 ACCUICK_SEARCH_JOBS_URL = f"{HOST}/QADemoCurately/sovrenjobsearch"
 N_JOBS_TO_SHOW = 20
