@@ -9,6 +9,7 @@ url = "http://localhost:8000"
 # url = "http://localhost:8888"
 # SERVER
 # UAT
+# https://chatbotqa.curately.ai/
 # url = "http://44.230.177.187:8888"
 
 # https://chatbot1.curately.ai/

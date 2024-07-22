@@ -1,6 +1,7 @@
 """
 api_controller.py
 """
+import os
 import json
 import requests
 from logging import getLogger
@@ -17,6 +18,8 @@ logger = getLogger(__name__)
 # intents to ignore
 router = APIRouter()
 
+HOST = os.getenv("HOST")
+
 # tr = utils.get_tracker_from_rasa("585c82d2-d7ba-11ee-a528-475e0d709371")
 # print(tr.get("slots", {}).get("resume_upload"))
 
@@ -25,7 +28,7 @@ def upload_new_resume(form_data):
     resume_file = form_data["resume"]
     metadata = json.loads(form_data["metadata"])
     try:
-        url = "https://api.curately.ai/QADemoCurately/resumeMe"
+        url = f"{HOST}/QADemoCurately/resumeMe"
         
         files=[
             ('resume',(resume_file.filename, resume_file.file, resume_file.content_type))
@@ -74,7 +77,7 @@ def reupload_resume(form_data, tracker_slots):
     resume_file = form_data["resume"]
     metadata = json.loads(form_data["metadata"])
     try:
-        url = "https://api.curately.ai/QADemoCurately/reUploadResume"
+        url = f"{HOST}/QADemoCurately/reUploadResume"
         
         files=[
             ('resume',(resume_file.filename, resume_file.file, resume_file.content_type))
