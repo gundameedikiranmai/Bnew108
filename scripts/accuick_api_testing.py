@@ -2,18 +2,12 @@ import requests
 import json
 import os
 
-# url = "https://www4.accuick.com/Accuick/jobs_formbuilder_action.jsp"
-
-# payload = {"action":"get","jobId":"228679","recrId":"1893"}
-
-# resp = requests.post(url, json=payload)
-# print(resp.status_code)
-# contents = json.loads(resp.json()["json"])
-# print(contents)
-# print(json.dumps(contents, indent=4))
+HOST="https://careersqa.curately.ai"
+# HOST="https://api.curately.ai"
 
 
 def make_request(url, payload):
+    print("URL:", url)
     response = requests.post(url, json=payload)
     # print(response.status_code, response.text)
     resp = response.json()
@@ -273,6 +267,15 @@ def sync_email_data():
     }
     url = "https://api.curately.ai/QADemoCurately/savechatbotinformation"
     make_request(url, payload)
+
+def reupload_resume_update_contact_details(user_id, email):
+    payload = {
+        "userId": user_id,
+        "email": email
+    }
+    url = f"{HOST}/QADemoCurately/updateemail"
+    make_request(url, payload)
+
 # print(get_screening_questions_for_job_id(1))
 # upload_resume()
 
@@ -286,4 +289,7 @@ def sync_email_data():
 # upload_resume2()
 # upload_resume3()
 # get_tracker_from_rasa("bde2192c-d6d0-11ee-a10e-2be33777c5fe")
-sync_email_data()
+# sync_email_data()
+# https://careersqa.curately.ai/QADemoCurately/updateemail {'userId': '39638', 'email': 'jannet.j.morgan@me.com'}
+# reupload_resume_update_contact_details("6067", "myrandomemail@yahoo.com")
+reupload_resume_update_contact_details("39638", "jannet.j.morgan@me.com")

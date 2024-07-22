@@ -151,3 +151,18 @@ def sync_email_data(payload):
         logger.exception(e)
         logger.error(f"Could not sync email data")
     return True
+
+def reupload_resume_update_contact_details(user_id, email):
+    try:
+        payload = {
+            "userId": user_id,
+            "email": email
+        }
+        print(cfg.REUPLOAD_RESUME_UPDATE_CONTACT_DETAILS, payload)
+        resp = requests.post(cfg.REUPLOAD_RESUME_UPDATE_CONTACT_DETAILS, json=payload).json()
+        logger.info(f"Email sync response: {resp}")
+        return resp.get("Success", False), resp.get("Message", "")
+    except Exception as e:
+        logger.exception(e)
+        logger.error(f"Could not update contact details")
+    return False, "Backend server is unreachable"

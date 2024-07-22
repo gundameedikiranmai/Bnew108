@@ -13,6 +13,7 @@ ACCUICK_JOB_APPLY_URL = f"{HOST}/QADemoCurately/jobsapply"
 ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = f"{HOST}/Accuick_API/Curately/Webhook/webhook_chatbot.jsp"
 SCREENING_FORM_BACK_KEYWORD = "BACK"
 CURATELY_EMAIL_SYNC_API = f"{HOST}/QADemoCurately/savechatbotinformation"
+REUPLOAD_RESUME_UPDATE_CONTACT_DETAILS = f"{HOST}/QADemoCurately/updateemail"
 
 GET_USER_DETAILS_API = HOST + "/QADemoCurately/getUserDetails/{user_id}/{client_id}"
 

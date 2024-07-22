@@ -109,10 +109,14 @@ class ValidateExploreJobsForm(FormValidationAction):
             "update_contact_details": slot_value
         }
         if slot_value == "true":
-            dispatcher.utter_message(response="utter_update_contact_details_affirm")
             try:
                 contact_details = json.loads(tracker.get_slot("contact_details_temp"))
                 result_dict.update(contact_details)
+                success, err_msg = utils.reupload_resume_update_contact_details(tracker.get_slot("user_id"), contact_details["email"])
+                if success:
+                    dispatcher.utter_message(response="utter_update_contact_details_affirm")
+                else:
+                    dispatcher.utter_message(response="utter_update_contact_details_error", slots={"update_email_error": err_msg})
             except Exception as e:
                 logger.error("Could not read contact_details_temp.")
                 logger.error(e)

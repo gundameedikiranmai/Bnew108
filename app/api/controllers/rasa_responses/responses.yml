@@ -123,6 +123,8 @@ responses:
     text: "Thanks for updating your resume, {first_name}! I noticed your email address and/or phone number seems to be different from what we have on file. Would you like to update your contact details in your profile with this new information?"
   utter_update_contact_details_affirm:
   - text: "Alright, your contact details have been updated successfully. Let's proceed with your job search."
+  utter_update_contact_details_error:
+  - text: "Could not update contact details because : {update_email_error}"
   utter_update_contact_details_deny:
   - text: "Understood, we'll keep your existing contact details. Now, let's move forward with your job search."
   utter_ask_job_title:
