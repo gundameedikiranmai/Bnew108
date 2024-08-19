@@ -19,6 +19,8 @@ GET_USER_DETAILS_API = HOST + "/QADemoCurately/getUserDetails/{user_id}/{client_
 
 GET_APPLIED_JOBS_URL = HOST + "/QADemoCurately/getjobs/{user_id}"
 
+GET_CUSTOM_JOB_FORM = HOST + "/QADemoCurately/getjobdatabase/{job_id}/{client_id}"
+
 # user preferences
 ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL = f"{HOST}/QADemoCurately/CandidatePreferenceJson/"
 ACCUICK_CHATBOT_USER_PREFERENCE_POST_URL = f"{HOST}/QADemoCurately/saveorupdateChatBotPref"

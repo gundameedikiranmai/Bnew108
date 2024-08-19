@@ -448,9 +448,14 @@ def get_screening_questions_for_job_id(tracker):
     logger.info("using default form builder questions")
     #
     user_id = tracker.get_slot("user_id")
+    job_id = tracker.get_slot("select_job")
+    client_id = tracker.get_slot("client_id")
     get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
+    questions_data_transformed1, result1 = parse_custom_json(tracker, job_id, client_id)
     questions_data_transformed, result = parse_user_preference_json(get_response)
     #
+    result += result1
+    questions_data_transformed += questions_data_transformed1
     
     result += [SlotSet("is_default_screening_questions", True)]
 
@@ -468,7 +473,7 @@ def get_screening_questions_for_job_id(tracker):
 def parse_user_preference_json(resp_json):
     questions_data_transformed = []
     for q in resp_json.get("json", []):
-        q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"], "data_key_label": q.get("datakeyLabel")}
+        q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"], "data_key_label": q.get("datakeyLabel"), "is_review_allowed": True}
         if q.get("selection") == "multiple":
             # add multi-select
             options = [{"key": o["Name"], "value": str(o["LookupId"])} for o in q["Options"]]
@@ -479,4 +484,47 @@ def parse_user_preference_json(resp_json):
             continue
         questions_data_transformed.append(q_transformed)
     return questions_data_transformed, []
-            
+
+def parse_custom_json(tracker, job_id, client_id):
+    questions_data_transformed = []
+    result = []
+    try:
+        url = cfg.GET_CUSTOM_JOB_FORM.format(job_id=job_id, client_id=client_id)
+        print(url)
+        resp_json = requests.get(url).json()
+        form = json.loads(resp_json["Job"][0]["json"])
+        for q in form:
+            if q["inputType"] in ["attachment", "fileupload"]:
+            # if resume was cancelled, set it to None so that it can be asked later again....
+                if tracker.get_slot("resume_upload") == "false":
+                    result += [SlotSet("resume_upload", None)]
+                # resume has a separate slot, don't add in screening questions list
+                continue
+
+            # TODO text put here as adhoc for full_name
+            elif q["fieldType"] in ["email", "phone"]:
+                # ignore these input types as they are mandatory.
+                continue
+
+            q_transformed = {"id": q.get("id"), "input_type": q["inputType"], "data_key": q.get("datakey", ""), "is_review_allowed": False}
+            if q.get("labelName") is not None:
+                q_transformed["text"] = q.get("labelName")
+            inputType = q.get("inputType")
+            if inputType == "checkbox":
+                q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
+            elif inputType == "dropdown":
+                q_transformed["buttons"] = [{"payload": val, "title": val} for val in q.get("options", [])]
+            # elif inputType == "date":
+            #     q_transformed["custom"] = {"ui_component": "datepicker", "placeholder_text": "Please select a date"}
+            # else:
+            #     q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
+            elif inputType == "text":
+                if q.get("fieldType") in ["address", "ssn"]:
+                    q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
+            questions_data_transformed.append(q_transformed)
+
+        return questions_data_transformed, result
+
+    except Exception as e:
+        logger.exception(e)
+        logger.error("Could not fetch user details")
