@@ -43,7 +43,39 @@ This component will be shown when datepicker has to be shown. No special intent_
 ]
 ```
 
+#### Address
+```
+[
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "text": "Understood. This question is for capturing address"
+    },
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "custom": {
+            "ui_component": "address",
+            "placeholder_text": "(Text Area) Your Question here"
+        }
+    }
+]
+```
 
+#### SSN
+```
+[
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "text": "This field is to capture SSN"
+    },
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "custom": {
+            "ui_component": "ssn",
+            "placeholder_text": "SSN"
+        }
+    }
+]
+```
 
 ### Initial implementation
 The job screening flow is initiated by sending the following first message.
