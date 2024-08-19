@@ -73,7 +73,7 @@ def is_default_screening_form_preference_valid(tracker):
     #     return True
     
     # TODO replace later, temp limit of 5 minutes
-    if job_screening_questions_last_update_time is not None and (datetime.now() - datetime.fromisoformat(job_screening_questions_last_update_time)).seconds < -5*60:
+    if job_screening_questions_last_update_time is not None and (datetime.now() - datetime.fromisoformat(job_screening_questions_last_update_time)).seconds < 5*60:
         return True
     return False
 

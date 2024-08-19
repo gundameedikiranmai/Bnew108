@@ -443,16 +443,17 @@ class ExploreJobsFormSubmit(Action):
 
 ######## utils ########
 def get_screening_questions_for_job_id(tracker):
-    if utils.is_default_screening_form_preference_valid(tracker):
-        return [], [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
-    logger.info("using default form builder questions")
-    #
-    user_id = tracker.get_slot("user_id")
     job_id = tracker.get_slot("select_job")
     client_id = tracker.get_slot("client_id")
-    get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
-    questions_data_transformed1, result1 = parse_custom_json(tracker, job_id, client_id)
-    questions_data_transformed, result = parse_user_preference_json(get_response)
+    questions_data_transformed, result = parse_custom_json(tracker, job_id, client_id)
+    logger.info("job specific questions obtained.")
+    if utils.is_default_screening_form_preference_valid(tracker):
+        return questions_data_transformed, result + [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
+    
+    #
+    logger.info("getting user preferences.")
+    user_id = tracker.get_slot("user_id")
+    questions_data_transformed1, result1 = parse_user_preference_json(user_id)
     #
     result += result1
     questions_data_transformed += questions_data_transformed1
@@ -470,7 +471,8 @@ def get_screening_questions_for_job_id(tracker):
     return questions_data_transformed, result
 
 
-def parse_user_preference_json(resp_json):
+def parse_user_preference_json(user_id):
+    resp_json = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
     questions_data_transformed = []
     for q in resp_json.get("json", []):
         q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"], "data_key_label": q.get("datakeyLabel"), "is_review_allowed": True}
