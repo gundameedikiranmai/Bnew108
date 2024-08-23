@@ -509,8 +509,9 @@ def parse_custom_json(tracker, job_id, client_id):
                 continue
 
             q_transformed = {"id": q.get("id"), "input_type": q["inputType"], "data_key": q.get("datakey", ""), "is_review_allowed": False}
-            if q.get("labelName") is not None:
-                q_transformed["text"] = q.get("labelName")
+            if q.get("labelName") is None or len(q.get("labelName").strip()) == 0:
+                continue
+            q_transformed["text"] = q.get("labelName")
             inputType = q.get("inputType")
             if inputType == "checkbox":
                 q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
@@ -524,9 +525,7 @@ def parse_custom_json(tracker, job_id, client_id):
                 if q.get("fieldType") in ["address", "ssn"]:
                     q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
             questions_data_transformed.append(q_transformed)
-
-        return questions_data_transformed, result
-
     except Exception as e:
         logger.exception(e)
         logger.error("Could not fetch user details")
+    return questions_data_transformed, result
