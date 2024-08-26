@@ -521,6 +521,8 @@ def parse_custom_json(tracker, job_id, client_id):
             #     q_transformed["custom"] = {"ui_component": "datepicker", "placeholder_text": "Please select a date"}
             # else:
             #     q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
+            elif inputType in ["ssn"]:
+                q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
             elif inputType == "text":
                 if q.get("fieldType") in ["address", "ssn"]:
                     q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
