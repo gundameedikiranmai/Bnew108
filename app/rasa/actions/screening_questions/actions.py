@@ -104,8 +104,16 @@ class ValidateJobScreeningForm(FormValidationAction):
             # set the slots from synced data
             for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
                 result_dict[slot] = synced_data.get("data", {}).get(slot)
-            result_dict["screening_question"] = "ignore"
+            # result_dict["screening_question"] = "ignore"
             result_dict["view_edit_preferences"] = "ignore"
+            
+            # preference questions and the corresponding responses have already been added to the slots
+            # add job specific questions now and ask them.
+            job_screening_questions = tracker.get_slot("job_screening_questions")
+            questions_data = [q for q in job_screening_questions if q["is_review_allowed"] is False]
+            logger.info("filtered questions " + json.dumps(questions_data, indent=4))
+            result_dict["job_screening_questions"] += questions_data
+            result_dict["job_screening_questions_count"] += len(questions_data)
 
         return result_dict
 
@@ -340,12 +348,24 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
     
     if tracker.get_slot("is_default_screening_questions") is True:
         logger.info("saving default screening questions responses in DB.")
-        for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
-            data[slot] = tracker.get_slot(slot)
+        # can't save slot values directly, only user preference slots are required.
+        # for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
+        #     data[slot] = tracker.get_slot(slot)
         result += [
             SlotSet("is_default_screening_questions", False),
             SlotSet("job_screening_questions_last_update_time", current_timestamp),
         ]
+
+        # only save data for user preferences.
+        questions_data_pref = []
+        history_pref = []
+        for q, h in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")):
+            if q["is_review_allowed"] is True:
+                questions_data_pref.append(q)
+                history_pref.append(h)
+        data["job_screening_questions"] = questions_data_pref
+        data["job_screening_questions_count"] = len(questions_data_pref)
+        data["screening_question_history"] = history_pref
     
     # sync sender data
     sync_sender_data_payload = {
