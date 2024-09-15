@@ -98,7 +98,7 @@ def reupload_resume(form_data, tracker_slots):
             job_location = "ignore"
 
         slots = {
-            "full_name": resp.get("firstName", "").strip() + resp.get("lastName", "").strip(),
+            "full_name": resp.get("firstName", "").strip() + " " + resp.get("lastName", "").strip(),
             "first_name": resp.get("firstName", "").strip(),
             "job_title": job_title,
             "is_resume_parsing_done": "true"

@@ -19,11 +19,20 @@ GET_USER_DETAILS_API = HOST + "/QADemoCurately/getUserDetails/{user_id}/{client_
 
 GET_APPLIED_JOBS_URL = HOST + "/QADemoCurately/getjobs/{user_id}"
 
-GET_CUSTOM_JOB_FORM = HOST + "/QADemoCurately/getjobdatabase/{job_id}/{client_id}"
+GET_CUSTOM_JOB_FORM = HOST + "/QADemoCurately/getjobdata/{job_id}/{user_id}/{client_id}"
 
 # user preferences
 ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL = f"{HOST}/QADemoCurately/CandidatePreferenceJson/"
 ACCUICK_CHATBOT_USER_PREFERENCE_POST_URL = f"{HOST}/QADemoCurately/saveorupdateChatBotPref"
+
+# fixed question ids
+FIXED_FORM_BUILDER_PROFILE_IDS = {
+    "b148be5c-c346-4555-969e-8dbc392cb06b": "email",
+    "4fe857a5-ee43-491a-8f7b-9f68f1539d48": "firstName",
+    "04ae1498-154f-4725-bb0d-09d3d92791d0": "lastName",
+    "afd5afa2-9827-4033-9d6c-b0ee121e6eb2": "phoneNo",
+    "37c3a99e-68ec-4cac-a1bf-6d5ae3062b57": "resume",
+}
 
 #### Dynamic form behaviour
 # EXPLORE_JOBS_MATCHING_CRITERIA_SLOTS = [

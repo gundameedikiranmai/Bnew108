@@ -445,7 +445,8 @@ class ExploreJobsFormSubmit(Action):
 def get_screening_questions_for_job_id(tracker):
     job_id = tracker.get_slot("select_job")
     client_id = tracker.get_slot("client_id")
-    questions_data_transformed, result = parse_custom_json(tracker, job_id, client_id)
+    user_id = tracker.get_slot("user_id")
+    questions_data_transformed, result = parse_custom_json(tracker, job_id, client_id, user_id)
     logger.info("job specific questions obtained.")
     if utils.is_default_screening_form_preference_valid(tracker):
         return questions_data_transformed, result + [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
@@ -487,15 +488,40 @@ def parse_user_preference_json(user_id):
         questions_data_transformed.append(q_transformed)
     return questions_data_transformed, []
 
-def parse_custom_json(tracker, job_id, client_id):
+def parse_custom_json(tracker, job_id, client_id, user_id):
     questions_data_transformed = []
     result = []
     try:
-        url = cfg.GET_CUSTOM_JOB_FORM.format(job_id=job_id, client_id=client_id)
+        url = cfg.GET_CUSTOM_JOB_FORM.format(job_id=job_id, client_id=client_id, user_id=user_id)
         print(url)
         resp_json = requests.get(url).json()
-        form = json.loads(resp_json["Job"][0]["json"])
+        # form = json.loads(resp_json["Job"][0]["json"])
+        user_details = resp_json["Job"][0]["userDetails"]
+        form = resp_json["Job"][0]["json"]
         for q in form:
+            # first check hardcoded id's
+            if q["id"] in list(cfg.FIXED_FORM_BUILDER_PROFILE_IDS.keys()):
+                field_name = cfg.FIXED_FORM_BUILDER_PROFILE_IDS[q["id"]]
+                user_details_data = user_details.get(field_name)
+                logger.info(f"-------USER Details, field_name={field_name}, data={user_details_data}")
+                if user_details_data is not None and len(user_details_data) > 0:
+                    if field_name == "email" and tracker.get_slot("email") is None:
+                        logger.info(f"setting EMAIL slot")
+                        result += [SlotSet("email", user_details_data)]
+                    elif field_name == "phoneNo" and tracker.get_slot("phone_number") is None:
+                        logger.info(f"setting PHONE NUMBER slot")
+                        result += [SlotSet("phone_number", user_details_data)]
+                    if field_name == "firstName" and tracker.get_slot("first_name") is None:
+                        logger.info(f"setting FIRST NAME slot")
+                        result += [SlotSet("first_name", user_details_data)]
+                    if field_name == "lastName" and tracker.get_slot("full_name") is None:
+                        first_name = user_details.get("firstName")
+                        if first_name is not None and len(first_name) > 0:
+                            logger.info(f"setting FULL NAME slot")
+                            result += [SlotSet("full_name", f"{first_name} {user_details_data}")]
+                    # we already know the value for this question.
+                    continue
+            
             if q["inputType"] in ["attachment", "fileupload"]:
             # if resume was cancelled, set it to None so that it can be asked later again....
                 if tracker.get_slot("resume_upload") == "false":
