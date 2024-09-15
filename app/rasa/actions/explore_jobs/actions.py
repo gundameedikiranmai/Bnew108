@@ -446,20 +446,28 @@ def get_screening_questions_for_job_id(tracker):
     job_id = tracker.get_slot("select_job")
     client_id = tracker.get_slot("client_id")
     user_id = tracker.get_slot("user_id")
-    questions_data_transformed, result = parse_custom_json(tracker, job_id, client_id, user_id)
+    questions_data_transformed = []
+    questions_data_transformed1 = []
+    result = []
+    result1 = []
+    if user_id is not None:
+        questions_data_transformed, result = parse_custom_json(tracker, job_id, client_id, user_id)
+    else:
+        # resume was not uploaded
+        result += [SlotSet("resume_upload", None)]
+    
     logger.info("job specific questions obtained.")
     if utils.is_default_screening_form_preference_valid(tracker):
         return questions_data_transformed, result + [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
     
     #
-    logger.info("getting user preferences.")
-    user_id = tracker.get_slot("user_id")
-    questions_data_transformed1, result1 = parse_user_preference_json(user_id)
+    if user_id is not None:
+        logger.info("getting user preferences.")
+        questions_data_transformed1, result1 = parse_user_preference_json(user_id)
+        result += [SlotSet("is_default_screening_questions", True)]
     #
     result += result1
     questions_data_transformed += questions_data_transformed1
-    
-    result += [SlotSet("is_default_screening_questions", True)]
 
     synced_data = utils.get_synced_sender_data(tracker.sender_id)
     if synced_data.get("data", {}).get("screening_question_history") is not None:
@@ -473,19 +481,22 @@ def get_screening_questions_for_job_id(tracker):
 
 
 def parse_user_preference_json(user_id):
-    resp_json = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
     questions_data_transformed = []
-    for q in resp_json.get("json", []):
-        q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"], "data_key_label": q.get("datakeyLabel"), "is_review_allowed": True}
-        if q.get("selection") == "multiple":
-            # add multi-select
-            options = [{"key": o["Name"], "value": str(o["LookupId"])} for o in q["Options"]]
-            q_transformed.update({"input_type": "multi-select", "options": options, "anyRadioButton": q.get("anyRadioButton")})
-        elif q.get("selection") == "single":
-            q_transformed["buttons"] = [{"payload": str(val.get("LookupId")), "title": val.get("Name")} for val in q.get("Options", [])]
-        else:
-            continue
-        questions_data_transformed.append(q_transformed)
+    try:
+        resp_json = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
+        for q in resp_json.get("json", []):
+            q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"], "data_key_label": q.get("datakeyLabel"), "is_review_allowed": True}
+            if q.get("selection") == "multiple":
+                # add multi-select
+                options = [{"key": o["Name"], "value": str(o["LookupId"])} for o in q["Options"]]
+                q_transformed.update({"input_type": "multi-select", "options": options, "anyRadioButton": q.get("anyRadioButton")})
+            elif q.get("selection") == "single":
+                q_transformed["buttons"] = [{"payload": str(val.get("LookupId")), "title": val.get("Name")} for val in q.get("Options", [])]
+            else:
+                continue
+            questions_data_transformed.append(q_transformed)
+    except Exception as e:
+        logger.exception(e)
     return questions_data_transformed, []
 
 def parse_custom_json(tracker, job_id, client_id, user_id):

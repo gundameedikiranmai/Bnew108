@@ -114,6 +114,8 @@ responses:
   - text: "Please upload your resume here"
   utter_resume_upload_cancel:
   - text: "Your resume upload was cancelled."
+  utter_resume_upload_cancel_error:
+  - text: "Your resume upload can't be cancelled."
   utter_ask_update_contact_details:
   - buttons:
     - payload: /affirm
