@@ -166,3 +166,133 @@ def reupload_resume_update_contact_details(user_id, email):
         logger.exception(e)
         logger.error(f"Could not update contact details")
     return False, "Backend server is unreachable"
+
+
+########### explore jobs utils ###############
+def get_screening_questions_for_job_id(tracker, user_id=None):
+    job_id = tracker.get_slot("select_job")
+    client_id = tracker.get_slot("client_id")
+    if user_id is None:
+        user_id = tracker.get_slot("user_id")
+    questions_data_transformed = []
+    questions_data_transformed1 = []
+    result = []
+    result1 = []
+    if user_id is not None:
+        questions_data_transformed, result = parse_custom_json(tracker, job_id, client_id, user_id)
+    else:
+        # resume was not uploaded
+        result += [SlotSet("resume_upload", None)]
+    
+    logger.info("job specific questions obtained.")
+    if is_default_screening_form_preference_valid(tracker):
+        return questions_data_transformed, result + [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
+    
+    #
+    if user_id is not None:
+        logger.info("getting user preferences.")
+        questions_data_transformed1, result1 = parse_user_preference_json(user_id)
+        result += [SlotSet("is_default_screening_questions", True)]
+    #
+    result += result1
+    questions_data_transformed += questions_data_transformed1
+
+    synced_data = get_synced_sender_data(tracker.sender_id)
+    if synced_data.get("data", {}).get("screening_question_history") is not None:
+        # this user has already provided preferences that need to be updated.
+        result += [SlotSet("input_edit_preferences", None), SlotSet("view_edit_preferences", None)]
+    else:
+        # this user is entering preferences for first time.
+        result += [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
+    
+    return questions_data_transformed, result
+
+
+def parse_user_preference_json(user_id):
+    questions_data_transformed = []
+    try:
+        resp_json = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
+        for q in resp_json.get("json", []):
+            q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"], "data_key_label": q.get("datakeyLabel"), "is_review_allowed": True}
+            if q.get("selection") == "multiple":
+                # add multi-select
+                options = [{"key": o["Name"], "value": str(o["LookupId"])} for o in q["Options"]]
+                q_transformed.update({"input_type": "multi-select", "options": options, "anyRadioButton": q.get("anyRadioButton")})
+            elif q.get("selection") == "single":
+                q_transformed["buttons"] = [{"payload": str(val.get("LookupId")), "title": val.get("Name")} for val in q.get("Options", [])]
+            else:
+                continue
+            questions_data_transformed.append(q_transformed)
+    except Exception as e:
+        logger.exception(e)
+    return questions_data_transformed, []
+
+def parse_custom_json(tracker, job_id, client_id, user_id):
+    questions_data_transformed = []
+    result = []
+    try:
+        url = cfg.GET_CUSTOM_JOB_FORM.format(job_id=job_id, client_id=client_id, user_id=user_id)
+        print(url)
+        resp_json = requests.get(url).json()
+        # form = json.loads(resp_json["Job"][0]["json"])
+        user_details = resp_json["Job"][0]["userDetails"]
+        form = resp_json["Job"][0]["json"]
+        for q in form:
+            # first check hardcoded id's
+            if q["id"] in list(cfg.FIXED_FORM_BUILDER_PROFILE_IDS.keys()):
+                field_name = cfg.FIXED_FORM_BUILDER_PROFILE_IDS[q["id"]]
+                user_details_data = user_details.get(field_name)
+                logger.info(f"-------USER Details, field_name={field_name}, data={user_details_data}")
+                if user_details_data is not None and len(user_details_data) > 0:
+                    if field_name == "email" and tracker.get_slot("email") is None:
+                        logger.info(f"setting EMAIL slot")
+                        result += [SlotSet("email", user_details_data)]
+                    elif field_name == "phoneNo" and tracker.get_slot("phone_number") is None:
+                        logger.info(f"setting PHONE NUMBER slot")
+                        result += [SlotSet("phone_number", user_details_data)]
+                    if field_name == "firstName" and tracker.get_slot("first_name") is None:
+                        logger.info(f"setting FIRST NAME slot")
+                        result += [SlotSet("first_name", user_details_data)]
+                    if field_name == "lastName" and tracker.get_slot("full_name") is None:
+                        first_name = user_details.get("firstName")
+                        if first_name is not None and len(first_name) > 0:
+                            logger.info(f"setting FULL NAME slot")
+                            result += [SlotSet("full_name", f"{first_name} {user_details_data}")]
+                    # we already know the value for this question.
+                    continue
+            
+            if q["inputType"] in ["attachment", "fileupload"]:
+            # if resume was cancelled, set it to None so that it can be asked later again....
+                if tracker.get_slot("resume_upload") == "false":
+                    result += [SlotSet("resume_upload", None)]
+                # resume has a separate slot, don't add in screening questions list
+                continue
+
+            # TODO text put here as adhoc for full_name
+            elif q["fieldType"] in ["email", "phone"]:
+                # ignore these input types as they are mandatory.
+                continue
+
+            q_transformed = {"id": q.get("id"), "input_type": q["inputType"], "data_key": q.get("datakey", ""), "is_review_allowed": False}
+            if q.get("labelName") is None or len(q.get("labelName").strip()) == 0:
+                continue
+            q_transformed["text"] = q.get("labelName")
+            inputType = q.get("inputType")
+            if inputType == "checkbox":
+                q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
+            elif inputType == "dropdown":
+                q_transformed["buttons"] = [{"payload": val, "title": val} for val in q.get("options", [])]
+            # elif inputType == "date":
+            #     q_transformed["custom"] = {"ui_component": "datepicker", "placeholder_text": "Please select a date"}
+            # else:
+            #     q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
+            elif inputType in ["ssn"]:
+                q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
+            elif inputType == "text":
+                if q.get("fieldType") in ["address", "ssn"]:
+                    q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
+            questions_data_transformed.append(q_transformed)
+    except Exception as e:
+        logger.exception(e)
+        logger.error("Could not fetch user details")
+    return questions_data_transformed, result

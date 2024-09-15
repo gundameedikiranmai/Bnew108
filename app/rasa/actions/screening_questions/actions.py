@@ -22,6 +22,39 @@ class ValidateJobScreeningForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_job_screening_form"
     
+    def validate_resume_upload(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `resume_upload` value."""
+        result_dict = {}
+        if tracker.get_slot("requested_slot") == "resume_upload":
+            result_dict["resume_upload"] = slot_value
+            # resume upload cancel
+            if slot_value == "false":
+                dispatcher.utter_message(response="utter_resume_upload_cancel")
+                result_dict["resume_upload"] = None
+                return result_dict
+            else:
+                result_dict["user_id"] = slot_value
+            
+            # get the screening questions to be asked.
+            questions_data, slots = utils.get_screening_questions_for_job_id(tracker, user_id=slot_value)
+            logger.info("asking questions in Screening Form: {}".format(json.dumps(questions_data, indent=4)))
+            if len(questions_data) > 0:
+                    # set questions to be asked after the selecting a job
+                    result_dict["job_screening_questions"] =  questions_data
+                    result_dict["job_screening_questions_count"] =  len(questions_data)
+                    result_dict["screening_question"] = None
+            for slot in slots:
+                print(slot)
+                result_dict[slot["name"]] = slot["value"]
+        
+        return result_dict
+    
     def validate_email(
         self,
         slot_value: Any,
