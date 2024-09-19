@@ -75,6 +75,8 @@ responses:
     text: Is this correct?
   utter_date_error:
   - text: You have entered an invalid date
+  utter_date_ssn:
+  - text: You have entered an invalid SSN
   # ask_a_question
   utter_start_ask_a_question:
   - text: "Great! I've compiled a list of frequently asked questions to assist you. Please choose one:"

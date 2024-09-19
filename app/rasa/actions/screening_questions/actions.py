@@ -181,6 +181,9 @@ class ValidateJobScreeningForm(FormValidationAction):
         elif input_type == "date" and not utils.validate_date(slot_value):
             dispatcher.utter_message(response="utter_date_error")
             return {"screening_question": None}
+        elif input_type == "ssn" and not utils.validate_ssn(slot_value):
+            dispatcher.utter_message(response="utter_date_ssn")
+            return {"screening_question": None}
         
         result_dict = {
             "screening_question_history": history + [slot_value]

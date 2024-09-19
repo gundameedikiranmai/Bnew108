@@ -61,9 +61,20 @@ def get_default_slot_value(val, default_val=""):
 def validate_date(date_str):
     try:
         given_date = datetime.strptime(date_str, cfg.DATE_FORMAT)
-        today_date = datetime.now()
-        last_valid_date = today_date.replace(year=today_date.year - cfg.DATE_MIN_YEARS_DIFFERENCE)
-        return given_date < last_valid_date
+        # today_date = datetime.now()
+        # last_valid_date = today_date.replace(year=today_date.year - cfg.DATE_MIN_YEARS_DIFFERENCE)
+        # return given_date < last_valid_date
+        return True
+    except ValueError:
+        return False
+
+def validate_ssn(ssn_str):
+    try:
+        is_length = len(ssn_str) == 10
+        if is_length is False:
+            return is_length
+        int_ssn = int(ssn_str)
+        return True
     except ValueError:
         return False
 
@@ -291,6 +302,7 @@ def parse_custom_json(tracker, job_id, client_id, user_id):
             elif inputType == "text":
                 if q.get("fieldType") in ["address", "ssn"]:
                     q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
+                    q_transformed["input_type"] = q.get("fieldType")
             questions_data_transformed.append(q_transformed)
     except Exception as e:
         logger.exception(e)
