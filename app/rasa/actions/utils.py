@@ -70,7 +70,7 @@ def validate_date(date_str):
 
 def validate_ssn(ssn_str):
     try:
-        is_length = len(ssn_str) == 10
+        is_length = len(ssn_str) in [9, 10]
         if is_length is False:
             return is_length
         int_ssn = int(ssn_str)
