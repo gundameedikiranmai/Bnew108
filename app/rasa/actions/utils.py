@@ -289,7 +289,7 @@ def parse_custom_json(tracker, job_id, client_id, user_id):
                 continue
             q_transformed["text"] = q.get("labelName")
             inputType = q.get("inputType")
-            if inputType == "checkbox":
+            if inputType in ["checkbox", "radio"]:
                 q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
             elif inputType == "dropdown":
                 q_transformed["buttons"] = [{"payload": val, "title": val} for val in q.get("options", [])]
