@@ -137,7 +137,6 @@ class ValidateJobScreeningForm(FormValidationAction):
             # set the slots from synced data
             for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
                 result_dict[slot] = synced_data.get("data", {}).get(slot)
-            # result_dict["screening_question"] = "ignore"
             result_dict["view_edit_preferences"] = "ignore"
             
             # preference questions and the corresponding responses have already been added to the slots
@@ -145,8 +144,12 @@ class ValidateJobScreeningForm(FormValidationAction):
             job_screening_questions = tracker.get_slot("job_screening_questions")
             questions_data = [q for q in job_screening_questions if q["is_review_allowed"] is False]
             logger.info("filtered questions " + json.dumps(questions_data, indent=4))
-            result_dict["job_screening_questions"] += questions_data
-            result_dict["job_screening_questions_count"] += len(questions_data)
+            if len(questions_data) > 0:
+                result_dict["job_screening_questions"] += questions_data
+                result_dict["job_screening_questions_count"] += len(questions_data)
+            else:
+                # no job specific question to ask, close the form.
+                result_dict["screening_question"] = "ignore"
 
         return result_dict
 
