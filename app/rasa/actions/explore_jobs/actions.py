@@ -105,8 +105,9 @@ class ValidateExploreJobsForm(FormValidationAction):
         domain: DomainDict,
     ) -> Dict[Text, Any]:
         """Validate `update_contact_details` value."""
+        # always set to ignore to avoid running the validate method again.
         result_dict = {
-            "update_contact_details": slot_value
+            "update_contact_details": "ignore"
         }
         if slot_value == "true":
             try:
