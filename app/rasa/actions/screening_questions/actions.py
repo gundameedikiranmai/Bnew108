@@ -358,7 +358,7 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
     utils.sync_sender_data(sync_sender_data_payload)
         
     
-    dispatcher.utter_message(response="utter_greet", greet=greet_type)
+    '''dispatcher.utter_message(response="utter_greet", greet=greet_type)
     
     # add workflow message
     if workflow_url is not None and len(workflow_url.strip()) > 0:
@@ -367,8 +367,39 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
             "workflow_url": workflow_url
         }
         dispatcher.utter_message(json_message=utt)
-    return result
+    return result'''
+    #workflow_url = "https://appqa.curately.ai/curately/#/qademo/job/find?id=cc808ea2-8f81-4bd3-a79e-6fe258b7d380"
 
+    # Check if workflow exists
+    #if workflow_url and len(workflow_url.strip()) > 0:
+    if workflow_url is not None and len(workflow_url.strip()) > 0:
+        # If workflow exists
+        #logger.info("Workflow exists: {workflow_url}")
+        #dispatcher.utter_message(response="utter_with_workflow")
+        logger.info(f"Workflow exists: {workflow_url}")
+    
+    # Send the 'Thank you for providing your details...' message
+        dispatcher.utter_message(
+            response="utter_greet", 
+            greet="workflow_in_progress",  # Use a new variation for the workflow context
+            select_job_title="Workflow"
+        )
+        # add workflow message
+        utt = {
+            "ui_component": "workflow",
+            "workflow_url": workflow_url
+        }
+        logger.info(f"Sending workflow message: {utt}")  # Log the message being sent
+        dispatcher.utter_message(json_message=utt)
+        
+    else:
+        # If workflow does not exist
+        logger.info("No workflow found")
+        dispatcher.utter_message(response="utter_greet", greet=greet_type)
+    
+    #dispatcher.utter_message(response="utter_greet", greet=greet_type)
+    
+    return result
 
 def submit_user_preferences(tracker):
     user_id = tracker.get_slot("user_id")
