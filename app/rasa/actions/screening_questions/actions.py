@@ -22,7 +22,7 @@ class ValidateJobScreeningForm(FormValidationAction):
     def name(self) -> Text:
         #return "validate_job_screening_form"
         return "VALIDATE_job_screening_form"
-    
+        dispatcher.utter_message(response="utter_email_invalid")
     def validate_email(
         self,
         slot_value: Any,
