@@ -1,7 +1,6 @@
 responses:
   utter_restart:
   - text: ''
-
   utter_greet:
   - buttons:
     - payload: /explore_jobs
@@ -15,10 +14,7 @@ responses:
       after_apply_no_screening_questions: "Your application for {select_job_title} is now submitted. What would you like to do next?"
       after_apply_review_screening_questions: "Great! Your details are updated, and we'll use these preferences for your job application. Your application for {select_job_title} is now submitted. What would you like to do next?"
       after_apply_review_screening_questions_form_submit: "Thank you for confirming your details. We have updated your profile. Your application for {select_job_title} is now submitted. What would you like to do next?" 
-      workflow_in_progress: "Thank you for providing your details. Please complete 'Workflow' to make your job application successful. Is there anything else I can assist you with today?"
-  # New responses for workflow existence and absence
-
-
+      after_apply_workflow_url_displayed: "Thank you for providing your details. Please complete 'Workflow' to make your job application successful. Is there anything else I can assist you with today?"
   utter_greet_unknown:
   - buttons:
     - payload: /explore_jobs

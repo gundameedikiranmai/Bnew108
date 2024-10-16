@@ -20,9 +20,7 @@ logger = getLogger(__name__)
 
 class ValidateJobScreeningForm(FormValidationAction):
     def name(self) -> Text:
-        #return "validate_job_screening_form"
-        return "VALIDATE_job_screening_form"
-        dispatcher.utter_message(response="utter_email_invalid")
+        return "validate_job_screening_form"
     def validate_email(
         self,
         slot_value: Any,
@@ -382,7 +380,7 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
     # Send the 'Thank you for providing your details...' message
         dispatcher.utter_message(
             response="utter_greet", 
-            greet="workflow_in_progress",  # Use a new variation for the workflow context
+            greet="after_apply_workflow_url_displayed",  # Use a new variation for the workflow context
             select_job_title="Workflow"
         )
         # add workflow message
