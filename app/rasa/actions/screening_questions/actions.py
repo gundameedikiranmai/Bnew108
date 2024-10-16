@@ -20,7 +20,8 @@ logger = getLogger(__name__)
 
 class ValidateJobScreeningForm(FormValidationAction):
     def name(self) -> Text:
-        return "validate_job_screening_form"
+        #return "validate_job_screening_form"
+        return "VALIDATE_job_screening_form"
     
     def validate_email(
         self,
@@ -363,7 +364,7 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
     # add workflow message
     if workflow_url is not None and len(workflow_url.strip()) > 0:
         utt = {
-            "ui_component": "workflow",
+            "ui_component": "WORKFLOW",
             "workflow_url": workflow_url
         }
         dispatcher.utter_message(json_message=utt)
