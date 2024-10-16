@@ -361,16 +361,14 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
         logger.info(f"Workflow exists: {workflow_url}")
         dispatcher.utter_message(
             response="utter_greet", 
-            greet="workflow_in_progress",  # Use a new variation for the workflow context
-            select_job_title="Workflow"
+            greet="after_apply_workflow_url_displayed"
         )
         utt = {
             "ui_component": "workflow",
             "workflow_url": workflow_url
         }
-        logger.info(f"Sending workflow message: {utt}")  # Log the message being sent
-        dispatcher.utter_message(json_message=utt)
-        
+        logger.info(f"Sending workflow message: {utt}")
+        dispatcher.utter_message(json_message=utt)        
     else:
         logger.info("No workflow found")
         dispatcher.utter_message(response="utter_greet", greet=greet_type)

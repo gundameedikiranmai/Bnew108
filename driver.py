@@ -22,8 +22,7 @@ client_id = "3"
 # user_id = "39638"
 user_id = None
 
-resume_1 = "C:\\Users\\Gundameedi Kiranmai\\Downloads\\Chatbot0712.docx"
-
+resume_1 = ("Resume Samples/Dave Paterson.docx", 'Dave Paterson.docx')
 resume_2 = ("Resume Samples/IT Specialist_Resume.docx", 'IT Specialist_Resume.docx')
 resume_3 = ("Resume Samples/no_emailid.docx", 'no_emailid.docx')
 
@@ -64,10 +63,9 @@ def send_to_rasa_list(msgs):
 
 def upload_resume(resume):
     api_url = url + "/api/upload_resume"
-    resume_path = resume[0]  # Use the provided resume path directly
-
+    resume_path = "/Users/dhruv/code/ac/" + resume[0]
     files=[
-        ('resume', (resume, open(resume, 'rb'), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))
+        ('resume',(resume[1], open(resume_path,'rb'),'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))
     ]
     payload = {
         "sender": UUID,
@@ -199,8 +197,8 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, s
 send_to_rasa("/restart")
 send_to_rasa("/greet")
 
-#explore_jobs(is_upload_resume=True, resume=resume_1)
-#custom_msgs()
+explore_jobs(is_upload_resume=True, resume=resume_1)
+custom_msgs()
 
 # explore_jobs(is_upload_resume=True, refine_job_search="location", start_new="true")
 
