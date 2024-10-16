@@ -289,8 +289,16 @@ def parse_custom_json(tracker, job_id, client_id, user_id):
                 continue
             q_transformed["text"] = q.get("labelName")
             inputType = q.get("inputType")
-            if inputType in ["checkbox", "radio"]:
+            if inputType in ["checkbox"]:
                 q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
+            if inputType == "radio":
+                if q.get("fieldType") == "yes/no":
+                    q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
+                elif q.get("fieldType") in ["netprometer", "opinionscale"]:
+                    q_transformed["custom"] = {"ui_component": q.get("fieldType"), "choices": q.get("choices")}
+                if q.get("fieldType") == "multiplechoice":
+                    options = [{"key": o["value"], "value": str(o["value"])} for o in q["choices"]]
+                    q_transformed.update({"input_type": "multi-select", "options": options, "anyRadioButton": None, "selection": "multiple"})
             elif inputType == "dropdown":
                 q_transformed["buttons"] = [{"payload": val, "title": val} for val in q.get("options", [])]
             # elif inputType == "date":
@@ -300,9 +308,12 @@ def parse_custom_json(tracker, job_id, client_id, user_id):
             elif inputType in ["ssn"]:
                 q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
             elif inputType == "text":
-                if q.get("fieldType") in ["address", "ssn"]:
+                if q.get("fieldType") in ["address", "ssn", "rating", "ranking"]:
                     q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
                     q_transformed["input_type"] = q.get("fieldType")
+                # add extra params
+                if q.get("fieldType") == "ranking":
+                    q_transformed["custom"]["ranks"] = q.get("ranks")
             questions_data_transformed.append(q_transformed)
     except Exception as e:
         logger.exception(e)
