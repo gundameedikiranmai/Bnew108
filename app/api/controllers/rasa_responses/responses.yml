@@ -10,10 +10,11 @@ responses:
     text:
       # unknown: Hello! How can I assist you today?
       # known: Welcome back, {first_name}! How can I assist you further today?
-      after_apply: "Thank you for providing your details. Your job application has been successfully submitted. We'll be in touch with the next steps soon. \n\nIs there anything else I can assist you with today?"
+      after_apply_workflow_url_displayed: "Thank you for providing your details. Please complete 'Workflow' to make your job application successful. Is there anything else I can assist you with today?"
+      after_apply: "Thank you for providing your details. Your job application has been successfully submitted. We'll be in touch with the next steps soon. Is there anything else I can assist you with today?"
       after_apply_no_screening_questions: "Your application for {select_job_title} is now submitted. What would you like to do next?"
       after_apply_review_screening_questions: "Great! Your details are updated, and we'll use these preferences for your job application. Your application for {select_job_title} is now submitted. What would you like to do next?"
-      after_apply_review_screening_questions_form_submit: "Thank you for confirming your details. We have updated your profile. Your application for {select_job_title} is now submitted. What would you like to do next?"
+      after_apply_review_screening_questions_form_submit: "Thank you for confirming your details. We have updated your profile. Your application for {select_job_title} is now submitted. What would you like to do next?" 
   utter_greet_unknown:
   - buttons:
     - payload: /explore_jobs

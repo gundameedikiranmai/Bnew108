@@ -357,18 +357,23 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
     }
     utils.sync_sender_data(sync_sender_data_payload)
         
-    
-    dispatcher.utter_message(response="utter_greet", greet=greet_type)
-    
-    # add workflow message
     if workflow_url is not None and len(workflow_url.strip()) > 0:
+        logger.info(f"Workflow exists: {workflow_url}")
+        dispatcher.utter_message(
+            response="utter_greet", 
+            greet="after_apply_workflow_url_displayed"
+        )
         utt = {
             "ui_component": "workflow",
             "workflow_url": workflow_url
         }
-        dispatcher.utter_message(json_message=utt)
+        logger.info(f"Sending workflow message: {utt}")
+        dispatcher.utter_message(json_message=utt)        
+    else:
+        logger.info("No workflow found")
+        dispatcher.utter_message(response="utter_greet", greet=greet_type)
+    
     return result
-
 
 def submit_user_preferences(tracker):
     user_id = tracker.get_slot("user_id")
