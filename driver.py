@@ -25,6 +25,9 @@ user_id = None
 resume_1 = ("Resume Samples/Dave Paterson.docx", 'Dave Paterson.docx')
 resume_2 = ("Resume Samples/IT Specialist_Resume.docx", 'IT Specialist_Resume.docx')
 resume_3 = ("Resume Samples/no_emailid.docx", 'no_emailid.docx')
+resume_4 = ("Resume Samples/Curately_Resume.doc", 'Curately_Resume.doc')
+resume_5 = ("Resume Samples/Chatbot0710.docx", 'Chatbot0710.docx')
+
 
 def send_to_rasa(usr_msg):
     payload = {
@@ -110,11 +113,11 @@ def answer_job_location():
     send_to_rasa('/input_job_location{"job_location": "GA"}')
 
 def send_job():
-    send_to_rasa('/input_select_job{"select_job": "1495"}')
+    send_to_rasa('/input_select_job{"select_job": "2046"}')
 
 def answer_preferences():
     msgs = [
-        "10010001,10010002",
+        "10010001",
         "10011001",
         "10019005",
         "10013001,10013003",
@@ -124,9 +127,9 @@ def answer_preferences():
     ]
     send_to_rasa_list(msgs)
 
-def custom_msgs():
+def custom_msgs(job_id):
     msgs = [
-        '/input_select_job{"select_job": "143444"}',
+        '/input_select_job{"select_job": "' + job_id + '"}',
         '1234567890',
         # greet
         # "/explore_jobs",
@@ -135,16 +138,16 @@ def custom_msgs():
     ]
     send_to_rasa_list(msgs)
 
-    answer_preferences()
+    # answer_preferences()
 
     # reupload resume
     msgs = [
         "/explore_jobs",
-        "/deny",
-        "affirm"
+        "/affirm",
+        # "affirm"
     ]
-    send_to_rasa_list(msgs)
-    send_resume_message(resume_2)
+    # send_to_rasa_list(msgs)
+    # send_resume_message(resume_2)
 
 
 def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, start_new="ignore", resume=resume_1):
@@ -197,8 +200,11 @@ def explore_jobs(is_upload_resume=False, cancel=False, refine_job_search=None, s
 send_to_rasa("/restart")
 send_to_rasa("/greet")
 
-explore_jobs(is_upload_resume=True, resume=resume_1)
-custom_msgs()
+# ask_a_question()
+
+# explore_jobs(is_upload_resume=True, resume=resume_1)
+explore_jobs(is_upload_resume=True, resume=resume_1, refine_job_search="title")
+custom_msgs("2061")
 
 # explore_jobs(is_upload_resume=True, refine_job_search="location", start_new="true")
 
@@ -206,9 +212,6 @@ custom_msgs()
 # explore_jobs(is_upload_resume=False)
 # explore_jobs(is_upload_resume=False, refine_job_search="location")
 # explore_jobs(is_upload_resume=True, resume=resume_1, refine_job_search="location")
-
-
-# ask_a_question()
 
 # send_to_rasa("/screening_review")
 

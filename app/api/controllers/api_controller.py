@@ -98,7 +98,7 @@ def reupload_resume(form_data, tracker_slots):
             job_location = "ignore"
 
         slots = {
-            "full_name": resp.get("firstName", "").strip() + resp.get("lastName", "").strip(),
+            "full_name": resp.get("firstName", "").strip() + " " + resp.get("lastName", "").strip(),
             "first_name": resp.get("firstName", "").strip(),
             "job_title": job_title,
             "is_resume_parsing_done": "true"
@@ -106,8 +106,14 @@ def reupload_resume(form_data, tracker_slots):
 
         # check if contact details have changed
         if (len(resp.get("email", "").strip())> 0 and not tracker_slots.get("email") == resp.get("email", "").strip()) or \
-            (len(resp.get("phone-number", "").strip()) > 0 and not tracker_slots.get("phone_number") == resp.get("phone-number", "").strip()):
-            slots["contact_details_temp"] = json.dumps({"email": resp.get("email", "").strip(), "phone_number": resp.get("phone-number", "").strip()})
+            (len(resp.get("phoneNo", "").strip()) > 0 and not tracker_slots.get("phone_number") == resp.get("phoneNo", "").strip()):
+            update_dict = {}
+            if len(resp.get("email", "").strip()) > 0:
+                update_dict["email"] = resp.get("email", "").strip()
+            if len(resp.get("phoneNo", "").strip()) > 0:
+                update_dict["phone_number"] = resp.get("phoneNo", "").strip()
+            logger.info(f"sending update_dict: {update_dict}")
+            slots["contact_details_temp"] = json.dumps(update_dict)
             slots["update_contact_details"] = "set_to_none"
         else:
             slots["update_contact_details"] = "ignore"

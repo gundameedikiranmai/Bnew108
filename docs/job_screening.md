@@ -43,7 +43,159 @@ This component will be shown when datepicker has to be shown. No special intent_
 ]
 ```
 
+#### Address
+```
+[
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "text": "Understood. This question is for capturing address"
+    },
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "custom": {
+            "ui_component": "address",
+            "placeholder_text": "(Text Area) Your Question here"
+        }
+    }
+]
+```
 
+#### SSN
+```
+[
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "text": "This field is to capture SSN"
+    },
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "custom": {
+            "ui_component": "ssn",
+            "placeholder_text": "SSN"
+        }
+    }
+]
+```
+
+#### Rating
+```
+[
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "text": "This field is for Rating"
+    },
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "custom": {
+            "ui_component": "rating",
+            "placeholder_text": "(Text Area) Your Question here"
+        }
+    }
+]
+```
+
+#### Ranking
+```
+[
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "text": "This field is for ranking  purposes"
+    },
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "custom": {
+            "ui_component": "ranking",
+            "placeholder_text": "(Text Area) Your Question here",
+            "ranks": [
+                {
+                    "id": 1,
+                    "value": "Choice 1",
+                    "rank": 1,
+                    "chosen": false
+                },
+                {
+                    "id": 2,
+                    "value": "Choice 2",
+                    "rank": 2
+                },
+                {
+                    "id": 3,
+                    "value": "Choice 3",
+                    "rank": 3
+                }
+            ]
+        }
+    }
+]
+```
+
+Message to chatbot : id as comma separated string, eg, "3,1,2"
+
+#### Multiple Choice
+```
+[
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "text": "This field is for multiple choice"
+    },
+    {
+        "recipient_id": "9917edbe-2641-11ee-8f08-f5235bd2ce38",
+        "custom": {
+            "ui_component": "multi-select",
+            "options": [{
+                "key": "Choice 1",
+                "value": "Choice 1"
+            }, {
+                "key": "Choice 2",
+                "value": "Choice 2"
+            }, {
+                "key": "Choice 3",
+                "value": "Choice 3"
+            }, {
+                "key": "Choice 4",
+                "value": "Choice 4"
+            }],
+            "anyRadioButton": None,
+            "is_back_button_enabled": true
+
+        }
+    }
+]
+```
+
+#### Net Promoter Score
+```
+[
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "text": "This field is for Net promoter Score"
+    },
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "custom": {
+            "ui_component": "netprometer",
+            "choices": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+        }
+    }
+]
+```
+
+#### Opinion Scale
+```
+[
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "text": "This field is for Opinion Scale"
+    },
+    {
+        "recipient_id": "681754ea-5df2-11ef-a41f-f45c89a10c23",
+        "custom": {
+            "ui_component": "opinionscale",
+            "choices": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+        }
+    }
+]
+```
 
 ### Initial implementation
 The job screening flow is initiated by sending the following first message.
