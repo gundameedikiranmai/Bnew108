@@ -103,15 +103,19 @@ def reupload_resume(form_data, tracker_slots):
             "job_title": job_title,
             "is_resume_parsing_done": "true"
         }
+        email_parsed = resp.get("email", "").strip().lower()
+        phone_parsed = utils.parse_phone_number(resp.get("phoneNo", "").strip())
+        logger.info(f'Reupload resume current data -> email:{tracker_slots.get("email")}, phone: {tracker_slots.get("phone_number")}')
+        logger.info(f'Reupload resume new data -> email:{email_parsed}, phone: {phone_parsed}')
 
         # check if contact details have changed
-        if (len(resp.get("email", "").strip())> 0 and not tracker_slots.get("email") == resp.get("email", "").strip()) or \
-            (len(resp.get("phoneNo", "").strip()) > 0 and not tracker_slots.get("phone_number") == resp.get("phoneNo", "").strip()):
+        if (len(email_parsed)> 0 and not tracker_slots.get("email") == email_parsed) or \
+            (len(phone_parsed) > 0 and not tracker_slots.get("phone_number") == phone_parsed):
             update_dict = {}
-            if len(resp.get("email", "").strip()) > 0:
-                update_dict["email"] = resp.get("email", "").strip()
-            if len(resp.get("phoneNo", "").strip()) > 0:
-                update_dict["phone_number"] = resp.get("phoneNo", "").strip()
+            if len(email_parsed) > 0:
+                update_dict["email"] = email_parsed
+            if len(phone_parsed) > 0:
+                update_dict["phone_number"] = phone_parsed
             logger.info(f"sending update_dict: {update_dict}")
             slots["contact_details_temp"] = json.dumps(update_dict)
             slots["update_contact_details"] = "set_to_none"
