@@ -306,6 +306,41 @@ def sync_screening_responses(tracker):
     except Exception as e:
         logger.error("Could not submit user preferences")
         logger.exception(e)
+
+def update_basic_details(tracker):
+    full_name = tracker.get_slot("full_name")
+    if full_name:
+        name_parts = full_name.split()
+        first_name = name_parts[0] 
+        last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+    else:
+        first_name = ""
+        last_name = ""
+    payload = {
+        "userId": tracker.get_slot("user_id"),
+        "firstName": first_name,
+        "lastName": last_name,
+        "address": "",
+        "jobTitle": tracker.get_slot("job_title"),
+        "phoneNo": tracker.get_slot("phone_number"),
+        "countryName": "",
+        "stateName": "",
+        "cityName": "",
+        "zipcode": "",
+        "apt": "abc"  
+    }
+
+    # Send a POST request to the ChatBotUpdateBasic API
+    try:
+        response = requests.post(cfg.CHATBOT_UPDATE_BASIC_URL, json=payload)
+        if response.status_code == 200:
+            logger.info("Basic details updated successfully.")
+        else:
+            logger.error(f"Failed to update basic details. Status code: {response.status_code}")
+    except Exception as e:
+        logger.error("Exception occurred while updating basic details.")
+        logger.exception(e)
+
     
     #  no need to check for response body as it is empty, only printing the status code
     # try:
