@@ -311,28 +311,33 @@ def update_basic_details(tracker):
     full_name = tracker.get_slot("full_name")
     if full_name:
         name_parts = full_name.split()
-        first_name = name_parts[0] 
+        first_name = name_parts[0]
         last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
     else:
         first_name = ""
         last_name = ""
+
+    # Get the phone number from the tracker slots
+    phone_no = tracker.get_slot("phone_number") if tracker.get_slot("phone_number") else ""
+
+    # Build the payload with all necessary details
     payload = {
         "userId": tracker.get_slot("user_id"),
         "firstName": first_name,
         "lastName": last_name,
         "address": "",
         "jobTitle": tracker.get_slot("job_title"),
-        "phoneNo": tracker.get_slot("phone_number"),
+        "phoneNo": phone_no,  # Update with the captured phone number
         "countryName": "",
         "stateName": "",
         "cityName": "",
         "zipcode": "",
-        "apt": "abc"  
+        "apt": "abc"
     }
 
     # Send a POST request to the ChatBotUpdateBasic API
     try:
-        response = requests.post(cfg.CHATBOT_UPDATE_BASIC_URL, json=payload)
+        response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
         if response.status_code == 200:
             logger.info("Basic details updated successfully.")
         else:
@@ -353,7 +358,8 @@ def update_basic_details(tracker):
 
 
 def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type):
-    sync_screening_responses(tracker)
+    #sync_screening_responses(tracker)
+    update_basic_details(tracker)
     is_success, workflow_url = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job, tracker.get_slot("client_id"))
     applied_jobs = tracker.get_slot("applied_jobs")
     if is_success:
