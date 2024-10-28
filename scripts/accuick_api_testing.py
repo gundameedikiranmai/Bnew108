@@ -2,8 +2,10 @@ import requests
 import json
 import os
 
-HOST="https://careersqa.curately.ai"
+HOST="https://appqa.curately.ai"
 # HOST="https://api.curately.ai"
+
+# https://careersqa.curately.ai/QADemoCurately/getjobs/58947
 
 
 def make_request(url, payload):
@@ -276,6 +278,70 @@ def reupload_resume_update_contact_details(user_id, email):
     url = f"{HOST}/QADemoCurately/updateemail"
     make_request(url, payload)
 
+def applied_jobs(user_id):
+    url = HOST + "/QADemoCurately/getjobs/{user_id}".format(user_id=user_id)
+    url1 = "https://careersqa.curately.ai/QADemoCurately/getjobs/58947"
+    print(url, url1)
+    resp = requests.get(url).json()
+    applied_jobs = [str(job["jobId"]) for job in resp["Jobs"]]
+    print(applied_jobs)
+
+def get_custom_form(job_id, client_id, user_id):
+    # url = HOST + "/QADemoCurately/getjobdatabase/{job_id}/{client_id}".format(job_id=job_id, client_id=client_id)
+    url = HOST + "/QADemoCurately/getjobdata/{job_id}/{user_id}/{client_id}".format(job_id=job_id, client_id=client_id, user_id=user_id)
+    print(url)
+    resp = requests.get(url).json()
+    # form = json.loads(resp["Job"][0]["json"])
+    form = resp
+    print(json.dumps(form, indent=4))
+
+def parse_custom_json():
+    questions_data_transformed = []
+    
+    f = open("/Users/dhruv/code/ac/notes/custom_form.json", "r")
+    resp_json = json.load(f)
+    f.close()
+
+    user_details = resp_json["Job"][0]["userDetails"]
+    form = resp_json["Job"][0]["json"]
+    for q in form:
+        
+        if q["inputType"] in ["attachment", "fileupload"]:
+        # if resume was cancelled, set it to None so that it can be asked later again....
+            # if tracker.get_slot("resume_upload") == "false":
+            #     result += [SlotSet("resume_upload", None)]
+            # resume has a separate slot, don't add in screening questions list
+            continue
+
+        # TODO text put here as adhoc for full_name
+        elif q["fieldType"] in ["email", "phone"]:
+            # ignore these input types as they are mandatory.
+            continue
+
+        q_transformed = {"id": q.get("id"), "input_type": q["inputType"], "data_key": q.get("datakey", ""), "is_review_allowed": False}
+        if q.get("labelName") is None or len(q.get("labelName").strip()) == 0:
+            continue
+        q_transformed["text"] = q.get("labelName")
+        inputType = q.get("inputType")
+        if inputType in ["checkbox", "radio"]:
+            q_transformed["buttons"] = [{"payload": "Yes", "title": "Yes"}, {"payload": "No", "title": "No"}]
+        elif inputType == "dropdown":
+            q_transformed["buttons"] = [{"payload": val, "title": val} for val in q.get("options", [])]
+        # elif inputType == "date":
+        #     q_transformed["custom"] = {"ui_component": "datepicker", "placeholder_text": "Please select a date"}
+        # else:
+        #     q_transformed["buttons"] = [{"payload": val.get("value"), "title": val.get("name")} for val in q.get("PossibleValue", [])]
+        elif inputType in ["ssn"]:
+            q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
+        elif inputType == "text":
+            if q.get("fieldType") in ["address", "ssn"]:
+                q_transformed["custom"] = {"ui_component": q.get("fieldType"), "placeholder_text": q.get("placeholderName")}
+                q_transformed["input_type"] = q.get("fieldType")
+        questions_data_transformed.append(q_transformed)
+    
+    
+    print( json.dumps(questions_data_transformed, indent=4))
+
 # print(get_screening_questions_for_job_id(1))
 # upload_resume()
 
@@ -292,4 +358,9 @@ def reupload_resume_update_contact_details(user_id, email):
 # sync_email_data()
 # https://careersqa.curately.ai/QADemoCurately/updateemail {'userId': '39638', 'email': 'jannet.j.morgan@me.com'}
 # reupload_resume_update_contact_details("6067", "myrandomemail@yahoo.com")
-reupload_resume_update_contact_details("39638", "jannet.j.morgan@me.com")
+# reupload_resume_update_contact_details("59725", "thu29aug@bla1bla.com")
+# applied_jobs("58948")
+# get_custom_form("2046", "3", "59746")
+# get_custom_form("2061", "3", "59746")
+# get_custom_form("1112", "3", "34077")
+parse_custom_json()

@@ -68,7 +68,9 @@ class ReviewScreeningQuestionsForm(FormValidationAction):
         result_dict["screening_review_context"] = screening_review_context
 
         # decide if any question is remaining for editing
-        if len(screening_review_context) < len(job_screening_questions):
+        job_screening_questions_editable = [q for q in job_screening_questions if not q["is_review_allowed"]]
+        # if len(screening_review_context) < len(job_screening_questions):
+        if len(screening_review_context) < len(job_screening_questions_editable):
             result_dict.update({
                 "screening_question_options": None,
                 "screening_question_display_q": None
@@ -101,6 +103,9 @@ class AskScreeningQuestionOptionsAction(Action):
             last_answer = None
             data_key_label = None
             for i, q in enumerate(job_screening_questions):
+                # skip questions which don't have to be asked again in review.
+                if not q["is_review_allowed"]:
+                    continue
                 # find the question that matches with the selected choice.
                 if q["data_key"] == last_question:
                     # update the relevant value in screening_question_history slot.
@@ -111,6 +116,9 @@ class AskScreeningQuestionOptionsAction(Action):
             
         buttons = []
         for q in job_screening_questions:
+            # skip questions which don't have to be asked again in review.
+            if not q["is_review_allowed"]:
+                continue
             if q["data_key"] not in screening_review_context:
                 data_key_label = q.get("data_key_label") if q.get("data_key_label") is not None else q['data_key']
                 buttons.append({"title": data_key_label, "payload": q["data_key"]})
