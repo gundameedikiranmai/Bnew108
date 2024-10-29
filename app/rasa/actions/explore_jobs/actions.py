@@ -105,18 +105,20 @@ class ValidateExploreJobsForm(FormValidationAction):
         domain: DomainDict,
     ) -> Dict[Text, Any]:
         """Validate `update_contact_details` value."""
+        # always set to ignore to avoid running the validate method again.
         result_dict = {
-            "update_contact_details": slot_value
+            "update_contact_details": "ignore"
         }
         if slot_value == "true":
             try:
                 contact_details = json.loads(tracker.get_slot("contact_details_temp"))
                 result_dict.update(contact_details)
-                success, err_msg = utils.reupload_resume_update_contact_details(tracker.get_slot("user_id"), contact_details["email"])
-                if success:
-                    dispatcher.utter_message(response="utter_update_contact_details_affirm")
-                else:
-                    dispatcher.utter_message(response="utter_update_contact_details_error", slots={"update_email_error": err_msg})
+                if "email" in contact_details: 
+                    success, err_msg = utils.reupload_resume_update_contact_details(tracker.get_slot("user_id"), contact_details["email"])
+                    if success:
+                        dispatcher.utter_message(response="utter_update_contact_details_affirm")
+                    else:
+                        dispatcher.utter_message(response="utter_update_contact_details_error", slots={"update_email_error": err_msg})
             except Exception as e:
                 logger.error("Could not read contact_details_temp.")
                 logger.error(e)
@@ -399,7 +401,7 @@ class ExploreJobsFormSubmit(Action):
         """Define what the form has to do after all required slots are filled"""
         result = []
         
-        questions_data, slots = get_screening_questions_for_job_id(tracker)
+        questions_data, slots = utils.get_screening_questions_for_job_id(tracker)
         result += slots
         logger.info("asking questions: {}".format(json.dumps(questions_data, indent=4)))
         result += [
@@ -439,44 +441,3 @@ class ExploreJobsFormSubmit(Action):
                 # no screening question has to be asked.
                 result += job_screening_submit_integration(tracker, tracker.get_slot("select_job"), dispatcher, greet_type="after_apply_no_screening_questions")
         return result
-
-
-######## utils ########
-def get_screening_questions_for_job_id(tracker):
-    if utils.is_default_screening_form_preference_valid(tracker):
-        return [], [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
-    logger.info("using default form builder questions")
-    #
-    user_id = tracker.get_slot("user_id")
-    get_response = requests.get(cfg.ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL + user_id).json()
-    questions_data_transformed, result = parse_user_preference_json(get_response)
-    #
-    
-    result += [SlotSet("is_default_screening_questions", True)]
-
-    synced_data = utils.get_synced_sender_data(tracker.sender_id)
-    if synced_data.get("data", {}).get("screening_question_history") is not None:
-        # this user has already provided preferences that need to be updated.
-        result += [SlotSet("input_edit_preferences", None), SlotSet("view_edit_preferences", None)]
-    else:
-        # this user is entering preferences for first time.
-        result += [SlotSet("input_edit_preferences", "ignore"), SlotSet("view_edit_preferences", "ignore")]
-    
-    return questions_data_transformed, result
-
-
-def parse_user_preference_json(resp_json):
-    questions_data_transformed = []
-    for q in resp_json.get("json", []):
-        q_transformed = {"text": q["Label"], "selection": q.get("selection"), "data_key": q["datakey"], "data_key_label": q.get("datakeyLabel")}
-        if q.get("selection") == "multiple":
-            # add multi-select
-            options = [{"key": o["Name"], "value": str(o["LookupId"])} for o in q["Options"]]
-            q_transformed.update({"input_type": "multi-select", "options": options, "anyRadioButton": q.get("anyRadioButton")})
-        elif q.get("selection") == "single":
-            q_transformed["buttons"] = [{"payload": str(val.get("LookupId")), "title": val.get("Name")} for val in q.get("Options", [])]
-        else:
-            continue
-        questions_data_transformed.append(q_transformed)
-    return questions_data_transformed, []
-            

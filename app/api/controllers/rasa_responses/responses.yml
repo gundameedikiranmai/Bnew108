@@ -76,6 +76,8 @@ responses:
     text: Is this correct?
   utter_date_error:
   - text: You have entered an invalid date
+  utter_date_ssn:
+  - text: You have entered an invalid SSN
   # ask_a_question
   utter_start_ask_a_question:
   - text: "Great! I've compiled a list of frequently asked questions to assist you. Please choose one:"
@@ -115,6 +117,8 @@ responses:
   - text: "Please upload your resume here"
   utter_resume_upload_cancel:
   - text: "Your resume upload was cancelled."
+  utter_resume_upload_cancel_error:
+  - text: "Your resume upload can't be cancelled."
   utter_ask_update_contact_details:
   - buttons:
     - payload: /affirm

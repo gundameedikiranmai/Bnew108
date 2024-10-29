@@ -1,6 +1,7 @@
 """
 Utils
 """
+import re
 from bson import json_util
 import json
 import time
@@ -9,6 +10,9 @@ import requests
 import traceback
 
 from fastapi import Response
+
+PHONE_REGEX = r'^([(]\d{3}[)][\s]*[.-]?\d{3}[\s]*[.-]?\d{4}[\s]*$)|^(\d{3}[\s]*[.-]?\d{3}[\s]*[.-]?\d{4}[\s]*$)|^\d{10}[\s]*$'
+phone_pattern = re.compile(PHONE_REGEX)
 
 def JsonResponse(data, status):
     return Response(content=json.dumps(data, default=json_util.default), media_type="application/json", status_code=status)
@@ -87,3 +91,11 @@ def get_tracker_from_rasa(sender_id):
     if rasa_response.status_code == 200:
         return rasa_response.json()
     return {}
+
+def parse_phone_number(phone):
+    if phone_pattern.match(phone):
+        phone = re.sub("[^0-9]", "", phone)
+        if len(phone) == 10:
+            return phone
+    # return empty
+    return ""

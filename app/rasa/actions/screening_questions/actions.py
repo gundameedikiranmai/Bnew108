@@ -22,6 +22,39 @@ class ValidateJobScreeningForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_job_screening_form"
     
+    def validate_resume_upload(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `resume_upload` value."""
+        result_dict = {}
+        if tracker.get_slot("requested_slot") == "resume_upload":
+            result_dict["resume_upload"] = slot_value
+            # resume upload cancel
+            if slot_value == "false":
+                dispatcher.utter_message(response="utter_resume_upload_cancel")
+                result_dict["resume_upload"] = None
+                return result_dict
+            else:
+                result_dict["user_id"] = slot_value
+            
+            # get the screening questions to be asked.
+            questions_data, slots = utils.get_screening_questions_for_job_id(tracker, user_id=slot_value)
+            logger.info("asking questions in Screening Form: {}".format(json.dumps(questions_data, indent=4)))
+            if len(questions_data) > 0:
+                    # set questions to be asked after the selecting a job
+                    result_dict["job_screening_questions"] =  questions_data
+                    result_dict["job_screening_questions_count"] =  len(questions_data)
+                    result_dict["screening_question"] = None
+            for slot in slots:
+                print(slot)
+                result_dict[slot["name"]] = slot["value"]
+        
+        return result_dict
+    
     def validate_email(
         self,
         slot_value: Any,
@@ -104,8 +137,19 @@ class ValidateJobScreeningForm(FormValidationAction):
             # set the slots from synced data
             for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
                 result_dict[slot] = synced_data.get("data", {}).get(slot)
-            result_dict["screening_question"] = "ignore"
             result_dict["view_edit_preferences"] = "ignore"
+            
+            # preference questions and the corresponding responses have already been added to the slots
+            # add job specific questions now and ask them.
+            job_screening_questions = tracker.get_slot("job_screening_questions")
+            questions_data = [q for q in job_screening_questions if q["is_review_allowed"] is False]
+            logger.info("filtered questions " + json.dumps(questions_data, indent=4))
+            if len(questions_data) > 0:
+                result_dict["job_screening_questions"] += questions_data
+                result_dict["job_screening_questions_count"] += len(questions_data)
+            else:
+                # no job specific question to ask, close the form.
+                result_dict["screening_question"] = "ignore"
 
         return result_dict
 
@@ -139,6 +183,9 @@ class ValidateJobScreeningForm(FormValidationAction):
             return {"screening_question": None, "screening_question_history": history[:-1]}
         elif input_type == "date" and not utils.validate_date(slot_value):
             dispatcher.utter_message(response="utter_date_error")
+            return {"screening_question": None}
+        elif input_type == "ssn" and not utils.validate_ssn(slot_value):
+            dispatcher.utter_message(response="utter_date_ssn")
             return {"screening_question": None}
         
         result_dict = {
@@ -337,12 +384,24 @@ def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_ty
     
     if tracker.get_slot("is_default_screening_questions") is True:
         logger.info("saving default screening questions responses in DB.")
-        for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
-            data[slot] = tracker.get_slot(slot)
+        # can't save slot values directly, only user preference slots are required.
+        # for slot in cfg.USER_PREFERENCES_RELEVANT_SLOTS:
+        #     data[slot] = tracker.get_slot(slot)
         result += [
             SlotSet("is_default_screening_questions", False),
             SlotSet("job_screening_questions_last_update_time", current_timestamp),
         ]
+
+        # only save data for user preferences.
+        questions_data_pref = []
+        history_pref = []
+        for q, h in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")):
+            if q["is_review_allowed"] is True:
+                questions_data_pref.append(q)
+                history_pref.append(h)
+        data["job_screening_questions"] = questions_data_pref
+        data["job_screening_questions_count"] = len(questions_data_pref)
+        data["screening_question_history"] = history_pref
     
     # sync sender data
     sync_sender_data_payload = {
