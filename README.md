@@ -14,7 +14,7 @@ See detailed documentation in docs directory.
 - [Job screening](/docs/job_screening.md)
 - [Ask a Question and explore jobs](/docs/greet.md)
 - [Analytics](/docs/analytics.md)
-
+- [Deployment](/docs/devops.md)
 
 ### Finished in Last Update
 
