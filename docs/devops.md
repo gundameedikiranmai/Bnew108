@@ -1,10 +1,14 @@
 ## Devops - Chatbot
 
 ### Env hosts machines.
+The servers are running Ubuntu 24 LTS.
+
 ```
 ssh -i /path/to/Chatbot.pem ubuntu@44.230.177.187 #qa
 ssh -i /path/to/Chatbot.pem ubuntu@54.190.26.156 #prod
 ```
+
+Docker is used to package and run the chatbot code on the servers.
 
 ### Directory structure on servers.
 ```
@@ -70,3 +74,8 @@ Assumptions:
 
 Run `bash pull_and_build.sh` to pull the latest version, build the containers and start all chatbot services.
 
+
+### Logging using Dozzle
+The logs of all the docker containers are exposed via dozzle on port 9999. The urls are:
+- [QA](http://44.230.177.187:9999)
+- [PROD](http://54.190.26.156:9999)
