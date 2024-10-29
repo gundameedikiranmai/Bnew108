@@ -22,7 +22,6 @@ GET_APPLIED_JOBS_URL = HOST + "/QADemoCurately/getjobs/{user_id}"
 
 # New ChatBotUpdateBasic URL
 ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = f"{HOST}/QADemoCurately/updatebasicdetails"
-#CHATBOT_UPDATE_BASIC_URL = f"{HOST}/QADemoCurately/updatebasicdetails"
 
 # user preferences
 ACCUICK_CHATBOT_USER_PREFERENCE_GET_URL = f"{HOST}/QADemoCurately/CandidatePreferenceJson/"

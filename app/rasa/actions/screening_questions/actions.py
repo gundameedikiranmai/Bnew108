@@ -282,31 +282,6 @@ def utter_screening_question(dispatcher, tracker, questions_data, n_history, go_
         add_date_utterance(dispatcher)
     elif input_type == "multi-select":
         add_multiselect_utterance(dispatcher, qdata["options"], qdata["anyRadioButton"], is_back_button_enabled = go_back and n_history > 0)
-
-
-def sync_screening_responses(tracker):
-    payload = {
-        "email": tracker.get_slot("email"),
-        "candidateId": tracker.get_slot("resume_upload"),
-        "fullName": tracker.get_slot("full_name"),
-        "phoneNumber": tracker.get_slot("phone_number"),
-        "jobId": tracker.get_slot("select_job"),
-        "candidateResponses": [],
-        "clientId": tracker.get_slot("client_id")
-    }
-    if tracker.get_slot("job_screening_questions") is not None and tracker.get_slot("screening_question_history") is not None:
-        payload["candidateResponses"] = [{"id": q.get("id", 0), "label": q["text"], "answer": a} for q, a in zip(tracker.get_slot("job_screening_questions"), tracker.get_slot("screening_question_history")) ]
-    
-    logger.info("Sending sync response: " + str(payload))
-    response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
-    logger.info("received status code from sync response: " + str(response.status_code))
-
-    try:
-        submit_user_preferences(tracker)
-    except Exception as e:
-        logger.error("Could not submit user preferences")
-        logger.exception(e)
-
 def update_basic_details(tracker):
     full_name = tracker.get_slot("full_name")
     if full_name:
@@ -316,26 +291,20 @@ def update_basic_details(tracker):
     else:
         first_name = ""
         last_name = ""
-
-    # Get the phone number from the tracker slots
     phone_no = tracker.get_slot("phone_number") if tracker.get_slot("phone_number") else ""
-
-    # Build the payload with all necessary details
     payload = {
         "userId": tracker.get_slot("user_id"),
         "firstName": first_name,
         "lastName": last_name,
         "address": "",
         "jobTitle": tracker.get_slot("job_title"),
-        "phoneNo": phone_no,  # Update with the captured phone number
+        "phoneNo": phone_no,  
         "countryName": "",
         "stateName": "",
         "cityName": "",
         "zipcode": "",
         "apt": "abc"
     }
-
-    # Send a POST request to the ChatBotUpdateBasic API
     try:
         response = requests.post(cfg.ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL, json=payload)
         if response.status_code == 200:
@@ -345,20 +314,7 @@ def update_basic_details(tracker):
     except Exception as e:
         logger.error("Exception occurred while updating basic details.")
         logger.exception(e)
-
-    
-    #  no need to check for response body as it is empty, only printing the status code
-    # try:
-    #     print(response.status_code, response.text)
-    #     resp = response.json()
-    #     print(json.dumps(resp, indent=4))
-    # except Exception as e:
-    #     logger.error("Could not submit screening responses to webhook")
-    #     logger.error(e)
-
-
 def job_screening_submit_integration(tracker, selected_job, dispatcher, greet_type):
-    #sync_screening_responses(tracker)
     update_basic_details(tracker)
     is_success, workflow_url = utils.accuick_job_apply(tracker.get_slot("resume_upload"), selected_job, tracker.get_slot("client_id"))
     applied_jobs = tracker.get_slot("applied_jobs")
