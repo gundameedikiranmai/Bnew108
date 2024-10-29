@@ -10,7 +10,8 @@ N_JOBS_TO_SHOW = 20
 # ACCUICK_JOBS_FORM_BUILDER_URL = "https://www4.accuick.com/Accuick_API/Curately/Chatbot/getForm.jsp"
 # ACCUICK_JOBS_FORM_BUILDER_DEFAULT_FORM_URL = "https://app.curately.ai/Accuick_API/Curately/Chatbot/getDefaultForm.jsp"
 ACCUICK_JOB_APPLY_URL = f"{HOST}/QADemoCurately/jobsapply"
-ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = f"{HOST}/Accuick_API/Curately/Webhook/webhook_chatbot.jsp"
+#ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = f"{HOST}/Accuick_API/Curately/Webhook/webhook_chatbot.jsp"
+
 SCREENING_FORM_BACK_KEYWORD = "BACK"
 CURATELY_EMAIL_SYNC_API = f"{HOST}/QADemoCurately/savechatbotinformation"
 REUPLOAD_RESUME_UPDATE_CONTACT_DETAILS = f"{HOST}/QADemoCurately/updateemail"
@@ -18,6 +19,9 @@ REUPLOAD_RESUME_UPDATE_CONTACT_DETAILS = f"{HOST}/QADemoCurately/updateemail"
 GET_USER_DETAILS_API = HOST + "/QADemoCurately/getUserDetails/{user_id}/{client_id}"
 
 GET_APPLIED_JOBS_URL = HOST + "/QADemoCurately/getjobs/{user_id}"
+
+# New ChatBotUpdateBasic URL
+ACCUICK_CHATBOT_RESPONSE_SUBMIT_URL = f"{HOST}/QADemoCurately/updatebasicdetails"
 
 GET_CUSTOM_JOB_FORM = HOST + "/QADemoCurately/getjobdata/{job_id}/{user_id}/{client_id}"
 
